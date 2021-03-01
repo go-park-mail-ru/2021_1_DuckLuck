@@ -9,13 +9,13 @@ import (
 
 type LocalRepository struct {
 	data map[string]*models.Session
-	mu *sync.RWMutex
+	mu   *sync.RWMutex
 }
 
 func NewSessionLocalRepository() session.Repository {
 	return &LocalRepository{
 		data: make(map[string]*models.Session, 7),
-		mu: &sync.RWMutex{},
+		mu:   &sync.RWMutex{},
 	}
 }
 

@@ -10,7 +10,6 @@ import (
 	"time"
 )
 
-
 type UseCase struct {
 	SessionRepo session.Repository
 }
@@ -38,11 +37,11 @@ func (h *UseCase) Create(w http.ResponseWriter, r *http.Request, userId uint64) 
 		return nil, errors.Wrap(err, "the session was not added")
 	}
 
-	cookie := &http.Cookie {
-		Name: models.SessionCookieName,
-		Value: sess.Value,
+	cookie := &http.Cookie{
+		Name:    models.SessionCookieName,
+		Value:   sess.Value,
 		Expires: time.Now().Add(90 * 24 * time.Hour),
-		Path: "/",
+		Path:    "/",
 	}
 
 	http.SetCookie(w, cookie)
