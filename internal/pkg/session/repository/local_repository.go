@@ -1,10 +1,12 @@
 package repository
 
 import (
+	"sync"
+
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/session"
+
 	"github.com/pkg/errors"
-	"sync"
 )
 
 type LocalRepository struct {
