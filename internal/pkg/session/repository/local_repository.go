@@ -5,8 +5,7 @@ import (
 
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/session"
-
-	"github.com/pkg/errors"
+	server_errors "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 )
 
 type LocalRepository struct {
@@ -35,7 +34,7 @@ func (lr *LocalRepository) GetByValue(sessionValue string) (*models.Session, err
 	lr.mu.Unlock()
 
 	if !ok {
-		return nil, errors.New("the session key is missing")
+		return nil, server_errors.ErrSessionNotFound
 	}
 
 	return sess, nil
