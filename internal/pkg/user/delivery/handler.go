@@ -62,7 +62,7 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 	cookie := &http.Cookie{
 		Name:    models.SessionCookieName,
 		Value:   session.Value,
-		Expires: time.Now().Add(90 * 24 * time.Hour),
+		Expires: time.Now().Add(models.DurationNewSessionCookie),
 		Path:    "/",
 	}
 	http.SetCookie(w, cookie)
@@ -111,7 +111,7 @@ func (h *UserHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	cookie := &http.Cookie{
 		Name:    models.SessionCookieName,
 		Value:   session.Value,
-		Expires: time.Now().Add(90 * 24 * time.Hour),
+		Expires: time.Now().Add(models.DurationNewSessionCookie),
 		Path:    "/",
 	}
 	http.SetCookie(w, cookie)
