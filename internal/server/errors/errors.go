@@ -24,4 +24,24 @@ var (
 		HttpCode: http.StatusInternalServerError,
 		Message:  "something went wrong",
 	}
+	ErrUserNotFound error = Error{
+		HttpCode: http.StatusInternalServerError,
+		Message:  "user not found",
+	}
+	ErrSessionNotFound error = Error{
+		HttpCode: http.StatusInternalServerError,
+		Message:  "something went wrong",
+	}
+	ErrIncorrectUserEmail error = Error{
+		HttpCode: http.StatusBadRequest,
+		Message:  "incorrect user email",
+	}
+	ErrIncorrectUserPassword error = Error{
+		HttpCode: http.StatusBadRequest,
+		Message:  "incorrect user password",
+	}
+	ErrEmailAlreadyExist error = Error{
+		HttpCode: http.StatusConflict,
+		Message:  "user email already exist",
+	}
 )
