@@ -2,7 +2,6 @@ package errors
 
 import (
 	"fmt"
-	"net/http"
 )
 
 type Error struct {
@@ -17,11 +16,24 @@ func (err Error) Error() string {
 
 var (
 	ErrUserUnauthorized error = Error{
-		HttpCode: http.StatusUnauthorized,
-		Message:  "user is unauthorized",
+		Message: "user is unauthorized",
 	}
 	ErrInternalError error = Error{
-		HttpCode: http.StatusInternalServerError,
-		Message:  "something went wrong",
+		Message: "something went wrong",
+	}
+	ErrUserNotFound error = Error{
+		Message: "user not found",
+	}
+	ErrSessionNotFound error = Error{
+		Message: "something went wrong",
+	}
+	ErrIncorrectUserEmail error = Error{
+		Message: "incorrect user email",
+	}
+	ErrIncorrectUserPassword error = Error{
+		Message: "incorrect user password",
+	}
+	ErrEmailAlreadyExist error = Error{
+		Message: "user email already exist",
 	}
 )

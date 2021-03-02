@@ -12,7 +12,7 @@ type UseCase struct {
 
 func (h *UseCase) Check(sessionCookieValue string) (*models.Session, error) {
 	sess, err := h.SessionRepo.GetByValue(sessionCookieValue)
-	if err != nil {
+	if err == server_errors.ErrSessionNotFound {
 		return nil, server_errors.ErrUserUnauthorized
 	}
 
