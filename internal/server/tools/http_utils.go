@@ -11,11 +11,11 @@ func SetJSONResponse(w http.ResponseWriter, jsonStr string, statusCode int) {
 	w.WriteHeader(statusCode)
 }
 
-func SetCookie(w http.ResponseWriter, cookieValue string, cookieName string, duration time.Time) {
+func SetCookie(w http.ResponseWriter, cookieValue string, cookieName string, duration time.Duration) {
 	cookie := http.Cookie{
 		Name:     cookieName,
 		Value:    cookieValue,
-		Expires:  duration,
+		Expires:  time.Now().Add(duration),
 		HttpOnly: true,
 		Path:     "/",
 	}
