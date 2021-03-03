@@ -2,11 +2,11 @@ package middleware
 
 import (
 	"context"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools"
 	"net/http"
 
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	session_manager "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/session/usecase"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools"
 )
 
 func Auth(sm *session_manager.UseCase, next http.Handler) http.Handler {

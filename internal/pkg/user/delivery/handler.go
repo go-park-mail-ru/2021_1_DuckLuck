@@ -2,13 +2,14 @@ package delivery
 
 import (
 	"encoding/json"
+	"io/ioutil"
+	"net/http"
+
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	session_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/session/usecase"
 	user_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user/usecase"
 	server_errors "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools"
-	"io/ioutil"
-	"net/http"
 )
 
 type UserHandler struct {
