@@ -7,8 +7,8 @@ import (
 
 func SetJSONResponse(w http.ResponseWriter, jsonStr string, statusCode int) {
 	w.Header().Set("Content-Type", "application/json")
-	w.Write([]byte(jsonStr))
 	w.WriteHeader(statusCode)
+	w.Write([]byte(jsonStr))
 }
 
 func SetCookie(w http.ResponseWriter, cookieValue string, cookieName string, duration time.Duration) {
