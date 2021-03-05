@@ -28,11 +28,16 @@ func main() {
 
 	mainMux := mux.NewRouter()
 
-	// Logout handler with Auth middleware
-	logoutMux := mux.NewRouter()
-	logoutHandler := middleware.Auth(sessionManager, logoutMux)
-	mainMux.Handle("/api/v1/user/logout", logoutHandler).Methods("DELETE")
+	// Handlers with Auth middleware
+	authMux := mux.NewRouter()
+	authMux.HandleFunc("/api/v1/user/logout", userHandler.Logout).Methods("DELETE")
+	authMux.HandleFunc("/api/v1/user/profile", userHandler.GetProfile).Methods("GET")
+	authMux.HandleFunc("/api/v1/user/profile", userHandler.UpdateProfile).Methods("PUT")
+	authMux.HandleFunc("/api/v1/user/profile/avatar", userHandler.GetProfileAvatar).Methods("GET")
+	authMux.HandleFunc("/api/v1/user/profile/avatar", userHandler.UpdateProfileAvatar).Methods("PUT")
+	handlersWithAuth := middleware.Auth(sessionManager, authMux)
 
+	mainMux.Handle("/api/v1/user/", handlersWithAuth)
 	mainMux.HandleFunc("/api/v1/user/signup", userHandler.Signup).Methods("POST")
 	mainMux.HandleFunc("/api/v1/user/login", userHandler.Login).Methods("POST")
 
