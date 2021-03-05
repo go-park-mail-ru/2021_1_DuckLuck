@@ -31,10 +31,10 @@ func main() {
 	// Logout handler with Auth middleware
 	logoutMux := mux.NewRouter()
 	logoutHandler := middleware.Auth(sessionManager, logoutMux)
-	mainMux.Handle("/user/logout", logoutHandler).Methods("DELETE")
+	mainMux.Handle("/api/v1/user/logout", logoutHandler).Methods("DELETE")
 
-	mainMux.HandleFunc("/user/signup", userHandler.Signup).Methods("POST")
-	mainMux.HandleFunc("/user/login", userHandler.Login).Methods("POST")
+	mainMux.HandleFunc("/api/v1/user/signup", userHandler.Signup).Methods("POST")
+	mainMux.HandleFunc("/api/v1/user/login", userHandler.Login).Methods("POST")
 
 	// Base middlewares
 	mux := middleware.Cors(mainMux)
