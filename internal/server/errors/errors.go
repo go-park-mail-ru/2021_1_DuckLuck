@@ -36,4 +36,7 @@ var (
 	ErrEmailAlreadyExist error = Error{
 		Message: "user email already exist",
 	}
+	ErrServerSystem error = Error{
+		Message: "system error",
+	}
 )
