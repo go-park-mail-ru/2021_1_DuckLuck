@@ -5,10 +5,10 @@ import (
 	"time"
 )
 
-func SetJSONResponse(w http.ResponseWriter, jsonStr string, statusCode int) {
+func SetJSONResponse(w http.ResponseWriter, body []byte, statusCode int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
-	w.Write([]byte(jsonStr))
+	w.Write(body)
 }
 
 func SetCookie(w http.ResponseWriter, cookieValue string, cookieName string, duration time.Duration) {
