@@ -58,7 +58,7 @@ func (lr *LocalRepository) GetByEmail(email string) (*models.ProfileUser, error)
 func (lr *LocalRepository) GetById(userId uint64) (*models.ProfileUser, error) {
 	lr.mu.RLock()
 	userById, ok := lr.data[userId]
-	lr.mu.Unlock()
+	lr.mu.RUnlock()
 
 	if !ok {
 		return nil, server_errors.ErrUserNotFound
@@ -70,6 +70,22 @@ func (lr *LocalRepository) GetById(userId uint64) (*models.ProfileUser, error) {
 func (lr *LocalRepository) Update(user *models.ProfileUser) error {
 	lr.mu.RLock()
 	lr.data[user.Id] = user
+	lr.mu.RUnlock()
+
+	return nil
+}
+
+func (lr *LocalRepository) UpdateAvatar(userId uint64, fileName string) error {
+	lr.mu.RLock()
+	_, ok := lr.data[userId]
+	lr.mu.RUnlock()
+
+	if !ok {
+		return server_errors.ErrUserNotFound
+	}
+
+	lr.mu.Lock()
+	lr.data[userId].Avatar = fileName
 	lr.mu.Unlock()
 
 	return nil
