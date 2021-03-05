@@ -2,5 +2,10 @@ package configs
 
 var (
 	PathToUploads = "/home/uploads"
-	CorsOrigins   = "http://localhost, http://localhost:3000, http://duckluckmarket.xyz, http://duckluckmarket.xyz:3000"
+	CorsOrigins   = map[string]struct{}{
+		"http://localhost": struct{}{},
+		"http://localhost:3000": struct{}{},
+		"http://duckluckmarket.xyz": struct{}{},
+		"http://duckluckmarket.xyz:3000": struct{}{},
+	}
 )

@@ -8,7 +8,13 @@ import (
 
 func Cors(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", configs.CorsOrigins)
+		_, ok := configs.CorsOrigins[r.Header.Get("Origin")]
+		if !ok {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+
+		w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
 		// If method of request is only for get options
 		if r.Method == http.MethodOptions {
