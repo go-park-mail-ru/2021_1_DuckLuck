@@ -13,13 +13,13 @@ func Auth(sm *session_manager.UseCase, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		sessionCookie, err := r.Cookie(models.SessionCookieName)
 		if err != nil {
-			tools.SetJSONResponse(w, "{\"error\": \"user is unauthorized\"}", http.StatusUnauthorized)
+			tools.SetJSONResponse(w, []byte("{\"error\": \"user is unauthorized\"}"), http.StatusUnauthorized)
 			return
 		}
 
 		sess, err := sm.Check(sessionCookie.Value)
 		if err != nil {
-			tools.SetJSONResponse(w, "{\"error\": \"user is unauthorized\"}", http.StatusUnauthorized)
+			tools.SetJSONResponse(w, []byte("{\"error\": \"user is unauthorized\"}"), http.StatusUnauthorized)
 			return
 		}
 
