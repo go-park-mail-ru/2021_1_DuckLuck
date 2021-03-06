@@ -81,15 +81,6 @@ func (h *UserHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) UpdateProfileAvatar(w http.ResponseWriter, r *http.Request) {
-	// Max size - 10 Mb
-	r.ParseMultipartForm(10 * 1024 * 1024)
-	file, handler, err := r.FormFile("avatar")
-	if err != nil {
-		tools.SetJSONResponse(w, []byte("{\"error\": \"can't upload image\"}"), http.StatusBadRequest)
-		return
-	}
-	defer file.Close()
-
 	// Middleware auth add session in context
 	session, ok := r.Context().Value(models.SessionContextKey).(*models.Session)
 	if !ok || session == nil {
@@ -97,9 +88,17 @@ func (h *UserHandler) UpdateProfileAvatar(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	mimeType := handler.Header.Get("Content-Type")
-	fmt.Println(mimeType)
-	newName, err := h.UserUCase.SetAvatar(session.UserId, file)
+	fileName, err := tools.UploadFile(r, "avatar")
+	switch err {
+	case errors.ErrServerSystem:
+		tools.SetJSONResponse(w, []byte("{\"error\": \"system error\"}"), http.StatusInternalServerError)
+		return
+	case errors.ErrFileNotRead:
+		tools.SetJSONResponse(w, []byte("{\"error\": \"file can't read\"}"), http.StatusInternalServerError)
+		return
+	}
+
+	fileUrl, err := h.UserUCase.SetAvatar(session.UserId, fileName)
 	switch err {
 	case errors.ErrServerSystem:
 		tools.SetJSONResponse(w, []byte("{\"error\": \"system error\"}"), http.StatusInternalServerError)
@@ -109,7 +108,7 @@ func (h *UserHandler) UpdateProfileAvatar(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	tools.SetJSONResponse(w, []byte(fmt.Sprintf("{\"result\": \"%s\"}", newName)), http.StatusOK)
+	tools.SetJSONResponse(w, []byte(fmt.Sprintf("{\"result\": \"%s\"}", fileUrl)), http.StatusOK)
 }
 
 func (h *UserHandler) GetProfileAvatar(w http.ResponseWriter, r *http.Request) {
@@ -126,7 +125,7 @@ func (h *UserHandler) GetProfileAvatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tools.SetJSONResponse(w, []byte(fmt.Sprintf("{\"avatar\": \"%s\"}", fileName)), http.StatusOK)
+	tools.SetJSONResponse(w, []byte(fmt.Sprintf("{\"result\": \"%s\"}", fileName)), http.StatusOK)
 }
 
 func (h *UserHandler) GetProfile(w http.ResponseWriter, r *http.Request) {

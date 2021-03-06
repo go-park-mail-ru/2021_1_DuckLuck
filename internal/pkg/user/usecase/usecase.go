@@ -1,9 +1,6 @@
 package usecase
 
 import (
-	"fmt"
-	"io"
-	"mime/multipart"
 	"os"
 
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
@@ -11,8 +8,6 @@ import (
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	server_errors "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
-
-	uuid "github.com/satori/go.uuid"
 )
 
 type UserUseCase struct {
@@ -38,7 +33,7 @@ func (u *UserUseCase) Authorize(authUser *models.LoginUser) (*models.ProfileUser
 	return profileUser, nil
 }
 
-func (u *UserUseCase) SetAvatar(userId uint64, avatar multipart.File) (string, error) {
+func (u *UserUseCase) SetAvatar(userId uint64, avatar string) (string, error) {
 	// Destroy old user avatar
 	profileUser, err := u.UserRepo.GetById(userId)
 	if err == nil {
@@ -46,21 +41,12 @@ func (u *UserUseCase) SetAvatar(userId uint64, avatar multipart.File) (string, e
 		return "", errors.ErrServerSystem
 	}
 
-	newName := uuid.NewV4().String() + ".png"
-	f, err := os.Create(configs.PathToUploadAvatar + newName)
-	if err != nil {
-		return "", errors.ErrServerSystem
-	}
-	defer f.Close()
-
-	io.Copy(f, avatar)
-
-	err = u.UserRepo.UpdateAvatar(userId, newName)
+	err = u.UserRepo.UpdateAvatar(userId, avatar)
 	if err != nil {
 		return "", err
 	}
 
-	return fmt.Sprintf(newName), nil
+	return configs.UrlToAvatar + avatar, nil
 }
 
 func (u *UserUseCase) GetAvatar(userId uint64) (string, error) {
@@ -69,12 +55,14 @@ func (u *UserUseCase) GetAvatar(userId uint64) (string, error) {
 		return "", err
 	}
 
-	pathToFile := configs.PathToUploadAvatar + profileUser.Avatar
-	_, err = os.Stat(pathToFile)
 	// If avatar not found -> return default_avatar.png
-	if err != nil {
-		pathToFile = configs.PathToUploadAvatar + "default.png"
+	var urlToFile string
+	if _, err = os.Stat(configs.PathToUploadAvatar + profileUser.Avatar); err == nil {
+		urlToFile = configs.UrlToAvatar + profileUser.Avatar
+
+	} else {
+		urlToFile = configs.UrlToAvatar + "default.png"
 	}
 
-	return pathToFile, nil
+	return urlToFile, nil
 }

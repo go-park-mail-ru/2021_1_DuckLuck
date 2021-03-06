@@ -39,4 +39,10 @@ var (
 	ErrServerSystem error = Error{
 		Message: "system error",
 	}
+	ErrFileNotRead error = Error{
+		Message: "can't read file",
+	}
+	ErrIncorrectFileType error = Error{
+		Message: "incorrect file type",
+	}
 )
