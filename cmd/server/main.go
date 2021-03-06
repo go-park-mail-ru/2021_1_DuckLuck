@@ -1,6 +1,8 @@
 package main
 
 import (
+	"flag"
+	"log"
 	"net/http"
 
 	session_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/session/repository"
@@ -14,6 +16,9 @@ import (
 )
 
 func main() {
+	port := flag.String("p", "8080", "port to serve on")
+	flag.Parse()
+
 	sessionRepo := session_repo.NewSessionLocalRepository()
 	sessionManager := &session_usecase.UseCase{
 		SessionRepo: sessionRepo,
@@ -45,6 +50,5 @@ func main() {
 	mux := middleware.Cors(mainMux)
 	mux = middleware.Panic(mux)
 
-	addr := ":8080"
-	http.ListenAndServe(addr, mux)
+	log.Fatal(http.ListenAndServe(":"+*port, mux))
 }
