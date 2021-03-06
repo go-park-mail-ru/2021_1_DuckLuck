@@ -42,12 +42,12 @@ func (u *UserUseCase) SetAvatar(userId uint64, avatar multipart.File) (string, e
 	// Destroy old user avatar
 	profileUser, err := u.UserRepo.GetById(userId)
 	if err == nil {
-		err = os.Remove(fmt.Sprintf("%s/%s.png", configs.PathToUploads, profileUser.Avatar))
+		err = os.Remove(configs.PathToUploadAvatar + profileUser.Avatar)
 		return "", errors.ErrServerSystem
 	}
 
-	newName := uuid.NewV4().String()
-	f, err := os.Create(fmt.Sprintf("%s/%s.png", configs.PathToUploads, newName))
+	newName := uuid.NewV4().String() + ".png"
+	f, err := os.Create(configs.PathToUploadAvatar + newName)
 	if err != nil {
 		return "", errors.ErrServerSystem
 	}
@@ -60,20 +60,21 @@ func (u *UserUseCase) SetAvatar(userId uint64, avatar multipart.File) (string, e
 		return "", err
 	}
 
-	return fmt.Sprintf("%s.png", newName), nil
+	return fmt.Sprintf(newName), nil
 }
 
-func (u *UserUseCase) GetAvatar(userId uint64) (*os.File, error) {
+func (u *UserUseCase) GetAvatar(userId uint64) (string, error) {
 	profileUser, err := u.UserRepo.GetById(userId)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	f, err := os.Open(fmt.Sprintf("%s/%s.png", configs.PathToUploads, profileUser.Avatar))
+	pathToFile := configs.PathToUploadAvatar + profileUser.Avatar
+	_, err = os.Stat(pathToFile)
 	// If avatar not found -> return default_avatar.png
 	if err != nil {
-		f, _ = os.Open(fmt.Sprintf("%s/default_avatar.png", configs.PathToUploads))
+		pathToFile = configs.PathToUploadAvatar + "default.png"
 	}
 
-	return f, nil
+	return pathToFile, nil
 }

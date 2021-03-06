@@ -81,8 +81,9 @@ func (h *UserHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) UpdateProfileAvatar(w http.ResponseWriter, r *http.Request) {
+	// Max size - 10 Mb
 	r.ParseMultipartForm(10 * 1024 * 1024)
-	file, _, err := r.FormFile("avatar")
+	file, handler, err := r.FormFile("avatar")
 	if err != nil {
 		tools.SetJSONResponse(w, []byte("{\"error\": \"can't upload image\"}"), http.StatusBadRequest)
 		return
@@ -96,6 +97,8 @@ func (h *UserHandler) UpdateProfileAvatar(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	mimeType := handler.Header.Get("Content-Type")
+	fmt.Println(mimeType)
 	newName, err := h.UserUCase.SetAvatar(session.UserId, file)
 	switch err {
 	case errors.ErrServerSystem:
@@ -117,13 +120,13 @@ func (h *UserHandler) GetProfileAvatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	f, err := h.UserUCase.GetAvatar(session.UserId)
+	fileName, err := h.UserUCase.GetAvatar(session.UserId)
 	if err == server_errors.ErrUserNotFound {
 		tools.SetJSONResponse(w, []byte("{\"error\": \"user not found\"}"), http.StatusInternalServerError)
 		return
 	}
 
-	tools.SetFileResponse(w, f, http.StatusOK)
+	tools.SetJSONResponse(w, []byte(fmt.Sprintf("{\"avatar\": \"%s\"}", fileName)), http.StatusOK)
 }
 
 func (h *UserHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
