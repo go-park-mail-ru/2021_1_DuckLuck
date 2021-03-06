@@ -6,6 +6,8 @@ var (
 	PathProject, _         = os.Getwd()
 	PathToUploadAvatar     = PathProject + "/uploads/avatar"
 	PathToUploadProductImg = PathProject + "/uploads/product"
+	UrlToAvatar            = PathProject + "/avatar/"
+	UrlToProductImg        = PathProject + "/product/"
 
 	CorsOrigins = map[string]struct{}{
 		"http://localhost":               struct{}{},
