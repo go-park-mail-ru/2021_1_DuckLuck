@@ -3,11 +3,11 @@ package configs
 import "os"
 
 var (
-	PathProject, _ = os.Getwd()
-	PathToUploadAvatar = PathProject + "/uploads/avatar"
+	PathProject, _         = os.Getwd()
+	PathToUploadAvatar     = PathProject + "/uploads/avatar"
 	PathToUploadProductImg = PathProject + "/uploads/product"
 
-	CorsOrigins        = map[string]struct{}{
+	CorsOrigins = map[string]struct{}{
 		"http://localhost":               struct{}{},
 		"http://localhost:3000":          struct{}{},
 		"http://duckluckmarket.xyz":      struct{}{},

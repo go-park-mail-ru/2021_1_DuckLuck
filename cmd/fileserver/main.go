@@ -2,9 +2,10 @@ package main
 
 import (
 	"flag"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
 	"log"
 	"net/http"
+
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
 )
 
 func main() {
