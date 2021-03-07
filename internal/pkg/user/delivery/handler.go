@@ -3,6 +3,7 @@ package delivery
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
 	"io/ioutil"
 	"net/http"
 
@@ -140,6 +141,9 @@ func (h *UserHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 		tools.SetJSONResponse(w, []byte("{\"error\": \"user not found\"}"), http.StatusBadRequest)
 		return
 	}
+
+	// Url to avatar
+	profileUser.Avatar = configs.UrlToAvatar + profileUser.Avatar
 
 	result, err := json.Marshal(profileUser)
 	if err != nil {
