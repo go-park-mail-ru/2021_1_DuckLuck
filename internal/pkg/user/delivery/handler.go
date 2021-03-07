@@ -143,9 +143,6 @@ func (h *UserHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Url to avatar
-	profileUser.Avatar = configs.UrlToAvatar + profileUser.Avatar
-
 	result, err := json.Marshal(profileUser)
 	if err != nil {
 		tools.SetJSONResponse(w, []byte("{\"error\": \"can't marshal body\"}"), http.StatusBadRequest)

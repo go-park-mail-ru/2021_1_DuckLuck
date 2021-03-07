@@ -5,8 +5,8 @@ import "os"
 var (
 	PathProject, _  = os.Getwd()
 	PathToUpload    = PathProject + "/uploads"
-	UrlToAvatar     = PathProject + "/avatar/"
-	UrlToProductImg = PathProject + "/product/"
+	UrlToAvatar     = "/avatar/"
+	UrlToProductImg = "/product/"
 
 	CorsOrigins = map[string]struct{}{
 		"http://localhost":               struct{}{},
