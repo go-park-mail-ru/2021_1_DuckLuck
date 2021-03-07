@@ -5,7 +5,7 @@ import (
 )
 
 type UseCase interface {
-	Authorize(authUser *models.LoginUser) (*models.ProfileUser, error)
-	SetAvatar(userId uint64, avatar string) (string, error)
-	GetAvatar(userId uint64) (string, error)
+	Authorize(userRepo Repository, authUser *models.LoginUser) (*models.ProfileUser, error)
+	SetAvatar(userRepo Repository, userId uint64, avatar string) (string, error)
+	GetAvatar(userRepo Repository, userId uint64) (string, error)
 }

@@ -3,21 +3,22 @@ package delivery
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
 	"io/ioutil"
 	"net/http"
 
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
-	session_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/session/usecase"
-	user_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user/usecase"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/session"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	server_errors "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools"
 )
 
 type UserHandler struct {
-	UserUCase      user_usecase.UserUseCase
-	SessionManager session_usecase.UseCase
+	UserUCase      	user.UseCase
+	SessionManager 	session.UseCase
+	UserRepo 		user.Repository
 }
 
 func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
@@ -35,7 +36,7 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	profileUser, err := h.UserUCase.Authorize(&authUser)
+	profileUser, err := h.UserUCase.Authorize(h.UserRepo, &authUser)
 	switch err {
 	case server_errors.ErrIncorrectUserPassword:
 		tools.SetJSONResponse(w, []byte("{\"error\": \"incorrect user password\"}"), http.StatusBadRequest)
@@ -72,7 +73,7 @@ func (h *UserHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.UserUCase.UserRepo.Update(&profileUser)
+	err = h.UserRepo.Update(&profileUser)
 	if err != nil {
 		tools.SetJSONResponse(w, []byte("{\"error\": \"can't update user\"}"), http.StatusBadRequest)
 		return
@@ -99,7 +100,7 @@ func (h *UserHandler) UpdateProfileAvatar(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	fileUrl, err := h.UserUCase.SetAvatar(session.UserId, fileName)
+	fileUrl, err := h.UserUCase.SetAvatar(h.UserRepo, session.UserId, fileName)
 	switch err {
 	case errors.ErrServerSystem:
 		tools.SetJSONResponse(w, []byte("{\"error\": \"system error\"}"), http.StatusInternalServerError)
@@ -120,7 +121,7 @@ func (h *UserHandler) GetProfileAvatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fileName, err := h.UserUCase.GetAvatar(session.UserId)
+	fileName, err := h.UserUCase.GetAvatar(h.UserRepo, session.UserId)
 	if err == server_errors.ErrUserNotFound {
 		tools.SetJSONResponse(w, []byte("{\"error\": \"user not found\"}"), http.StatusInternalServerError)
 		return
@@ -136,7 +137,7 @@ func (h *UserHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	profileUser, err := h.UserUCase.UserRepo.GetById(session.UserId)
+	profileUser, err := h.UserRepo.GetById(session.UserId)
 	if err == server_errors.ErrUserNotFound {
 		tools.SetJSONResponse(w, []byte("{\"error\": \"user not found\"}"), http.StatusBadRequest)
 		return
@@ -169,7 +170,7 @@ func (h *UserHandler) Signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	addedUser, err := h.UserUCase.UserRepo.Add(&newUser)
+	addedUser, err := h.UserRepo.Add(&newUser)
 	switch err {
 	case server_errors.ErrEmailAlreadyExist:
 		tools.SetJSONResponse(w, []byte("{\"error\": \"user email already exist\"}"), http.StatusConflict)
