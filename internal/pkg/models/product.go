@@ -16,10 +16,10 @@ type RangeProducts struct {
 }
 
 type PaginatorProducts struct {
-	PageNum       int
-	Count         int
-	SortKey       string
-	SortDirection bool
+	PageNum       int `json:"page_num"`
+	Count         int `json:"count"`
+	SortKey       string `json:"sort_key"`
+	SortDirection bool `json:"sort_direction"`
 }
 
 var (
