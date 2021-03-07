@@ -27,7 +27,7 @@ func NewSessionLocalRepository() product.Repository {
 				Image:       "/product/test.png",
 			},
 		},
-		mu:   &sync.RWMutex{},
+		mu: &sync.RWMutex{},
 	}
 }
 
@@ -48,8 +48,8 @@ func (lr *LocalRepository) GetPaginateProducts(paginator *models.PaginatorProduc
 		return nil, server_errors.ErrIncorrectPaginator
 	}
 
-	countPages :=  len(lr.data) / paginator.Count
-	if len(lr.data) % paginator.Count > 0 {
+	countPages := len(lr.data) / paginator.Count
+	if len(lr.data)%paginator.Count > 0 {
 		countPages++
 	}
 
@@ -68,22 +68,22 @@ func (lr *LocalRepository) GetPaginateProducts(paginator *models.PaginatorProduc
 	switch paginator.SortKey {
 	case models.ProductsCostSort:
 		if paginator.SortDirection {
-			compare =  func(i, j int) bool {
-				return  products[i].Cost < products[j].Cost
+			compare = func(i, j int) bool {
+				return products[i].Cost < products[j].Cost
 			}
 		} else {
-			compare =  func(i, j int) bool {
-				return  products[i].Cost > products[j].Cost
+			compare = func(i, j int) bool {
+				return products[i].Cost > products[j].Cost
 			}
 		}
 	case models.ProductsRatingSort:
 		if paginator.SortDirection {
-			compare =  func(i, j int) bool {
-				return  products[i].Rating < products[j].Rating
+			compare = func(i, j int) bool {
+				return products[i].Rating < products[j].Rating
 			}
 		} else {
-			compare =  func(i, j int) bool {
-				return  products[i].Rating > products[j].Rating
+			compare = func(i, j int) bool {
+				return products[i].Rating > products[j].Rating
 			}
 		}
 	}
@@ -96,7 +96,7 @@ func (lr *LocalRepository) GetPaginateProducts(paginator *models.PaginatorProduc
 	}
 
 	return &models.RangeProducts{
-		ArrayOfProducts: products[leftBorder : rightBorder],
-		MaxCountPages: countPages,
+		ArrayOfProducts: products[leftBorder:rightBorder],
+		MaxCountPages:   countPages,
 	}, nil
 }

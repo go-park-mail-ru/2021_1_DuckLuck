@@ -2,20 +2,19 @@ package main
 
 import (
 	"flag"
-	"log"
-	"net/http"
-
+	"fmt"
+	product_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/delivery"
+	product_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/repository"
+	product_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/usecase"
 	session_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/session/repository"
 	session_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/session/usecase"
 	user_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user/delivery"
 	user_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user/repository"
 	user_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user/usecase"
-	product_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/delivery"
-	product_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/repository"
-	product_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/usecase"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/middleware"
-
 	"github.com/gorilla/mux"
+	"net/http"
+	"time"
 )
 
 func main() {
@@ -40,27 +39,42 @@ func main() {
 		ProductUCase: productUCase,
 	}
 
+
+
 	mainMux := mux.NewRouter()
+	mainMux.Use(middleware.Panic)
+	mainMux.Use(middleware.Cors)
+	mainMux.HandleFunc("/api/v1/user/signup", userHandler.Signup).Methods("POST", "OPTIONS")
+	mainMux.HandleFunc("/api/v1/user/login", userHandler.Login).Methods("POST", "OPTIONS")
+	mainMux.HandleFunc("/api/v1/product/{id:[0-9]+}", productHandler.GetProduct).Methods("GET", "OPTIONS")
+	mainMux.HandleFunc("/api/v1/product", productHandler.GetRangeProducts).Methods("POST", "OPTIONS")
+
 
 	// Handlers with Auth middleware
-	authMux := mux.NewRouter()
-	authMux.HandleFunc("/api/v1/user/logout", userHandler.Logout).Methods("DELETE")
-	authMux.HandleFunc("/api/v1/user/profile", userHandler.GetProfile).Methods("GET")
-	authMux.HandleFunc("/api/v1/user/profile", userHandler.UpdateProfile).Methods("PUT")
-	authMux.HandleFunc("/api/v1/user/profile/avatar", userHandler.GetProfileAvatar).Methods("GET")
-	authMux.HandleFunc("/api/v1/user/profile/avatar", userHandler.UpdateProfileAvatar).Methods("PUT")
-	handlersWithAuth := middleware.Auth(sessionManager, authMux)
+	authMux := mainMux.PathPrefix("/").Subrouter()
+	middlewareAuth := middleware.Auth(sessionManager)
+	authMux.Use(middlewareAuth)
+	authMux.HandleFunc("/api/v1/user/profile", userHandler.GetProfile).Methods("GET", "OPTIONS")
+	authMux.HandleFunc("/api/v1/user/logout", userHandler.Logout).Methods("DELETE", "OPTIONS")
+	authMux.HandleFunc("/api/v1/user/profile", userHandler.UpdateProfile).Methods("PUT", "OPTIONS")
+	authMux.HandleFunc("/api/v1/user/profile/avatar", userHandler.GetProfileAvatar).Methods("GET", "OPTIONS")
+	authMux.HandleFunc("/api/v1/user/profile/avatar", userHandler.UpdateProfileAvatar).Methods("PUT", "OPTIONS")
 
-	mainMux.Handle("/api/v1/user/", handlersWithAuth)
-	mainMux.HandleFunc("/api/v1/user/signup", userHandler.Signup).Methods("POST")
-	mainMux.HandleFunc("/api/v1/user/login", userHandler.Login).Methods("POST")
 
-	mainMux.HandleFunc("/api/v1/product/{id:[0-9]+}", productHandler.GetProduct).Methods("GET")
-	mainMux.HandleFunc("/api/v1/product", productHandler.GetRangeProducts).Methods("POST")
 
-	// Base middlewares
-	mux := middleware.Cors(mainMux)
-	mux = middleware.Panic(mux)
+	//log.Fatal(http.ListenAndServe(":"+*port, mainMux))
 
-	log.Fatal(http.ListenAndServe(":"+*port, mux))
+	server := &http.Server{
+		Addr:         ":"+*port,
+		// Good practice to set timeouts to avoid Slowloris attacks.
+		WriteTimeout: time.Second * 15,
+		ReadTimeout:  time.Second * 15,
+		IdleTimeout:  time.Second * 60,
+		Handler: mainMux, // Pass our instance of gorilla/mux in.
+	}
+
+	fmt.Println("starting server")
+	if err := server.ListenAndServe(); err != nil {
+		fmt.Println(err)
+	}
 }

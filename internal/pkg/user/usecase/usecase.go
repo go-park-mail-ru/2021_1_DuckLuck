@@ -10,7 +10,7 @@ import (
 	server_errors "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 )
 
-type UserUseCase struct {}
+type UserUseCase struct{}
 
 func NewUseCase() user.UseCase {
 	return &UserUseCase{}

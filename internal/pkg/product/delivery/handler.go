@@ -2,6 +2,7 @@ package delivery
 
 import (
 	"encoding/json"
+	"github.com/gorilla/mux"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -13,12 +14,13 @@ import (
 )
 
 type ProductHandler struct {
-	ProductUCase	product.UseCase
-	ProductRepo 		product.Repository
+	ProductUCase product.UseCase
+	ProductRepo  product.Repository
 }
 
 func (h *ProductHandler) GetProduct(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
 	if err != nil || id < 1 {
 		tools.SetJSONResponse(w, []byte("{\"error\": \"incorrect product id\"}"), http.StatusInternalServerError)
 		return
@@ -68,4 +70,3 @@ func (h *ProductHandler) GetRangeProducts(w http.ResponseWriter, r *http.Request
 
 	tools.SetJSONResponse(w, result, http.StatusOK)
 }
-

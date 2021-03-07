@@ -16,9 +16,9 @@ import (
 )
 
 type UserHandler struct {
-	UserUCase      	user.UseCase
-	SessionManager 	session.UseCase
-	UserRepo 		user.Repository
+	UserUCase      user.UseCase
+	SessionManager session.UseCase
+	UserRepo       user.Repository
 }
 
 func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
