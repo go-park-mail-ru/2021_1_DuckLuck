@@ -27,8 +27,8 @@ func main() {
 	userRepo := user_repo.NewSessionLocalRepository()
 	userUCase := user_usecase.NewUseCase(userRepo)
 	userHandler := &user_delivery.UserHandler{
-		UserUCase:      *userUCase,
-		SessionManager: *sessionManager,
+		UserUCase:      userUCase,
+		SessionManager: sessionManager,
 	}
 
 	mainMux := mux.NewRouter()
@@ -45,6 +45,9 @@ func main() {
 	mainMux.Handle("/api/v1/user/", handlersWithAuth)
 	mainMux.HandleFunc("/api/v1/user/signup", userHandler.Signup).Methods("POST")
 	mainMux.HandleFunc("/api/v1/user/login", userHandler.Login).Methods("POST")
+
+	//mainMux.HandleFunc("/api/v1/product/{id:[0-9]+}", ).Methods("GET")
+	//mainMux.HandleFunc("/api/v1/product", ).Methods("POST")
 
 	// Base middlewares
 	mux := middleware.Cors(mainMux)
