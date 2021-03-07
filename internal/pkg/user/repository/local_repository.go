@@ -15,7 +15,7 @@ type LocalRepository struct {
 
 func NewSessionLocalRepository() user.Repository {
 	return &LocalRepository{
-		data: make(map[uint64]*models.ProfileUser, 7),
+		data: make(map[uint64]*models.ProfileUser, 0),
 		mu:   &sync.RWMutex{},
 	}
 }

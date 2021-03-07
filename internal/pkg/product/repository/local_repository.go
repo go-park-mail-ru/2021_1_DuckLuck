@@ -26,6 +26,24 @@ func NewSessionLocalRepository() product.Repository {
 				Category:    "Home",
 				Image:       "/product/test.png",
 			},
+			2: &models.Product{
+				Id:          2,
+				Title:       "Test2",
+				Cost:        100,
+				Rating:      1,
+				Description: "Good item",
+				Category:    "Home",
+				Image:       "/product/test.png",
+			},
+			3: &models.Product{
+				Id:          3,
+				Title:       "Test3",
+				Cost:        100,
+				Rating:      1,
+				Description: "Good item",
+				Category:    "Home",
+				Image:       "/product/test.png",
+			},
 		},
 		mu: &sync.RWMutex{},
 	}
@@ -57,7 +75,7 @@ func (lr *LocalRepository) GetPaginateProducts(paginator *models.PaginatorProduc
 		return nil, server_errors.ErrProductsIsEmpty
 	}
 
-	products := make([]*models.Product, 7)
+	products := make([]*models.Product, 0)
 	lr.mu.RLock()
 	for _, item := range lr.data {
 		products = append(products, item)

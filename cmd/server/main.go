@@ -47,7 +47,7 @@ func main() {
 	mainMux.HandleFunc("/api/v1/user/signup", userHandler.Signup).Methods("POST", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/user/login", userHandler.Login).Methods("POST", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/product/{id:[0-9]+}", productHandler.GetProduct).Methods("GET", "OPTIONS")
-	mainMux.HandleFunc("/api/v1/product", productHandler.GetRangeProducts).Methods("GET", "OPTIONS")
+	mainMux.HandleFunc("/api/v1/product", productHandler.GetRangeProducts).Methods("POST", "OPTIONS")
 
 	// Handlers with Auth middleware
 	authMux := mainMux.PathPrefix("/").Subrouter()
