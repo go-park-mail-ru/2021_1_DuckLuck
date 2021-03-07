@@ -33,11 +33,11 @@ func (u *UserUseCase) SetAvatar(userRepo user.Repository, userId uint64, avatar 
 	// Destroy old user avatar
 	profileUser, err := userRepo.GetById(userId)
 	if err == nil {
-		err = os.Remove(configs.PathToUploadAvatar + profileUser.Avatar)
+		err = os.Remove(configs.PathToUpload + profileUser.Avatar)
 		return "", errors.ErrServerSystem
 	}
 
-	err = userRepo.UpdateAvatar(userId, avatar)
+	err = userRepo.UpdateAvatar(userId, configs.UrlToAvatar+avatar)
 	if err != nil {
 		return "", err
 	}
@@ -51,11 +51,10 @@ func (u *UserUseCase) GetAvatar(userRepo user.Repository, userId uint64) (string
 		return "", err
 	}
 
-	// If avatar not found -> return default_avatar.png
+	// If avatar not found -> return default.png
 	var urlToFile string
-	if _, err = os.Stat(configs.PathToUploadAvatar + profileUser.Avatar); err == nil {
-		urlToFile = configs.UrlToAvatar + profileUser.Avatar
-
+	if _, err = os.Stat(configs.PathToUpload + profileUser.Avatar); err == nil {
+		urlToFile = profileUser.Avatar
 	} else {
 		urlToFile = configs.UrlToAvatar + "default.png"
 	}

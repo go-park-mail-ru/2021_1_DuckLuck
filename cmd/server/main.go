@@ -3,6 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
+	"net/http"
+	"time"
+
 	product_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/delivery"
 	product_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/repository"
 	product_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/usecase"
@@ -12,9 +15,8 @@ import (
 	user_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user/repository"
 	user_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user/usecase"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/middleware"
+
 	"github.com/gorilla/mux"
-	"net/http"
-	"time"
 )
 
 func main() {
@@ -29,17 +31,15 @@ func main() {
 	userHandler := &user_delivery.UserHandler{
 		UserUCase:      userUCase,
 		SessionManager: sessionManager,
-		UserRepo: userRepo,
+		UserRepo:       userRepo,
 	}
 
 	productRepo := product_repo.NewSessionLocalRepository()
 	productUCase := product_usecase.NewUseCase()
 	productHandler := &product_delivery.ProductHandler{
-		ProductRepo: productRepo,
+		ProductRepo:  productRepo,
 		ProductUCase: productUCase,
 	}
-
-
 
 	mainMux := mux.NewRouter()
 	mainMux.Use(middleware.Panic)
@@ -48,7 +48,6 @@ func main() {
 	mainMux.HandleFunc("/api/v1/user/login", userHandler.Login).Methods("POST", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/product/{id:[0-9]+}", productHandler.GetProduct).Methods("GET", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/product", productHandler.GetRangeProducts).Methods("POST", "OPTIONS")
-
 
 	// Handlers with Auth middleware
 	authMux := mainMux.PathPrefix("/").Subrouter()
@@ -60,17 +59,12 @@ func main() {
 	authMux.HandleFunc("/api/v1/user/profile/avatar", userHandler.GetProfileAvatar).Methods("GET", "OPTIONS")
 	authMux.HandleFunc("/api/v1/user/profile/avatar", userHandler.UpdateProfileAvatar).Methods("PUT", "OPTIONS")
 
-
-
-	//log.Fatal(http.ListenAndServe(":"+*port, mainMux))
-
 	server := &http.Server{
-		Addr:         ":"+*port,
-		// Good practice to set timeouts to avoid Slowloris attacks.
+		Addr:         ":" + *port,
 		WriteTimeout: time.Second * 15,
 		ReadTimeout:  time.Second * 15,
 		IdleTimeout:  time.Second * 60,
-		Handler: mainMux, // Pass our instance of gorilla/mux in.
+		Handler:      mainMux,
 	}
 
 	fmt.Println("starting server")
