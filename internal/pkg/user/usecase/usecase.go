@@ -51,13 +51,5 @@ func (u *UserUseCase) GetAvatar(userRepo user.Repository, userId uint64) (string
 		return "", err
 	}
 
-	// If avatar not found -> return default.png
-	var urlToFile string
-	if _, err = os.Stat(configs.PathToUpload + profileUser.Avatar); err == nil {
-		urlToFile = profileUser.Avatar
-	} else {
-		urlToFile = configs.UrlToAvatar + "default.png"
-	}
-
-	return urlToFile, nil
+	return profileUser.Avatar, nil
 }
