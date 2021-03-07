@@ -31,7 +31,7 @@ func (lr *LocalRepository) Add(session *models.Session) error {
 func (lr *LocalRepository) GetByValue(sessionValue string) (*models.Session, error) {
 	lr.mu.RLock()
 	sess, ok := lr.data[sessionValue]
-	lr.mu.Unlock()
+	lr.mu.RUnlock()
 
 	if !ok {
 		return nil, server_errors.ErrSessionNotFound

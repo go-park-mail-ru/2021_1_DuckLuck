@@ -90,7 +90,7 @@ func (h *UserHandler) UpdateProfileAvatar(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	fileName, err := tools.UploadFile(r, "avatar")
+	fileName, err := tools.UploadFile(r, "avatar", configs.PathToUpload + configs.UrlToAvatar)
 	switch err {
 	case errors.ErrServerSystem:
 		tools.SetJSONResponse(w, []byte("{\"error\": \"system error\"}"), http.StatusInternalServerError)

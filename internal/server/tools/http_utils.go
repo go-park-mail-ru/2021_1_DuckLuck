@@ -11,7 +11,7 @@ func SetJSONResponse(w http.ResponseWriter, body []byte, statusCode int) {
 	w.Write(body)
 }
 
-func SetCookie(w http.ResponseWriter, cookieValue string, cookieName string, duration time.Duration) {
+func SetCookie(w http.ResponseWriter, cookieName string, cookieValue string, duration time.Duration) {
 	cookie := http.Cookie{
 		Name:     cookieName,
 		Value:    cookieValue,

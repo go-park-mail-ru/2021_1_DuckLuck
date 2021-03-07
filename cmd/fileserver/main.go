@@ -13,10 +13,10 @@ func main() {
 	flag.Parse()
 
 	http.Handle(configs.UrlToAvatar, http.StripPrefix(configs.UrlToAvatar,
-		http.FileServer(http.Dir(configs.PathToUploadAvatar))))
+		http.FileServer(http.Dir(configs.PathToUpload + configs.UrlToAvatar))))
 
 	http.Handle(configs.UrlToProductImg, http.StripPrefix(configs.UrlToProductImg,
-		http.FileServer(http.Dir(configs.PathToUploadProductImg))))
+		http.FileServer(http.Dir(configs.PathToUpload + configs.UrlToProductImg))))
 
 	log.Fatal(http.ListenAndServe(":"+*port, nil))
 }
