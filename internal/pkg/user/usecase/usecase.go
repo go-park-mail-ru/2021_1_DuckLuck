@@ -12,7 +12,7 @@ import (
 
 type UserUseCase struct {}
 
-func NewUseCase(userRepository user.Repository) user.UseCase {
+func NewUseCase() user.UseCase {
 	return &UserUseCase{}
 }
 

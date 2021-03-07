@@ -45,4 +45,13 @@ var (
 	ErrIncorrectFileType error = Error{
 		Message: "incorrect file type",
 	}
+	ErrProductNotFound error = Error{
+		Message: "product not found",
+	}
+	ErrProductsIsEmpty error = Error{
+		Message: "list of products is empty",
+	}
+	ErrIncorrectPaginator error = Error{
+		Message: "incorrect params of pagination",
+	}
 )
