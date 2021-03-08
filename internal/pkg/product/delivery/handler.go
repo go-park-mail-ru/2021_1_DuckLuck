@@ -2,7 +2,6 @@ package delivery
 
 import (
 	"encoding/json"
-	"github.com/gorilla/mux"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -11,6 +10,8 @@ import (
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product"
 	server_errors "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools"
+
+	"github.com/gorilla/mux"
 )
 
 type ProductHandler struct {
