@@ -6,7 +6,6 @@ import (
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	server_errors "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 )
 
@@ -32,9 +31,8 @@ func (u *UserUseCase) Authorize(userRepo user.Repository, authUser *models.Login
 func (u *UserUseCase) SetAvatar(userRepo user.Repository, userId uint64, avatar string) (string, error) {
 	// Destroy old user avatar
 	profileUser, err := userRepo.GetById(userId)
-	if err == nil {
+	if err == nil || profileUser.Avatar != "" {
 		err = os.Remove(configs.PathToUpload + profileUser.Avatar)
-		return "", errors.ErrServerSystem
 	}
 
 	err = userRepo.UpdateAvatar(userId, configs.UrlToAvatar+avatar)
