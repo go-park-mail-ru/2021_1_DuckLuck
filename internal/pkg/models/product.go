@@ -11,21 +11,21 @@ type Product struct {
 }
 
 type RangeProducts struct {
-	ArrayOfProducts []*Product `json:"products"`
-	MaxCountPages   int
+	ArrayOfProducts []*Product `json:"array_products"`
+	MaxCountPages   int        `json:"max_count_pages"`
 }
 
 type PaginatorProducts struct {
 	PageNum       int    `json:"page_num"`
 	Count         int    `json:"count"`
 	SortKey       string `json:"sort_key"`
-	SortDirection bool   `json:"sort_direction"`
+	SortDirection string `json:"sort_direction"`
 }
 
 var (
 	ProductsCostSort   = "cost"
 	ProductsRatingSort = "rating"
 
-	PaginatorASC  = true
-	PaginatorDESC = false
+	PaginatorASC  = "ASC"
+	PaginatorDESC = "DESC"
 )

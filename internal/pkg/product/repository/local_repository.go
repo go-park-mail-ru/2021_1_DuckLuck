@@ -85,21 +85,23 @@ func (lr *LocalRepository) GetPaginateProducts(paginator *models.PaginatorProduc
 	compare := func(i, j int) bool { return false }
 	switch paginator.SortKey {
 	case models.ProductsCostSort:
-		if paginator.SortDirection {
+		switch paginator.SortDirection {
+		case models.PaginatorASC:
 			compare = func(i, j int) bool {
 				return products[i].Cost < products[j].Cost
 			}
-		} else {
+		case models.PaginatorDESC:
 			compare = func(i, j int) bool {
 				return products[i].Cost > products[j].Cost
 			}
 		}
 	case models.ProductsRatingSort:
-		if paginator.SortDirection {
+		switch paginator.SortDirection {
+		case models.PaginatorASC:
 			compare = func(i, j int) bool {
 				return products[i].Rating < products[j].Rating
 			}
-		} else {
+		case models.PaginatorDESC:
 			compare = func(i, j int) bool {
 				return products[i].Rating > products[j].Rating
 			}
