@@ -1,8 +1,14 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"net/http"
+	"time"
 
+	product_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/delivery"
+	product_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/repository"
+	product_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/usecase"
 	session_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/session/repository"
 	session_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/session/usecase"
 	user_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user/delivery"
@@ -14,32 +20,55 @@ import (
 )
 
 func main() {
+	port := flag.String("p", "8080", "port to serve on")
+	flag.Parse()
+
 	sessionRepo := session_repo.NewSessionLocalRepository()
-	sessionManager := &session_usecase.UseCase{
-		SessionRepo: sessionRepo,
-	}
+	sessionManager := session_usecase.NewUseCase(sessionRepo)
 
 	userRepo := user_repo.NewSessionLocalRepository()
-	userUCase := user_usecase.NewUseCase(userRepo)
+	userUCase := user_usecase.NewUseCase()
 	userHandler := &user_delivery.UserHandler{
-		UserUCase:      *userUCase,
-		SessionManager: *sessionManager,
+		UserUCase:      userUCase,
+		SessionManager: sessionManager,
+		UserRepo:       userRepo,
+	}
+
+	productRepo := product_repo.NewSessionLocalRepository()
+	productUCase := product_usecase.NewUseCase()
+	productHandler := &product_delivery.ProductHandler{
+		ProductRepo:  productRepo,
+		ProductUCase: productUCase,
 	}
 
 	mainMux := mux.NewRouter()
+	mainMux.Use(middleware.Panic)
+	mainMux.Use(middleware.Cors)
+	mainMux.HandleFunc("/api/v1/user/signup", userHandler.Signup).Methods("POST", "OPTIONS")
+	mainMux.HandleFunc("/api/v1/user/login", userHandler.Login).Methods("POST", "OPTIONS")
+	mainMux.HandleFunc("/api/v1/product/{id:[0-9]+}", productHandler.GetProduct).Methods("GET", "OPTIONS")
+	mainMux.HandleFunc("/api/v1/product", productHandler.GetRangeProducts).Methods("POST", "OPTIONS")
 
-	// Logout handler with Auth middleware
-	logoutMux := mux.NewRouter()
-	logoutHandler := middleware.Auth(sessionManager, logoutMux)
-	mainMux.Handle("/user/logout", logoutHandler).Methods("DELETE")
+	// Handlers with Auth middleware
+	authMux := mainMux.PathPrefix("/").Subrouter()
+	middlewareAuth := middleware.Auth(sessionManager)
+	authMux.Use(middlewareAuth)
+	authMux.HandleFunc("/api/v1/user/profile", userHandler.GetProfile).Methods("GET", "OPTIONS")
+	authMux.HandleFunc("/api/v1/user/logout", userHandler.Logout).Methods("DELETE", "OPTIONS")
+	authMux.HandleFunc("/api/v1/user/profile", userHandler.UpdateProfile).Methods("PUT", "OPTIONS")
+	authMux.HandleFunc("/api/v1/user/profile/avatar", userHandler.GetProfileAvatar).Methods("GET", "OPTIONS")
+	authMux.HandleFunc("/api/v1/user/profile/avatar", userHandler.UpdateProfileAvatar).Methods("PUT", "OPTIONS")
 
-	mainMux.HandleFunc("/user/signup", userHandler.Signup).Methods("POST")
-	mainMux.HandleFunc("/user/login", userHandler.Login).Methods("POST")
+	server := &http.Server{
+		Addr:         ":" + *port,
+		WriteTimeout: time.Second * 15,
+		ReadTimeout:  time.Second * 15,
+		IdleTimeout:  time.Second * 60,
+		Handler:      mainMux,
+	}
 
-	// Base middlewares
-	mux := middleware.Cors(mainMux)
-	mux = middleware.Panic(mux)
-
-	addr := ":8080"
-	http.ListenAndServe(addr, mux)
+	fmt.Println("starting server")
+	if err := server.ListenAndServe(); err != nil {
+		fmt.Println(err)
+	}
 }

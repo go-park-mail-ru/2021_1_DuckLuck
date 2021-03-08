@@ -36,4 +36,22 @@ var (
 	ErrEmailAlreadyExist error = Error{
 		Message: "user email already exist",
 	}
+	ErrServerSystem error = Error{
+		Message: "system error",
+	}
+	ErrFileNotRead error = Error{
+		Message: "can't read file",
+	}
+	ErrIncorrectFileType error = Error{
+		Message: "incorrect file type",
+	}
+	ErrProductNotFound error = Error{
+		Message: "product not found",
+	}
+	ErrProductsIsEmpty error = Error{
+		Message: "list of products is empty",
+	}
+	ErrIncorrectPaginator error = Error{
+		Message: "incorrect params of pagination",
+	}
 )

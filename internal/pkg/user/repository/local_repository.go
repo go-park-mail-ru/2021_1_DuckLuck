@@ -15,7 +15,7 @@ type LocalRepository struct {
 
 func NewSessionLocalRepository() user.Repository {
 	return &LocalRepository{
-		data: make(map[uint64]*models.ProfileUser, 7),
+		data: make(map[uint64]*models.ProfileUser, 0),
 		mu:   &sync.RWMutex{},
 	}
 }
@@ -58,7 +58,7 @@ func (lr *LocalRepository) GetByEmail(email string) (*models.ProfileUser, error)
 func (lr *LocalRepository) GetById(userId uint64) (*models.ProfileUser, error) {
 	lr.mu.RLock()
 	userById, ok := lr.data[userId]
-	lr.mu.Unlock()
+	lr.mu.RUnlock()
 
 	if !ok {
 		return nil, server_errors.ErrUserNotFound
@@ -67,9 +67,26 @@ func (lr *LocalRepository) GetById(userId uint64) (*models.ProfileUser, error) {
 	return userById, nil
 }
 
-func (lr *LocalRepository) Update(user *models.ProfileUser) error {
+func (lr *LocalRepository) UpdateProfile(userId uint64, user *models.UpdateUser) error {
+	lr.mu.Lock()
+	lr.data[userId].FirstName = user.FirstName
+	lr.data[userId].LastName = user.LastName
+	lr.mu.Unlock()
+
+	return nil
+}
+
+func (lr *LocalRepository) UpdateAvatar(userId uint64, fileName string) error {
 	lr.mu.RLock()
-	lr.data[user.Id] = user
+	_, ok := lr.data[userId]
+	lr.mu.RUnlock()
+
+	if !ok {
+		return server_errors.ErrUserNotFound
+	}
+
+	lr.mu.Lock()
+	lr.data[userId].Avatar = fileName
 	lr.mu.Unlock()
 
 	return nil
