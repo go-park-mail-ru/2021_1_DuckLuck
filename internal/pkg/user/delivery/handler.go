@@ -59,6 +59,12 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
+	session, ok := r.Context().Value(models.SessionContextKey).(*models.Session)
+	if !ok || session == nil {
+		tools.SetJSONResponse(w, []byte("{\"error\": \"session not found in context\"}"), http.StatusUnauthorized)
+		return
+	}
+
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		tools.SetJSONResponse(w, []byte("{\"error\": \"can't read body of request\"}"), http.StatusBadRequest)
@@ -66,14 +72,14 @@ func (h *UserHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	var profileUser models.ProfileUser
-	err = json.Unmarshal(body, &profileUser)
+	var updateUser models.UpdateUser
+	err = json.Unmarshal(body, &updateUser)
 	if err != nil {
 		tools.SetJSONResponse(w, []byte("{\"error\": \"can't unmarshal body\"}"), http.StatusBadRequest)
 		return
 	}
 
-	err = h.UserRepo.Update(&profileUser)
+	err = h.UserUCase.UpdateProfile(h.UserRepo, session.UserId, &updateUser)
 	if err != nil {
 		tools.SetJSONResponse(w, []byte("{\"error\": \"can't update user\"}"), http.StatusBadRequest)
 		return

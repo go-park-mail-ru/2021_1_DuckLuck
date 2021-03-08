@@ -51,3 +51,12 @@ func (u *UserUseCase) GetAvatar(userRepo user.Repository, userId uint64) (string
 
 	return profileUser.Avatar, nil
 }
+
+func (u *UserUseCase) UpdateProfile(userRepo user.Repository, userId uint64, updateUser *models.UpdateUser) error {
+	err := userRepo.UpdateProfile(userId, updateUser)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

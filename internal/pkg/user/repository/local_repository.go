@@ -67,9 +67,10 @@ func (lr *LocalRepository) GetById(userId uint64) (*models.ProfileUser, error) {
 	return userById, nil
 }
 
-func (lr *LocalRepository) Update(user *models.ProfileUser) error {
+func (lr *LocalRepository) UpdateProfile(userId uint64, user *models.UpdateUser) error {
 	lr.mu.RLock()
-	lr.data[user.Id] = user
+	lr.data[userId].FirstName = user.FirstName
+	lr.data[userId].LastName = user.LastName
 	lr.mu.RUnlock()
 
 	return nil

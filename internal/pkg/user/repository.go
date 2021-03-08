@@ -6,7 +6,7 @@ import (
 
 type Repository interface {
 	Add(user *models.SignupUser) (*models.ProfileUser, error)
-	Update(user *models.ProfileUser) error
+	UpdateProfile(userId uint64, user *models.UpdateUser) error
 	GetByEmail(email string) (*models.ProfileUser, error)
 	GetById(userId uint64) (*models.ProfileUser, error)
 	UpdateAvatar(userId uint64, fileName string) error

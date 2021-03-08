@@ -9,6 +9,11 @@ type ProfileUser struct {
 	Avatar    string `json:"avatar"`
 }
 
+type UpdateUser struct {
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+}
+
 type LoginUser struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
