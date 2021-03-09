@@ -18,31 +18,40 @@ func NewSessionLocalRepository() product.Repository {
 	return &LocalRepository{
 		data: map[uint64]*models.Product{
 			1: &models.Product{
-				Id:          1,
-				Title:       "Test1",
-				Cost:        100,
+				Id:    1,
+				Title: "Test1",
+				Cost: models.ProductCost{
+					BaseCost: 100,
+					Discount: 20,
+				},
 				Rating:      1,
 				Description: "Good item",
 				Category:    "Home",
-				Image:       "/product/test.png",
+				Images:      []string{"/product/test.png"},
 			},
 			2: &models.Product{
-				Id:          2,
-				Title:       "Test2",
-				Cost:        100,
+				Id:    1,
+				Title: "Test2",
+				Cost: models.ProductCost{
+					BaseCost: 50,
+					Discount: 0,
+				},
 				Rating:      1,
 				Description: "Good item",
 				Category:    "Home",
-				Image:       "/product/test.png",
+				Images:      []string{"/product/test.png"},
 			},
 			3: &models.Product{
-				Id:          3,
-				Title:       "Test3",
-				Cost:        100,
+				Id:    1,
+				Title: "Test1",
+				Cost: models.ProductCost{
+					BaseCost: 100,
+					Discount: 20,
+				},
 				Rating:      1,
 				Description: "Good item",
 				Category:    "Home",
-				Image:       "/product/test.png",
+				Images:      []string{"/product/test.png"},
 			},
 		},
 		mu: &sync.RWMutex{},
@@ -61,7 +70,7 @@ func (lr *LocalRepository) GetById(productId uint64) (*models.Product, error) {
 	return productById, nil
 }
 
-func (lr *LocalRepository) GetPaginateProducts(paginator *models.PaginatorProducts) (*models.RangeProducts, error) {
+func (lr *LocalRepository) GetListPreviewProducts(paginator *models.PaginatorProducts) (*models.RangeProducts, error) {
 	if paginator.PageNum < 1 || paginator.Count < 1 {
 		return nil, server_errors.ErrIncorrectPaginator
 	}
@@ -75,10 +84,16 @@ func (lr *LocalRepository) GetPaginateProducts(paginator *models.PaginatorProduc
 		return nil, server_errors.ErrProductsIsEmpty
 	}
 
-	products := make([]*models.Product, 0)
+	products := make([]*models.ViewProduct, 0)
 	lr.mu.RLock()
 	for _, item := range lr.data {
-		products = append(products, item)
+		products = append(products, &models.ViewProduct{
+			Id:           item.Id,
+			Title:        item.Title,
+			Cost:         item.Cost,
+			Rating:       item.Rating,
+			PreviewImage: item.Images[0],
+		})
 	}
 	lr.mu.RUnlock()
 
@@ -88,11 +103,11 @@ func (lr *LocalRepository) GetPaginateProducts(paginator *models.PaginatorProduc
 		switch paginator.SortDirection {
 		case models.PaginatorASC:
 			compare = func(i, j int) bool {
-				return products[i].Cost < products[j].Cost
+				return products[i].Cost.BaseCost < products[j].Cost.BaseCost
 			}
 		case models.PaginatorDESC:
 			compare = func(i, j int) bool {
-				return products[i].Cost > products[j].Cost
+				return products[i].Cost.BaseCost > products[j].Cost.BaseCost
 			}
 		}
 	case models.ProductsRatingSort:
@@ -116,7 +131,7 @@ func (lr *LocalRepository) GetPaginateProducts(paginator *models.PaginatorProduc
 	}
 
 	return &models.RangeProducts{
-		ArrayOfProducts: products[leftBorder:rightBorder],
-		MaxCountPages:   countPages,
+		ListPreviewProducts: products[leftBorder:rightBorder],
+		MaxCountPages:       countPages,
 	}, nil
 }

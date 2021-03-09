@@ -6,5 +6,5 @@ import (
 
 type Repository interface {
 	GetById(productId uint64) (*models.Product, error)
-	GetPaginateProducts(paginator *models.PaginatorProducts) (*models.RangeProducts, error)
+	GetListPreviewProducts(paginator *models.PaginatorProducts) (*models.RangeProducts, error)
 }
