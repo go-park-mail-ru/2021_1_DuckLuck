@@ -19,39 +19,52 @@ func NewSessionLocalRepository() product.Repository {
 		data: map[uint64]*models.Product{
 			1: &models.Product{
 				Id:    1,
-				Title: "Test1",
-				Cost: models.ProductCost{
-					BaseCost: 100,
+				Title: "Hair dryer brush Rowenta",
+				Price: models.ProductPrice{
+					BaseCost: 20,
 					Discount: 20,
 				},
-				Rating:      1,
-				Description: "Good item",
-				Category:    "Home",
-				Images:      []string{"/product/test.png"},
+				Rating: 4,
+				Description: "The rotating Brush Activ 'airstyler provides " +
+					"unsurpassed drying results. Power of 1000" +
+					"W guarantees fast drying effortlessly, two" +
+					"rotating brushes with a diameter of 50 or 40 mm provide" +
+					"professional styling. Ion generator and" +
+					"ceramic coating smoothes hair, leaving it soft" +
+					"and more brilliant.",
+				Category: "Appliances",
+				Images: []string{"/product/1021166584.jpg", "/product/1021166585.jpg",
+					"/product/1021166586.jpg", "/product/6043447767.jpg"},
 			},
 			2: &models.Product{
-				Id:    1,
-				Title: "Test2",
-				Cost: models.ProductCost{
-					BaseCost: 50,
+				Id:    2,
+				Title: "Chupa Chups assorted caramel \"Mini\", 100 pcs, 6 g each",
+				Price: models.ProductPrice{
+					BaseCost: 6.25,
 					Discount: 0,
 				},
-				Rating:      1,
-				Description: "Good item",
-				Category:    "Home",
-				Images:      []string{"/product/test.png"},
+				Rating: 3,
+				Description: "Chupa Chups Mini is Chupa Chups' favorite candy on a stick " +
+					"in mini format. In the showbox there are 100 Chupa. " +
+					"Chups with the best flavors: strawberry, cola, orange, apple.",
+				Category: "Food",
+				Images: []string{"/product/6024670802.jpg", "/product/6024670803.jpg",
+					"/product/6024670804.jpg", "/product/6024670805.jpg", "/product/6024670806.jpg"},
 			},
 			3: &models.Product{
-				Id:    1,
-				Title: "Test1",
-				Cost: models.ProductCost{
-					BaseCost: 100,
-					Discount: 20,
+				Id:    3,
+				Title: "Iris Meller Chocolate, 24 pcs 38 g",
+				Price: models.ProductPrice{
+					BaseCost: 10.20,
+					Discount: 10,
 				},
-				Rating:      1,
-				Description: "Good item",
-				Category:    "Home",
-				Images:      []string{"/product/test.png"},
+				Rating: 5,
+				Description: "Meller Chocolate is a true legend among sweets! " +
+					"The combination of delicate caramel and chocolate, created using a " +
+					"unique recipe, allows Meller to remain the leader in consumer preferences " +
+					"for many years. A timeless classic and a truly legendary product!",
+				Category: "Food",
+				Images:   []string{"/product/6033457624.jpg", "/product/6033457625.jpg"},
 			},
 		},
 		mu: &sync.RWMutex{},
@@ -90,7 +103,7 @@ func (lr *LocalRepository) GetListPreviewProducts(paginator *models.PaginatorPro
 		products = append(products, &models.ViewProduct{
 			Id:           item.Id,
 			Title:        item.Title,
-			Cost:         item.Cost,
+			Price:        item.Price,
 			Rating:       item.Rating,
 			PreviewImage: item.Images[0],
 		})
@@ -103,11 +116,11 @@ func (lr *LocalRepository) GetListPreviewProducts(paginator *models.PaginatorPro
 		switch paginator.SortDirection {
 		case models.PaginatorASC:
 			compare = func(i, j int) bool {
-				return products[i].Cost.BaseCost < products[j].Cost.BaseCost
+				return products[i].Price.BaseCost < products[j].Price.BaseCost
 			}
 		case models.PaginatorDESC:
 			compare = func(i, j int) bool {
-				return products[i].Cost.BaseCost > products[j].Cost.BaseCost
+				return products[i].Price.BaseCost > products[j].Price.BaseCost
 			}
 		}
 	case models.ProductsRatingSort:

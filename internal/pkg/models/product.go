@@ -1,24 +1,24 @@
 package models
 
 type Product struct {
-	Id          uint64      `json:"id"`
-	Title       string      `json:"title"`
-	Cost        ProductCost `json:"cost"`
-	Rating      int         `json:"rating"`
-	Description string      `json:"description"`
-	Category    string      `json:"category"`
-	Images      []string    `json:"images"`
+	Id          uint64       `json:"id"`
+	Title       string       `json:"title"`
+	Price       ProductPrice `json:"price"`
+	Rating      int          `json:"rating"`
+	Description string       `json:"description"`
+	Category    string       `json:"category"`
+	Images      []string     `json:"images"`
 }
 
 type ViewProduct struct {
-	Id           uint64      `json:"id"`
-	Title        string      `json:"title"`
-	Cost         ProductCost `json:"cost"`
-	Rating       int         `json:"rating"`
-	PreviewImage string      `json:"preview_image"`
+	Id           uint64       `json:"id"`
+	Title        string       `json:"title"`
+	Price        ProductPrice `json:"price"`
+	Rating       int          `json:"rating"`
+	PreviewImage string       `json:"preview_image"`
 }
 
-type ProductCost struct {
+type ProductPrice struct {
 	Discount float32 `json:"discount"`
 	BaseCost float32 `json:"base_cost"`
 }
