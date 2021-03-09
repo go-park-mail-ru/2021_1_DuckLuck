@@ -42,7 +42,7 @@ func (h *ProductHandler) GetProduct(w http.ResponseWriter, r *http.Request) {
 	tools.SetJSONResponse(w, result, http.StatusOK)
 }
 
-func (h *ProductHandler) GetRangeProducts(w http.ResponseWriter, r *http.Request) {
+func (h *ProductHandler) GetListPreviewProducts(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		tools.SetJSONResponse(w, []byte("{\"error\": \"can't read body of request\"}"), http.StatusBadRequest)
@@ -57,13 +57,13 @@ func (h *ProductHandler) GetRangeProducts(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	products, err := h.ProductRepo.GetPaginateProducts(&paginator)
+	listPreviewProducts, err := h.ProductRepo.GetListPreviewProducts(&paginator)
 	if err == server_errors.ErrUserNotFound {
 		tools.SetJSONResponse(w, []byte("{\"error\": \"user not found\"}"), http.StatusBadRequest)
 		return
 	}
 
-	result, err := json.Marshal(products)
+	result, err := json.Marshal(listPreviewProducts)
 	if err != nil {
 		tools.SetJSONResponse(w, []byte("{\"error\": \"can't marshal body\"}"), http.StatusBadRequest)
 		return
