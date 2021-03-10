@@ -11,7 +11,7 @@ import (
 const goodSessionValue = "goodValue"
 
 var retSession = &models.Session{
-	Value:  goodSessionValue,
+	Value: goodSessionValue,
 }
 
 var err error
