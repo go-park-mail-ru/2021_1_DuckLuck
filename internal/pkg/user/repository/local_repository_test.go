@@ -19,7 +19,7 @@ var userForAdd = &models.SignupUser{
 }
 
 var retUser = &models.ProfileUser{
-	Id:       0,
+	Id:       goodUserId,
 	Email:    goodUserEmail,
 	Password: "password",
 }
@@ -31,15 +31,19 @@ var updateUser = &models.UpdateUser{
 
 var res *models.ProfileUser
 var err error
-var rep = NewSessionLocalRepository()
 
 func TestLocalRepository_Add(t *testing.T) {
+	rep := NewSessionLocalRepository()
+
 	res, err = rep.Add(userForAdd)
 	require.NoError(t, err)
 	require.Equal(t, res, retUser)
 }
 
 func TestLocalRepository_GetByEmail(t *testing.T) {
+	rep := NewSessionLocalRepository()
+	rep.Add(userForAdd)
+
 	res, err = rep.GetByEmail(badUserEmail)
 	require.Error(t, server_errors.ErrUserNotFound)
 	require.Nil(t, res)
@@ -50,6 +54,9 @@ func TestLocalRepository_GetByEmail(t *testing.T) {
 }
 
 func TestLocalRepository_GetById(t *testing.T) {
+	rep := NewSessionLocalRepository()
+	rep.Add(userForAdd)
+
 	res, err = rep.GetById(badUserId)
 	require.Error(t, server_errors.ErrUserNotFound)
 	require.Nil(t, res)
@@ -60,11 +67,17 @@ func TestLocalRepository_GetById(t *testing.T) {
 }
 
 func TestLocalRepository_UpdateProfile(t *testing.T) {
+	rep := NewSessionLocalRepository()
+	rep.Add(userForAdd)
+
 	err = rep.UpdateProfile(goodUserId, updateUser)
 	require.NoError(t, err)
 }
 
 func TestLocalRepository_UpdateAvatar(t *testing.T) {
+	rep := NewSessionLocalRepository()
+	rep.Add(userForAdd)
+
 	err = rep.UpdateAvatar(badUserId, newAvatarName)
 	require.Error(t, server_errors.ErrUserNotFound)
 
