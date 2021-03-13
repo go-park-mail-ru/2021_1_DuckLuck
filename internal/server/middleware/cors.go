@@ -1,20 +1,13 @@
 package middleware
 
 import (
-	"net/http"
-
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
+	"net/http"
 )
 
 func Cors(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_, ok := configs.CorsOrigins[r.Header.Get("Origin")]
-		if !ok {
-			w.WriteHeader(http.StatusNoContent)
-			return
-		}
-
-		w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
+		w.Header().Set("Access-Control-Allow-Origin", configs.CorsOrigin)
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
 		// If method of request is only for get options
 		if r.Method == http.MethodOptions {
