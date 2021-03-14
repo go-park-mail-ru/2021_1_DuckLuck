@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"time"
 
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
@@ -52,7 +53,7 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tools.SetCookie(w, models.SessionCookieName, currentSession.Value, models.DurationNewSessionCookie)
+	tools.SetCookie(w, models.SessionCookieName, currentSession.Value, models.ExpireSessionCookie*time.Second)
 	tools.SetJSONResponseSuccess(w, http.StatusOK)
 }
 
@@ -150,7 +151,7 @@ func (h *UserHandler) Signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tools.SetCookie(w, models.SessionCookieName, currentSession.Value, models.DurationNewSessionCookie)
+	tools.SetCookie(w, models.SessionCookieName, currentSession.Value, models.ExpireSessionCookie*time.Second)
 	tools.SetJSONResponseSuccess(w, http.StatusCreated)
 }
 

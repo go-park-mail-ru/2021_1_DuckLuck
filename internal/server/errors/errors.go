@@ -69,4 +69,10 @@ var (
 	ErrCanNotMarshal error = Error{
 		Message: "can't marshal",
 	}
+	ErrDBInternalError error = Error{
+		Message: "internal db error",
+	}
+	ErrDBFailedConnection error = Error{
+		Message: "can't connect to db",
+	}
 )

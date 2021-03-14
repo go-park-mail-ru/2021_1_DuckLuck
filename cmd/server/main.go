@@ -14,16 +14,25 @@ import (
 	user_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user/handler"
 	user_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user/repository"
 	user_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user/usecase"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/middleware"
 
+	"github.com/gomodule/redigo/redis"
 	"github.com/gorilla/mux"
 )
 
 func main() {
 	port := flag.String("p", "8080", "port to serve on")
+	redisAddr := flag.String("addr", "redis://user:@localhost:6379/0", "redis addr")
 	flag.Parse()
 
-	sessionRepo := session_repo.NewSessionLocalRepository()
+	c, err := redis.DialURL(*redisAddr)
+	if err != nil {
+		panic(errors.ErrDBFailedConnection.Error())
+	}
+	defer c.Close()
+
+	sessionRepo := session_repo.NewSessionRedisRepository(c)
 	sessionUCase := session_usecase.NewUseCase(sessionRepo)
 
 	userRepo := user_repo.NewSessionLocalRepository()
