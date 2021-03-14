@@ -1,15 +1,13 @@
 package models
 
 import (
-	"time"
-
 	uuid "github.com/satori/go.uuid"
 )
 
 const (
-	SessionCookieName        = "session_id"
-	SessionContextKey        = "session_key"
-	DurationNewSessionCookie = 90 * 24 * time.Hour
+	SessionCookieName   = "session_id"
+	SessionContextKey   = "session_key"
+	ExpireSessionCookie = 90 * 24 * 3600
 )
 
 type Session struct {
