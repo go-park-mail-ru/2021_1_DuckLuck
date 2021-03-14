@@ -22,10 +22,11 @@ var retUser = &models.ProfileUser{
 	Id:       goodId,
 	Password: goodPassword,
 	Email:    goodEmail,
-	Avatar:   models.Avatar{
+	Avatar: models.Avatar{
 		Url: goodAvatar,
 	},
 }
+
 var err error
 
 func TestUserUseCase_Authorize(t *testing.T) {
@@ -34,67 +35,68 @@ func TestUserUseCase_Authorize(t *testing.T) {
 		Password: goodPassword,
 	}
 
-	useCase := NewUseCase()
-
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	mockRepository := mock.NewMockRepository(ctrl)
-	mockRepository.EXPECT().GetByEmail(goodEmail).Times(2).Return(retUser, nil)
-	mockRepository.EXPECT().GetByEmail(badEmail).Times(1).Return(nil, server_errors.ErrIncorrectUserEmail)
+	mockRepository.EXPECT().SelectProfileByEmail(goodEmail).Times(2).Return(retUser, nil)
+	mockRepository.EXPECT().SelectProfileByEmail(badEmail).Times(1).Return(nil, server_errors.ErrIncorrectUserEmail)
+
+	useCase := NewUseCase(mockRepository)
 
 	var res *models.ProfileUser
 
-	res, err = useCase.Authorize(mockRepository, authUser)
+	res, err = useCase.Authorize(authUser)
 	require.NoError(t, err)
 	require.Equal(t, res, retUser)
 
 	authUser.Password = badPassword
-	res, err = useCase.Authorize(mockRepository, authUser)
+	res, err = useCase.Authorize(authUser)
 	require.Error(t, err, server_errors.ErrIncorrectUserPassword)
 	require.Nil(t, res)
 	authUser.Password = goodPassword
 
 	authUser.Email = badEmail
-	res, err = useCase.Authorize(mockRepository, authUser)
+	res, err = useCase.Authorize(authUser)
 	require.Error(t, err, server_errors.ErrIncorrectUserEmail)
 	require.Nil(t, res)
 }
 
 func TestUserUseCase_SetAvatar(t *testing.T) {
-	useCase := NewUseCase()
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	mockRepository := mock.NewMockRepository(ctrl)
-	mockRepository.EXPECT().GetById(goodId).Times(1).Return(retUser, nil)
+	mockRepository.EXPECT().SelectProfileById(goodId).Times(1).Return(retUser, nil)
 	mockRepository.EXPECT().UpdateAvatar(goodId, configs.UrlToAvatar+goodAvatar).Times(1).Return(nil)
+
+	useCase := NewUseCase(mockRepository)
 
 	var res string
 
-	res, err = useCase.SetAvatar(mockRepository, goodId, goodAvatar)
+	res, err = useCase.SetAvatar(goodId, goodAvatar)
 	require.NoError(t, err)
 	require.Equal(t, res, configs.UrlToAvatar+goodAvatar)
 }
 
 func TestUserUseCase_GetAvatar(t *testing.T) {
-	useCase := NewUseCase()
-
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	mockRepository := mock.NewMockRepository(ctrl)
-	mockRepository.EXPECT().GetById(goodId).Times(1).Return(retUser, nil)
-	mockRepository.EXPECT().GetById(badId).Times(1).Return(nil, server_errors.ErrUserNotFound)
+	mockRepository.EXPECT().SelectProfileById(goodId).Times(1).Return(retUser, nil)
+	mockRepository.EXPECT().SelectProfileById(badId).Times(1).Return(nil, server_errors.ErrUserNotFound)
+
+	useCase := NewUseCase(mockRepository)
 
 	var res string
 
-	res, err = useCase.GetAvatar(mockRepository, goodId)
+	res, err = useCase.GetAvatar(goodId)
 	require.NoError(t, err)
 	require.Equal(t, res, goodAvatar)
 
-	res, err = useCase.GetAvatar(mockRepository, badId)
+	res, err = useCase.GetAvatar(badId)
 	require.Error(t, err, server_errors.ErrUserNotFound)
 	require.Equal(t, res, "")
 }
@@ -105,8 +107,6 @@ func TestUserUseCase_UpdateProfile(t *testing.T) {
 		LastName:  "newLastName",
 	}
 
-	useCase := NewUseCase()
-
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -114,9 +114,11 @@ func TestUserUseCase_UpdateProfile(t *testing.T) {
 	mockRepository.EXPECT().UpdateProfile(goodId, updateUser).Times(1).Return(nil)
 	mockRepository.EXPECT().UpdateProfile(badId, updateUser).Times(1).Return(server_errors.ErrUserNotFound)
 
-	err = useCase.UpdateProfile(mockRepository, goodId, updateUser)
+	useCase := NewUseCase(mockRepository)
+
+	err = useCase.UpdateProfile(goodId, updateUser)
 	require.NoError(t, err)
 
-	err = useCase.UpdateProfile(mockRepository, badId, updateUser)
+	err = useCase.UpdateProfile(badId, updateUser)
 	require.Error(t, err, server_errors.ErrUserNotFound)
 }

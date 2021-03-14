@@ -32,43 +32,43 @@ var updateUser = &models.UpdateUser{
 var res *models.ProfileUser
 var err error
 
-func TestLocalRepository_Add(t *testing.T) {
+func TestLocalRepository_AddProfile(t *testing.T) {
 	rep := NewSessionLocalRepository()
 
-	res, err = rep.Add(userForAdd)
+	res, err = rep.AddProfile(userForAdd)
 	require.NoError(t, err)
 	require.Equal(t, res, retUser)
 }
 
-func TestLocalRepository_GetByEmail(t *testing.T) {
+func TestLocalRepository_SelectProfileByEmail(t *testing.T) {
 	rep := NewSessionLocalRepository()
-	rep.Add(userForAdd)
+	rep.AddProfile(userForAdd)
 
-	res, err = rep.GetByEmail(badUserEmail)
+	res, err = rep.SelectProfileByEmail(badUserEmail)
 	require.Error(t, server_errors.ErrUserNotFound)
 	require.Nil(t, res)
 
-	res, err = rep.GetByEmail(goodUserEmail)
+	res, err = rep.SelectProfileByEmail(goodUserEmail)
 	require.NoError(t, err)
 	require.Equal(t, res, retUser)
 }
 
-func TestLocalRepository_GetById(t *testing.T) {
+func TestLocalRepository_SelectProfileById(t *testing.T) {
 	rep := NewSessionLocalRepository()
-	rep.Add(userForAdd)
+	rep.AddProfile(userForAdd)
 
-	res, err = rep.GetById(badUserId)
+	res, err = rep.SelectProfileById(badUserId)
 	require.Error(t, server_errors.ErrUserNotFound)
 	require.Nil(t, res)
 
-	res, err = rep.GetById(goodUserId)
+	res, err = rep.SelectProfileById(goodUserId)
 	require.NoError(t, err)
 	require.Equal(t, res, retUser)
 }
 
 func TestLocalRepository_UpdateProfile(t *testing.T) {
 	rep := NewSessionLocalRepository()
-	rep.Add(userForAdd)
+	rep.AddProfile(userForAdd)
 
 	err = rep.UpdateProfile(goodUserId, updateUser)
 	require.NoError(t, err)
@@ -76,7 +76,7 @@ func TestLocalRepository_UpdateProfile(t *testing.T) {
 
 func TestLocalRepository_UpdateAvatar(t *testing.T) {
 	rep := NewSessionLocalRepository()
-	rep.Add(userForAdd)
+	rep.AddProfile(userForAdd)
 
 	err = rep.UpdateAvatar(badUserId, newAvatarName)
 	require.Error(t, server_errors.ErrUserNotFound)
