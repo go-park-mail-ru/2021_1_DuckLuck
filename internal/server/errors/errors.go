@@ -5,13 +5,19 @@ import (
 )
 
 type Error struct {
-	HttpCode    int    `json:"-"`
-	Message     string `json:"message"`
-	UserMessage string `json:"user_message"`
+	Message     string `json:"error"`
 }
 
 func (err Error) Error() string {
-	return fmt.Sprintf("error with code %d happened %s", err.HttpCode, err.Message)
+	return fmt.Sprintf("error: happened %s", err.Message)
+}
+
+func CreateError(err error) error {
+	if _, ok := err.(Error); ok {
+		return err
+	}
+
+	return Error{Message: err.Error()}
 }
 
 var (
@@ -25,7 +31,7 @@ var (
 		Message: "user not found",
 	}
 	ErrSessionNotFound error = Error{
-		Message: "something went wrong",
+		Message: "session not found",
 	}
 	ErrIncorrectUserEmail error = Error{
 		Message: "incorrect user email",
@@ -53,5 +59,14 @@ var (
 	}
 	ErrIncorrectPaginator error = Error{
 		Message: "incorrect params of pagination",
+	}
+	ErrBadRequest error = Error{
+		Message: "incorrect request",
+	}
+	ErrCanNotUnmarshal error = Error{
+		Message: "can't unmarshal",
+	}
+	ErrCanNotMarshal error = Error{
+		Message: "can't marshal",
 	}
 )

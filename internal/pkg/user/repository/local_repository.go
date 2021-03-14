@@ -27,7 +27,9 @@ func (lr *LocalRepository) Add(user *models.SignupUser) (*models.ProfileUser, er
 		LastName:  "",
 		Email:     user.Email,
 		Password:  user.Password,
-		Avatar:    "",
+		Avatar: models.Avatar{
+			Url: "",
+		},
 	}
 	lr.mu.Lock()
 	lr.data[newUser.Id] = newUser
@@ -86,7 +88,7 @@ func (lr *LocalRepository) UpdateAvatar(userId uint64, fileName string) error {
 	}
 
 	lr.mu.Lock()
-	lr.data[userId].Avatar = fileName
+	lr.data[userId].Avatar.Url = fileName
 	lr.mu.Unlock()
 
 	return nil

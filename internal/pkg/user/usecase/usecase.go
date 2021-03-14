@@ -31,8 +31,8 @@ func (u *UserUseCase) Authorize(userRepo user.Repository, authUser *models.Login
 func (u *UserUseCase) SetAvatar(userRepo user.Repository, userId uint64, avatar string) (string, error) {
 	// Destroy old user avatar
 	profileUser, err := userRepo.GetById(userId)
-	if err == nil || profileUser.Avatar != "" {
-		err = os.Remove(configs.PathToUpload + profileUser.Avatar)
+	if err == nil || profileUser.Avatar.Url != "" {
+		err = os.Remove(configs.PathToUpload + profileUser.Avatar.Url)
 	}
 
 	err = userRepo.UpdateAvatar(userId, configs.UrlToAvatar+avatar)
@@ -49,7 +49,7 @@ func (u *UserUseCase) GetAvatar(userRepo user.Repository, userId uint64) (string
 		return "", err
 	}
 
-	return profileUser.Avatar, nil
+	return profileUser.Avatar.Url, nil
 }
 
 func (u *UserUseCase) UpdateProfile(userRepo user.Repository, userId uint64, updateUser *models.UpdateUser) error {
