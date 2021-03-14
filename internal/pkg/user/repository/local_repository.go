@@ -5,7 +5,7 @@ import (
 
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user"
-	server_errors "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 )
 
 type LocalRepository struct {
@@ -20,14 +20,16 @@ func NewSessionLocalRepository() user.Repository {
 	}
 }
 
-func (lr *LocalRepository) Add(user *models.SignupUser) (*models.ProfileUser, error) {
+func (lr *LocalRepository) AddProfile(user *models.SignupUser) (*models.ProfileUser, error) {
 	newUser := &models.ProfileUser{
 		Id:        uint64(len(lr.data)),
 		FirstName: "",
 		LastName:  "",
 		Email:     user.Email,
 		Password:  user.Password,
-		Avatar:    "",
+		Avatar: models.Avatar{
+			Url: "",
+		},
 	}
 	lr.mu.Lock()
 	lr.data[newUser.Id] = newUser
@@ -36,7 +38,7 @@ func (lr *LocalRepository) Add(user *models.SignupUser) (*models.ProfileUser, er
 	return newUser, nil
 }
 
-func (lr *LocalRepository) GetByEmail(email string) (*models.ProfileUser, error) {
+func (lr *LocalRepository) SelectProfileByEmail(email string) (*models.ProfileUser, error) {
 	lr.mu.RLock()
 	ok := false
 	var userByEmail *models.ProfileUser
@@ -49,19 +51,19 @@ func (lr *LocalRepository) GetByEmail(email string) (*models.ProfileUser, error)
 	lr.mu.RUnlock()
 
 	if !ok {
-		return nil, server_errors.ErrUserNotFound
+		return nil, errors.ErrUserNotFound
 	}
 
 	return userByEmail, nil
 }
 
-func (lr *LocalRepository) GetById(userId uint64) (*models.ProfileUser, error) {
+func (lr *LocalRepository) SelectProfileById(userId uint64) (*models.ProfileUser, error) {
 	lr.mu.RLock()
 	userById, ok := lr.data[userId]
 	lr.mu.RUnlock()
 
 	if !ok {
-		return nil, server_errors.ErrUserNotFound
+		return nil, errors.ErrUserNotFound
 	}
 
 	return userById, nil
@@ -82,11 +84,11 @@ func (lr *LocalRepository) UpdateAvatar(userId uint64, fileName string) error {
 	lr.mu.RUnlock()
 
 	if !ok {
-		return server_errors.ErrUserNotFound
+		return errors.ErrUserNotFound
 	}
 
 	lr.mu.Lock()
-	lr.data[userId].Avatar = fileName
+	lr.data[userId].Avatar.Url = fileName
 	lr.mu.Unlock()
 
 	return nil

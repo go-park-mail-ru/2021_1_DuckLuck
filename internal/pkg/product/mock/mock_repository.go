@@ -34,32 +34,32 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
 }
 
-// GetById mocks base method.
-func (m *MockRepository) GetById(arg0 uint64) (*models.Product, error) {
+// SelectProductById mocks base method.
+func (m *MockRepository) SelectProductById(arg0 uint64) (*models.Product, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetById", arg0)
+	ret := m.ctrl.Call(m, "SelectProductById", arg0)
 	ret0, _ := ret[0].(*models.Product)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetById indicates an expected call of GetById.
-func (mr *MockRepositoryMockRecorder) GetById(arg0 interface{}) *gomock.Call {
+// SelectProductById indicates an expected call of SelectProductById.
+func (mr *MockRepositoryMockRecorder) SelectProductById(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockRepository)(nil).GetById), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectProductById", reflect.TypeOf((*MockRepository)(nil).SelectProductById), arg0)
 }
 
-// GetListPreviewProducts mocks base method.
-func (m *MockRepository) GetListPreviewProducts(arg0 *models.PaginatorProducts) (*models.RangeProducts, error) {
+// SelectRangeProducts mocks base method.
+func (m *MockRepository) SelectRangeProducts(arg0 *models.PaginatorProducts) (*models.RangeProducts, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetListPreviewProducts", arg0)
+	ret := m.ctrl.Call(m, "SelectRangeProducts", arg0)
 	ret0, _ := ret[0].(*models.RangeProducts)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetListPreviewProducts indicates an expected call of GetListPreviewProducts.
-func (mr *MockRepositoryMockRecorder) GetListPreviewProducts(arg0 interface{}) *gomock.Call {
+// SelectRangeProducts indicates an expected call of SelectRangeProducts.
+func (mr *MockRepositoryMockRecorder) SelectRangeProducts(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetListPreviewProducts", reflect.TypeOf((*MockRepository)(nil).GetListPreviewProducts), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectRangeProducts", reflect.TypeOf((*MockRepository)(nil).SelectRangeProducts), arg0)
 }

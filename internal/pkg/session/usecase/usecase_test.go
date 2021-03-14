@@ -21,7 +21,7 @@ func TestLocalRepository_Check(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockRepository := mock.NewMockRepository(ctrl)
-	mockRepository.EXPECT().GetByValue(goodSessionValue).Times(1).Return(retSession, nil)
+	mockRepository.EXPECT().SelectSessionByValue(goodSessionValue).Times(1).Return(retSession, nil)
 
 	useCase := NewUseCase(mockRepository)
 	var res *models.Session

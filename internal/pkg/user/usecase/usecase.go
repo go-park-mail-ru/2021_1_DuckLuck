@@ -6,36 +6,40 @@ import (
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user"
-	server_errors "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 )
 
-type UserUseCase struct{}
-
-func NewUseCase() user.UseCase {
-	return &UserUseCase{}
+type UserUseCase struct {
+	UserRepo user.Repository
 }
 
-func (u *UserUseCase) Authorize(userRepo user.Repository, authUser *models.LoginUser) (*models.ProfileUser, error) {
-	profileUser, err := userRepo.GetByEmail(authUser.Email)
+func NewUseCase(repo user.Repository) user.UseCase {
+	return &UserUseCase{
+		UserRepo: repo,
+	}
+}
+
+func (u *UserUseCase) Authorize(authUser *models.LoginUser) (*models.ProfileUser, error) {
+	profileUser, err := u.UserRepo.SelectProfileByEmail(authUser.Email)
 	if err != nil {
-		return nil, server_errors.ErrIncorrectUserEmail
+		return nil, errors.ErrIncorrectUserEmail
 	}
 
 	if profileUser.Password != authUser.Password {
-		return nil, server_errors.ErrIncorrectUserPassword
+		return nil, errors.ErrIncorrectUserPassword
 	}
 
 	return profileUser, nil
 }
 
-func (u *UserUseCase) SetAvatar(userRepo user.Repository, userId uint64, avatar string) (string, error) {
+func (u *UserUseCase) SetAvatar(userId uint64, avatar string) (string, error) {
 	// Destroy old user avatar
-	profileUser, err := userRepo.GetById(userId)
-	if err == nil || profileUser.Avatar != "" {
-		err = os.Remove(configs.PathToUpload + profileUser.Avatar)
+	profileUser, err := u.UserRepo.SelectProfileById(userId)
+	if err == nil || profileUser.Avatar.Url != "" {
+		err = os.Remove(configs.PathToUpload + profileUser.Avatar.Url)
 	}
 
-	err = userRepo.UpdateAvatar(userId, configs.UrlToAvatar+avatar)
+	err = u.UserRepo.UpdateAvatar(userId, configs.UrlToAvatar+avatar)
 	if err != nil {
 		return "", err
 	}
@@ -43,20 +47,28 @@ func (u *UserUseCase) SetAvatar(userRepo user.Repository, userId uint64, avatar 
 	return configs.UrlToAvatar + avatar, nil
 }
 
-func (u *UserUseCase) GetAvatar(userRepo user.Repository, userId uint64) (string, error) {
-	profileUser, err := userRepo.GetById(userId)
+func (u *UserUseCase) GetAvatar(userId uint64) (string, error) {
+	profileUser, err := u.UserRepo.SelectProfileById(userId)
 	if err != nil {
 		return "", err
 	}
 
-	return profileUser.Avatar, nil
+	return profileUser.Avatar.Url, nil
 }
 
-func (u *UserUseCase) UpdateProfile(userRepo user.Repository, userId uint64, updateUser *models.UpdateUser) error {
-	err := userRepo.UpdateProfile(userId, updateUser)
+func (u *UserUseCase) UpdateProfile(userId uint64, updateUser *models.UpdateUser) error {
+	err := u.UserRepo.UpdateProfile(userId, updateUser)
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (u *UserUseCase) GetUserById(userId uint64) (*models.ProfileUser, error) {
+	return u.UserRepo.SelectProfileById(userId)
+}
+
+func (u *UserUseCase) AddUser(user *models.SignupUser) (*models.ProfileUser, error) {
+	return u.UserRepo.AddProfile(user)
 }

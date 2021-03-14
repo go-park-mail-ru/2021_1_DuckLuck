@@ -6,7 +6,7 @@ import (
 
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product"
-	server_errors "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 )
 
 type LocalRepository struct {
@@ -171,30 +171,26 @@ func NewSessionLocalRepository() product.Repository {
 	}
 }
 
-func (lr *LocalRepository) GetById(productId uint64) (*models.Product, error) {
+func (lr *LocalRepository) SelectProductById(productId uint64) (*models.Product, error) {
 	lr.mu.RLock()
 	productById, ok := lr.data[productId]
 	lr.mu.RUnlock()
 
 	if !ok {
-		return nil, server_errors.ErrProductNotFound
+		return nil, errors.ErrProductNotFound
 	}
 
 	return productById, nil
 }
 
-func (lr *LocalRepository) GetListPreviewProducts(paginator *models.PaginatorProducts) (*models.RangeProducts, error) {
-	if paginator.PageNum < 1 || paginator.Count < 1 {
-		return nil, server_errors.ErrIncorrectPaginator
-	}
-
+func (lr *LocalRepository) SelectRangeProducts(paginator *models.PaginatorProducts) (*models.RangeProducts, error) {
 	countPages := len(lr.data) / paginator.Count
 	if len(lr.data)%paginator.Count > 0 {
 		countPages++
 	}
 
 	if countPages < paginator.PageNum {
-		return nil, server_errors.ErrProductsIsEmpty
+		return nil, errors.ErrProductsIsEmpty
 	}
 
 	products := make([]*models.ViewProduct, 0)

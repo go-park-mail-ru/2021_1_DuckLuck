@@ -5,7 +5,7 @@ import (
 
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/session"
-	server_errors "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 )
 
 type LocalRepository struct {
@@ -20,7 +20,7 @@ func NewSessionLocalRepository() session.Repository {
 	}
 }
 
-func (lr *LocalRepository) Add(session *models.Session) error {
+func (lr *LocalRepository) AddSession(session *models.Session) error {
 	lr.mu.Lock()
 	lr.data[session.Value] = session
 	lr.mu.Unlock()
@@ -28,19 +28,19 @@ func (lr *LocalRepository) Add(session *models.Session) error {
 	return nil
 }
 
-func (lr *LocalRepository) GetByValue(sessionValue string) (*models.Session, error) {
+func (lr *LocalRepository) SelectSessionByValue(sessionValue string) (*models.Session, error) {
 	lr.mu.RLock()
 	sess, ok := lr.data[sessionValue]
 	lr.mu.RUnlock()
 
 	if !ok {
-		return nil, server_errors.ErrSessionNotFound
+		return nil, errors.ErrSessionNotFound
 	}
 
 	return sess, nil
 }
 
-func (lr *LocalRepository) DestroyByValue(sessionValue string) error {
+func (lr *LocalRepository) DeleteByValue(sessionValue string) error {
 	lr.mu.Lock()
 	delete(lr.data, sessionValue)
 	lr.mu.Unlock()

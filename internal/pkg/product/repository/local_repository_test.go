@@ -32,7 +32,7 @@ func TestLocalRepository_GetById(t *testing.T) {
 	}
 
 	rep := NewSessionLocalRepository()
-	res, err := rep.GetById(goodProductId)
+	res, err := rep.SelectProductById(goodProductId)
 	require.NoError(t, err)
 	require.Equal(t, res, retProduct)
 }

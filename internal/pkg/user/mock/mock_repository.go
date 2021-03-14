@@ -34,49 +34,49 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
 }
 
-// Add mocks base method.
-func (m *MockRepository) Add(arg0 *models.SignupUser) (*models.ProfileUser, error) {
+// AddProfile mocks base method.
+func (m *MockRepository) AddProfile(arg0 *models.SignupUser) (*models.ProfileUser, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Add", arg0)
+	ret := m.ctrl.Call(m, "AddProfile", arg0)
 	ret0, _ := ret[0].(*models.ProfileUser)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// Add indicates an expected call of Add.
-func (mr *MockRepositoryMockRecorder) Add(arg0 interface{}) *gomock.Call {
+// AddProfile indicates an expected call of AddProfile.
+func (mr *MockRepositoryMockRecorder) AddProfile(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Add", reflect.TypeOf((*MockRepository)(nil).Add), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddProfile", reflect.TypeOf((*MockRepository)(nil).AddProfile), arg0)
 }
 
-// GetByEmail mocks base method.
-func (m *MockRepository) GetByEmail(arg0 string) (*models.ProfileUser, error) {
+// SelectProfileByEmail mocks base method.
+func (m *MockRepository) SelectProfileByEmail(arg0 string) (*models.ProfileUser, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetByEmail", arg0)
+	ret := m.ctrl.Call(m, "SelectProfileByEmail", arg0)
 	ret0, _ := ret[0].(*models.ProfileUser)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetByEmail indicates an expected call of GetByEmail.
-func (mr *MockRepositoryMockRecorder) GetByEmail(arg0 interface{}) *gomock.Call {
+// SelectProfileByEmail indicates an expected call of SelectProfileByEmail.
+func (mr *MockRepositoryMockRecorder) SelectProfileByEmail(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByEmail", reflect.TypeOf((*MockRepository)(nil).GetByEmail), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectProfileByEmail", reflect.TypeOf((*MockRepository)(nil).SelectProfileByEmail), arg0)
 }
 
-// GetById mocks base method.
-func (m *MockRepository) GetById(arg0 uint64) (*models.ProfileUser, error) {
+// SelectProfileById mocks base method.
+func (m *MockRepository) SelectProfileById(arg0 uint64) (*models.ProfileUser, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetById", arg0)
+	ret := m.ctrl.Call(m, "SelectProfileById", arg0)
 	ret0, _ := ret[0].(*models.ProfileUser)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetById indicates an expected call of GetById.
-func (mr *MockRepositoryMockRecorder) GetById(arg0 interface{}) *gomock.Call {
+// SelectProfileById indicates an expected call of SelectProfileById.
+func (mr *MockRepositoryMockRecorder) SelectProfileById(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockRepository)(nil).GetById), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectProfileById", reflect.TypeOf((*MockRepository)(nil).SelectProfileById), arg0)
 }
 
 // UpdateAvatar mocks base method.
