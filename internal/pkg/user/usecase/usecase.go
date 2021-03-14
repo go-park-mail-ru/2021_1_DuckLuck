@@ -9,11 +9,11 @@ import (
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 )
 
-type UserUseCase struct{
-	UserRepo  user.Repository
+type UserUseCase struct {
+	UserRepo user.Repository
 }
 
-func NewUseCase(repo  user.Repository) user.UseCase {
+func NewUseCase(repo user.Repository) user.UseCase {
 	return &UserUseCase{
 		UserRepo: repo,
 	}

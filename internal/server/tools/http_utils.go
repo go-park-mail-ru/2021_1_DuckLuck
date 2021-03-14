@@ -3,10 +3,11 @@ package tools
 import (
 	"context"
 	"encoding/json"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	"net/http"
 	"time"
+
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 )
 
 func SetJSONResponse(w http.ResponseWriter, body interface{}, statusCode int) {
@@ -27,7 +28,6 @@ func SetJSONResponseSuccess(w http.ResponseWriter, statusCode int) {
 	w.WriteHeader(statusCode)
 	w.Write([]byte("{\"error\": \"success\"}"))
 }
-
 
 func SetCookie(w http.ResponseWriter, cookieName string, cookieValue string, duration time.Duration) {
 	cookie := http.Cookie{

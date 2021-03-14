@@ -20,7 +20,7 @@ type UserHandler struct {
 
 func NewHandler(userUCase user.UseCase, sessionUCase session.UseCase) user.Handler {
 	return &UserHandler{
-		UserUCase: userUCase,
+		UserUCase:    userUCase,
 		SessionUCase: sessionUCase,
 	}
 }

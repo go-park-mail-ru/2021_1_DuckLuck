@@ -10,7 +10,7 @@ type ProfileUser struct {
 }
 
 type Avatar struct {
-	Url		string `json:"url"`
+	Url string `json:"url"`
 }
 
 type UpdateUser struct {

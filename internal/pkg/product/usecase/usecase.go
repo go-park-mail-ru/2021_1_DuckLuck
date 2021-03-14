@@ -7,10 +7,10 @@ import (
 )
 
 type ProductUseCase struct {
-	ProductRepo  product.Repository
+	ProductRepo product.Repository
 }
 
-func NewUseCase(repo  product.Repository) product.UseCase {
+func NewUseCase(repo product.Repository) product.UseCase {
 	return &ProductUseCase{
 		ProductRepo: repo,
 	}
@@ -27,4 +27,3 @@ func (lr *ProductUseCase) SelectRangeProducts(paginator *models.PaginatorProduct
 
 	return lr.ProductRepo.SelectRangeProducts(paginator)
 }
-

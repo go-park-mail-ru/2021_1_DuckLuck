@@ -5,7 +5,7 @@ import (
 
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user"
-	server_errors "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 )
 
 type LocalRepository struct {
@@ -51,7 +51,7 @@ func (lr *LocalRepository) SelectProfileByEmail(email string) (*models.ProfileUs
 	lr.mu.RUnlock()
 
 	if !ok {
-		return nil, server_errors.ErrUserNotFound
+		return nil, errors.ErrUserNotFound
 	}
 
 	return userByEmail, nil
@@ -63,7 +63,7 @@ func (lr *LocalRepository) SelectProfileById(userId uint64) (*models.ProfileUser
 	lr.mu.RUnlock()
 
 	if !ok {
-		return nil, server_errors.ErrUserNotFound
+		return nil, errors.ErrUserNotFound
 	}
 
 	return userById, nil
@@ -84,7 +84,7 @@ func (lr *LocalRepository) UpdateAvatar(userId uint64, fileName string) error {
 	lr.mu.RUnlock()
 
 	if !ok {
-		return server_errors.ErrUserNotFound
+		return errors.ErrUserNotFound
 	}
 
 	lr.mu.Lock()
