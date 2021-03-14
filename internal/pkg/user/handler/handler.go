@@ -1,4 +1,4 @@
-package delivery
+package handler
 
 import (
 	"encoding/json"
@@ -14,9 +14,15 @@ import (
 )
 
 type UserHandler struct {
-	UserUCase      user.UseCase
-	SessionManager session.UseCase
-	UserRepo       user.Repository
+	UserUCase    user.UseCase
+	SessionUCase session.UseCase
+}
+
+func NewHandler(userUCase user.UseCase, sessionUCase session.UseCase) user.Handler {
+	return &UserHandler{
+		UserUCase: userUCase,
+		SessionUCase: sessionUCase,
+	}
 }
 
 func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
@@ -34,13 +40,13 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	profileUser, err := h.UserUCase.Authorize(h.UserRepo, &authUser)
+	profileUser, err := h.UserUCase.Authorize(&authUser)
 	if err != nil {
 		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusBadRequest)
 		return
 	}
 
-	currentSession, err := h.SessionManager.Create(profileUser.Id)
+	currentSession, err := h.SessionUCase.Create(profileUser.Id)
 	if err != nil {
 		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
 		return
@@ -67,7 +73,7 @@ func (h *UserHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.UserUCase.UpdateProfile(h.UserRepo, currentSession.UserId, &updateUser)
+	err = h.UserUCase.UpdateProfile(currentSession.UserId, &updateUser)
 	if err != nil {
 		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
 		return
@@ -85,7 +91,7 @@ func (h *UserHandler) UpdateProfileAvatar(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	fileUrl, err := h.UserUCase.SetAvatar(h.UserRepo, currentSession.UserId, fileName)
+	fileUrl, err := h.UserUCase.SetAvatar(currentSession.UserId, fileName)
 	if err != nil {
 		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
 		return
@@ -97,7 +103,7 @@ func (h *UserHandler) UpdateProfileAvatar(w http.ResponseWriter, r *http.Request
 func (h *UserHandler) GetProfileAvatar(w http.ResponseWriter, r *http.Request) {
 	currentSession := tools.MustGetSessionFromContext(r.Context())
 
-	fileUrl, err := h.UserUCase.GetAvatar(h.UserRepo, currentSession.UserId)
+	fileUrl, err := h.UserUCase.GetAvatar(currentSession.UserId)
 	if err == errors.ErrUserNotFound {
 		tools.SetJSONResponse(w, errors.ErrUserNotFound, http.StatusInternalServerError)
 		return
@@ -109,7 +115,7 @@ func (h *UserHandler) GetProfileAvatar(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 	currentSession := tools.MustGetSessionFromContext(r.Context())
 
-	profileUser, err := h.UserRepo.GetById(currentSession.UserId)
+	profileUser, err := h.UserUCase.GetUserById(currentSession.UserId)
 	if err != nil {
 		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusBadRequest)
 		return
@@ -133,12 +139,12 @@ func (h *UserHandler) Signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	addedUser, err := h.UserRepo.Add(&newUser)
+	addedUser, err := h.UserUCase.AddUser(&newUser)
 	if err != nil {
 		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusConflict)
 	}
 
-	currentSession, err := h.SessionManager.Create(addedUser.Id)
+	currentSession, err := h.SessionUCase.Create(addedUser.Id)
 	if err != nil {
 		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
 		return
@@ -152,7 +158,7 @@ func (h *UserHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	// Middleware auth add session in context
 	currentSession := tools.MustGetSessionFromContext(r.Context())
 
-	err := h.SessionManager.DestroyCurrent(currentSession.Value)
+	err := h.SessionUCase.DestroyCurrent(currentSession.Value)
 	if err != nil {
 		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusUnauthorized)
 		return

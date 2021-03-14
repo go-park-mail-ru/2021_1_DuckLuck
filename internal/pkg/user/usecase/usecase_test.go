@@ -22,7 +22,9 @@ var retUser = &models.ProfileUser{
 	Id:       goodId,
 	Password: goodPassword,
 	Email:    goodEmail,
-	Avatar:   goodAvatar,
+	Avatar:   models.Avatar{
+		Url: goodAvatar,
+	},
 }
 var err error
 

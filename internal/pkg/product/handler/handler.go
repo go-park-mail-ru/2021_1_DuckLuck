@@ -1,4 +1,4 @@
-package delivery
+package handler
 
 import (
 	"encoding/json"
@@ -16,7 +16,12 @@ import (
 
 type ProductHandler struct {
 	ProductUCase product.UseCase
-	ProductRepo  product.Repository
+}
+
+func NewHandler(UCase product.UseCase) product.Handler {
+	return &ProductHandler{
+		ProductUCase: UCase,
+	}
 }
 
 func (h *ProductHandler) GetProduct(w http.ResponseWriter, r *http.Request) {
@@ -27,7 +32,7 @@ func (h *ProductHandler) GetProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	productById, err := h.ProductRepo.GetById(uint64(id))
+	productById, err := h.ProductUCase.GetProductById(uint64(id))
 	if err != nil {
 		tools.SetJSONResponse(w, errors.ErrProductNotFound, http.StatusInternalServerError)
 	}
@@ -50,7 +55,7 @@ func (h *ProductHandler) GetListPreviewProducts(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	listPreviewProducts, err := h.ProductRepo.GetListPreviewProducts(&paginator)
+	listPreviewProducts, err := h.ProductUCase.SelectRangeProducts(&paginator)
 	if err != nil {
 		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
 		return

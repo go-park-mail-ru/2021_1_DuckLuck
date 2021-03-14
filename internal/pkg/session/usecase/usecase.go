@@ -17,7 +17,7 @@ func NewUseCase(SessionRepo session.Repository) session.UseCase {
 }
 
 func (h *SessionUseCase) Check(sessionCookieValue string) (*models.Session, error) {
-	sess, err := h.SessionRepo.GetByValue(sessionCookieValue)
+	sess, err := h.SessionRepo.SelectSessionByValue(sessionCookieValue)
 	if err == errors.ErrSessionNotFound {
 		return nil, errors.ErrUserUnauthorized
 	}
@@ -27,7 +27,7 @@ func (h *SessionUseCase) Check(sessionCookieValue string) (*models.Session, erro
 
 func (h *SessionUseCase) Create(userId uint64) (*models.Session, error) {
 	sess := models.NewSession(userId)
-	err := h.SessionRepo.Add(sess)
+	err := h.SessionRepo.AddSession(sess)
 	if err != nil {
 		return nil, errors.ErrInternalError
 	}
@@ -36,7 +36,7 @@ func (h *SessionUseCase) Create(userId uint64) (*models.Session, error) {
 }
 
 func (h *SessionUseCase) DestroyCurrent(sessionCookieValue string) error {
-	err := h.SessionRepo.DestroyByValue(sessionCookieValue)
+	err := h.SessionRepo.DeleteByValue(sessionCookieValue)
 	if err != nil {
 		return errors.ErrInternalError
 	}

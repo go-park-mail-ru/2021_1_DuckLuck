@@ -20,7 +20,7 @@ func NewSessionLocalRepository() user.Repository {
 	}
 }
 
-func (lr *LocalRepository) Add(user *models.SignupUser) (*models.ProfileUser, error) {
+func (lr *LocalRepository) AddProfile(user *models.SignupUser) (*models.ProfileUser, error) {
 	newUser := &models.ProfileUser{
 		Id:        uint64(len(lr.data)),
 		FirstName: "",
@@ -38,7 +38,7 @@ func (lr *LocalRepository) Add(user *models.SignupUser) (*models.ProfileUser, er
 	return newUser, nil
 }
 
-func (lr *LocalRepository) GetByEmail(email string) (*models.ProfileUser, error) {
+func (lr *LocalRepository) SelectProfileByEmail(email string) (*models.ProfileUser, error) {
 	lr.mu.RLock()
 	ok := false
 	var userByEmail *models.ProfileUser
@@ -57,7 +57,7 @@ func (lr *LocalRepository) GetByEmail(email string) (*models.ProfileUser, error)
 	return userByEmail, nil
 }
 
-func (lr *LocalRepository) GetById(userId uint64) (*models.ProfileUser, error) {
+func (lr *LocalRepository) SelectProfileById(userId uint64) (*models.ProfileUser, error) {
 	lr.mu.RLock()
 	userById, ok := lr.data[userId]
 	lr.mu.RUnlock()
