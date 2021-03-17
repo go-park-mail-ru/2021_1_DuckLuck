@@ -1,26 +1,28 @@
 package models
 
+import "database/sql"
+
 type Product struct {
-	Id          uint64       `json:"id"`
-	Title       string       `json:"title"`
-	Price       ProductPrice `json:"price"`
-	Rating      int          `json:"rating"`
-	Description string       `json:"description"`
-	Category    string       `json:"category"`
-	Images      []string     `json:"images"`
+	Id          uint64         `json:"id"`
+	Title       string         `json:"title"`
+	Price       ProductPrice   `json:"price"`
+	Rating      float32        `json:"rating"`
+	Description sql.NullString `json:"description"`
+	Category    []string       `json:"category"`
+	Images      []string       `json:"images"`
 }
 
 type ViewProduct struct {
 	Id           uint64       `json:"id"`
 	Title        string       `json:"title"`
 	Price        ProductPrice `json:"price"`
-	Rating       int          `json:"rating"`
+	Rating       float32      `json:"rating"`
 	PreviewImage string       `json:"preview_image"`
 }
 
 type ProductPrice struct {
-	Discount float32 `json:"discount"`
-	BaseCost float32 `json:"base_cost"`
+	Discount int `json:"discount"`
+	BaseCost int `json:"base_cost"`
 }
 
 type RangeProducts struct {
