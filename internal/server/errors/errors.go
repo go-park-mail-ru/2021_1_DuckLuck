@@ -75,4 +75,7 @@ var (
 	ErrDBFailedConnection error = Error{
 		Message: "can't connect to db",
 	}
+	ErrHashFunctionFailed error = Error{
+		Message: "can't get hash of data",
+	}
 )
