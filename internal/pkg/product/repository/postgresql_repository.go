@@ -24,8 +24,8 @@ func NewSessionPostgresqlRepository(db *sql.DB) product.Repository {
 func (pr *PostgresqlRepository) SelectProductById(productId uint64) (*models.Product, error) {
 	row := pr.db.QueryRow(
 		"SELECT id, title, rating, description, baseCost, discount, images, "+
-			"getPathOfCategory(idCategory) "+
-			"FROM products WHERE id = $1",
+		"getPathOfCategory(idCategory) "+
+		"FROM products WHERE id = $1",
 		productId,
 	)
 
@@ -77,9 +77,9 @@ func (pr *PostgresqlRepository) SelectRangeProducts(paginator *models.PaginatorP
 
 	rows, err := pr.db.Query(
 		"SELECT id, title, baseCost, discount, rating, images[1] "+
-			"FROM products "+
-			sortString+
-			"LIMIT $1 OFFSET $2",
+		"FROM products "+
+		sortString+
+		"LIMIT $1 OFFSET $2",
 		paginator.Count,
 		paginator.Count*(paginator.PageNum-1),
 	)

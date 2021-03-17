@@ -33,10 +33,10 @@ func main() {
 	pgConn, err := sql.Open(
 		"postgres",
 		"user=postgres "+
-			"password=Id47806649 "+
-			"dbname=ozon_db "+
-			"host=localhost "+
-			"port=5432",
+		"password=Id47806649 "+
+		"dbname=ozon_db "+
+		"host=localhost "+
+		"port=5432",
 	)
 
 	if err != nil {
