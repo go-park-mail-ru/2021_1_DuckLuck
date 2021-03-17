@@ -1,9 +1,8 @@
 package middleware
 
 import (
-	"net/http"
-
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
+	"net/http"
 )
 
 func Cors(next http.Handler) http.Handler {
