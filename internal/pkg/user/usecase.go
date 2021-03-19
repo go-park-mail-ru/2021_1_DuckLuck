@@ -12,5 +12,5 @@ type UseCase interface {
 	SetAvatar(userId uint64, avatar string) (string, error)
 	GetAvatar(userId uint64) (string, error)
 	GetUserById(userId uint64) (*models.ProfileUser, error)
-	AddUser(user *models.SignupUser) (*models.ProfileUser, error)
+	AddUser(user *models.SignupUser) (uint64, error)
 }

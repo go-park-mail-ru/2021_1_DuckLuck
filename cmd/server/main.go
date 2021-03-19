@@ -1,8 +1,10 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -19,12 +21,32 @@ import (
 
 	"github.com/gomodule/redigo/redis"
 	"github.com/gorilla/mux"
+	_ "github.com/lib/pq"
 )
 
 func main() {
 	port := flag.String("p", "8080", "port to serve on")
 	redisAddr := flag.String("addr", "redis://user:@localhost:6379/0", "redis addr")
 	flag.Parse()
+
+	// Database
+	pgConn, err := sql.Open(
+		"postgres",
+		"user=postgres "+
+		"password=Id47806649 "+
+		"dbname=ozon_db "+
+		"host=localhost "+
+		"port=5432",
+	)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer pgConn.Close()
+
+	if err := pgConn.Ping(); err != nil {
+		log.Fatal(err)
+	}
 
 	c, err := redis.DialURL(*redisAddr)
 	if err != nil {
@@ -35,11 +57,11 @@ func main() {
 	sessionRepo := session_repo.NewSessionRedisRepository(c)
 	sessionUCase := session_usecase.NewUseCase(sessionRepo)
 
-	userRepo := user_repo.NewSessionLocalRepository()
+	userRepo := user_repo.NewSessionPostgresqlRepository(pgConn)
 	userUCase := user_usecase.NewUseCase(userRepo)
 	userHandler := user_delivery.NewHandler(userUCase, sessionUCase)
 
-	productRepo := product_repo.NewSessionLocalRepository()
+	productRepo := product_repo.NewSessionPostgresqlRepository(pgConn)
 	productUCase := product_usecase.NewUseCase(productRepo)
 	productHandler := product_delivery.NewHandler(productUCase)
 

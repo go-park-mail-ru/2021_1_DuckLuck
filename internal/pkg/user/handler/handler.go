@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"database/sql"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -98,7 +99,7 @@ func (h *UserHandler) UpdateProfileAvatar(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	tools.SetJSONResponse(w, models.Avatar{Url: fileUrl}, http.StatusOK)
+	tools.SetJSONResponse(w, models.Avatar{Url: sql.NullString{String: fileUrl}}, http.StatusOK)
 }
 
 func (h *UserHandler) GetProfileAvatar(w http.ResponseWriter, r *http.Request) {
@@ -110,7 +111,7 @@ func (h *UserHandler) GetProfileAvatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tools.SetJSONResponse(w, models.Avatar{Url: fileUrl}, http.StatusOK)
+	tools.SetJSONResponse(w, models.Avatar{Url: sql.NullString{String: fileUrl}}, http.StatusOK)
 }
 
 func (h *UserHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
@@ -140,12 +141,13 @@ func (h *UserHandler) Signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	addedUser, err := h.UserUCase.AddUser(&newUser)
+	addedUserId, err := h.UserUCase.AddUser(&newUser)
 	if err != nil {
 		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusConflict)
+		return
 	}
 
-	currentSession, err := h.SessionUCase.Create(addedUser.Id)
+	currentSession, err := h.SessionUCase.Create(addedUserId)
 	if err != nil {
 		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
 		return
