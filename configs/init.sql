@@ -149,15 +149,3 @@ VALUES (
            "/product/6043224631.jpg"}',
            4
        );
-
-
-CREATE OR REPLACE FUNCTION getPathOfCategory(INT)
-RETURNS TEXT[] AS $$
-select array(
-            SELECT c.name FROM  subsetCategory s
-            LEFT JOIN category c ON c.id = s.idSubset
-            WHERE s.idCategory = $1
-            ORDER BY s.level
-        )
-$$
-LANGUAGE SQL;
