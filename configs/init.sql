@@ -27,6 +27,7 @@ CREATE TABLE category (
 );
 
 
+
 DROP TABLE IF EXISTS products CASCADE;
 CREATE TABLE products (
     id SERIAL NOT NULL PRIMARY KEY,
@@ -45,6 +46,7 @@ CREATE TABLE products (
 );
 
 
+
 DROP TABLE IF EXISTS subsetCategory CASCADE;
 CREATE TABLE subsetCategory (
     idCategory INTEGER NOT NULL,
@@ -56,6 +58,13 @@ CREATE TABLE subsetCategory (
 
     CONSTRAINT levelValue CHECK (level > 0)
 );
+
+
+GRANT ALL PRIVILEGES ON TABLE users TO ozon_root;
+GRANT ALL PRIVILEGES ON TABLE category TO ozon_root;
+GRANT ALL PRIVILEGES ON TABLE products TO ozon_root;
+GRANT ALL PRIVILEGES ON TABLE subsetCategory TO ozon_root;
+
 
 -- Data for testing
 INSERT INTO category(name) VALUES ('Home');

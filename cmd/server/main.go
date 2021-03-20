@@ -35,8 +35,8 @@ func main() {
 	// Database
 	pgConn, err := sql.Open(
 		"postgres",
-		"user=postgres "+
-			"password=Id47806649 "+
+		"user=ozon_root "+
+			"password=qwerty123 "+
 			"dbname=ozon_db "+
 			"host=localhost "+
 			"port=5432",
