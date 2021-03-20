@@ -41,7 +41,7 @@ func (pr *PostgresqlRepository) GetNextLevelCategories(categoryId uint64) ([]*mo
 		nextLevelCategory := &models.CategoriesCatalog{}
 		err = rows.Scan(
 			&nextLevelCategory.Id,
-			&nextLevelCategory.LevelName,
+			&nextLevelCategory.Name,
 		)
 		if err != nil {
 			return nil, err
@@ -72,7 +72,7 @@ func (pr *PostgresqlRepository) GetCategoriesByLevel(level uint64) ([]*models.Ca
 		nextLevelCategory := &models.CategoriesCatalog{}
 		err = rows.Scan(
 			&nextLevelCategory.Id,
-			&nextLevelCategory.LevelName,
+			&nextLevelCategory.Name,
 		)
 		if err != nil {
 			return nil, err

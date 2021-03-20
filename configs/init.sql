@@ -57,7 +57,6 @@ CREATE TABLE subsetCategory (
     CONSTRAINT levelValue CHECK (level > 0)
 );
 
-
 -- Data for testing
 INSERT INTO category(name) VALUES ('Home');
 INSERT INTO category(name) VALUES ('Kitchen');

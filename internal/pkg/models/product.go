@@ -3,13 +3,13 @@ package models
 import "database/sql"
 
 type Product struct {
-	Id          uint64         `json:"id"`
-	Title       string         `json:"title"`
-	Price       ProductPrice   `json:"price"`
-	Rating      float32        `json:"rating"`
-	Description sql.NullString `json:"description"`
-	Category    []string       `json:"category"`
-	Images      []string       `json:"images"`
+	Id          uint64               `json:"id"`
+	Title       string               `json:"title"`
+	Price       ProductPrice         `json:"price"`
+	Rating      float32              `json:"rating"`
+	Description sql.NullString       `json:"description"`
+	Category    []*CategoriesCatalog `json:"category"`
+	Images      []string             `json:"images"`
 }
 
 type ViewProduct struct {
