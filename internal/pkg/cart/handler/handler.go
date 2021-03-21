@@ -47,7 +47,7 @@ func (h *CartHandler) AddProductInCart(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *CartHandler) DeleteProductInCart(w http.ResponseWriter, r *http.Request) {
-
+	h.CartUCase
 }
 
 func (h *CartHandler) ChangeProductInCart(w http.ResponseWriter, r *http.Request) {
