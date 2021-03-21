@@ -30,14 +30,14 @@ func (h *CartHandler) AddProductInCart(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	var productPosition models.ProductPosition
-	err = json.Unmarshal(body, &productPosition)
+	productPosition := &models.ProductPosition{}
+	err = json.Unmarshal(body, productPosition)
 	if err != nil {
 		tools.SetJSONResponse(w, errors.ErrCanNotUnmarshal, http.StatusBadRequest)
 		return
 	}
 
-	//err = h.UserUCase.UpdateProfile(currentSession.UserId, &updateUser)
+	err = h.CartUCase.AddProductInCart(currentSession.UserId, productPosition)
 	if err != nil {
 		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
 		return
@@ -47,7 +47,15 @@ func (h *CartHandler) AddProductInCart(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *CartHandler) DeleteProductInCart(w http.ResponseWriter, r *http.Request) {
-	h.CartUCase
+	currentSession := tools.MustGetSessionFromContext(r.Context())
+
+	err := h.CartUCase.DeleteProductInCart(currentSession.UserId)
+	if err != nil {
+		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
+		return
+	}
+
+	tools.SetJSONResponseSuccess(w, http.StatusOK)
 }
 
 func (h *CartHandler) ChangeProductInCart(w http.ResponseWriter, r *http.Request) {
