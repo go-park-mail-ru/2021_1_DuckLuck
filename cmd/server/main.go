@@ -33,10 +33,10 @@ func main() {
 	pgConn, err := sql.Open(
 		"postgres",
 		"user=postgres "+
-		"password=Id47806649 "+
-		"dbname=ozon_db "+
-		"host=localhost "+
-		"port=5432",
+			"password=Id47806649 "+
+			"dbname=ozon_db "+
+			"host=localhost "+
+			"port=5432",
 	)
 
 	if err != nil {
@@ -82,6 +82,12 @@ func main() {
 	authMux.HandleFunc("/api/v1/user/profile", userHandler.UpdateProfile).Methods("PUT", "OPTIONS")
 	authMux.HandleFunc("/api/v1/user/profile/avatar", userHandler.GetProfileAvatar).Methods("GET", "OPTIONS")
 	authMux.HandleFunc("/api/v1/user/profile/avatar", userHandler.UpdateProfileAvatar).Methods("PUT", "OPTIONS")
+	authMux.HandleFunc("/api/v1/user/profile/cart").Methods("GET", "OPTIONS")
+	authMux.HandleFunc("/api/v1/user/profile/cart/product").Methods("PUT", "OPTIONS")
+	authMux.HandleFunc("/api/v1/user/profile/cart/product").Methods("POST", "OPTIONS")
+	authMux.HandleFunc("/api/v1/user/profile/cart/product").Methods("DELETE", "OPTIONS")
+	authMux.HandleFunc("/api/v1/user/profile/cart/order").Methods("GET", "OPTIONS")
+	authMux.HandleFunc("/api/v1/user/profile/cart/order").Methods("POST", "OPTIONS")
 
 	server := &http.Server{
 		Addr:         ":" + *port,
