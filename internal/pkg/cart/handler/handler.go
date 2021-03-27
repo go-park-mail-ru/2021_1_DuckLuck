@@ -2,22 +2,25 @@ package handler
 
 import (
 	"encoding/json"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/cart"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools"
 	"io/ioutil"
 	"net/http"
-	"strconv"
+
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/cart"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools"
 )
 
 type CartHandler struct {
-	CartUCase cart.UseCase
+	CartUCase    cart.UseCase
+	ProductUCase product.UseCase
 }
 
-func NewHandler(UCase cart.UseCase) cart.Handler {
+func NewHandler(cartUCase cart.UseCase, productUCase product.UseCase) cart.Handler {
 	return &CartHandler{
-		CartUCase: UCase,
+		CartUCase:    cartUCase,
+		ProductUCase: productUCase,
 	}
 }
 
@@ -31,14 +34,14 @@ func (h *CartHandler) AddProductInCart(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	productPosition := &models.ProductPosition{}
-	err = json.Unmarshal(body, productPosition)
+	cartArticle := &models.CartArticle{}
+	err = json.Unmarshal(body, cartArticle)
 	if err != nil {
 		tools.SetJSONResponse(w, errors.ErrCanNotUnmarshal, http.StatusBadRequest)
 		return
 	}
 
-	err = h.CartUCase.AddProduct(currentSession.UserId, productPosition)
+	err = h.CartUCase.AddProduct(currentSession.UserId, cartArticle)
 	if err != nil {
 		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
 		return
@@ -50,20 +53,21 @@ func (h *CartHandler) AddProductInCart(w http.ResponseWriter, r *http.Request) {
 func (h *CartHandler) DeleteProductInCart(w http.ResponseWriter, r *http.Request) {
 	currentSession := tools.MustGetSessionFromContext(r.Context())
 
-	err := r.ParseForm()
+	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusBadRequest)
+		tools.SetJSONResponse(w, errors.ErrBadRequest, http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	identifier := &models.ProductIdentifier{}
+	err = json.Unmarshal(body, identifier)
+	if err != nil {
+		tools.SetJSONResponse(w, errors.ErrCanNotUnmarshal, http.StatusBadRequest)
 		return
 	}
 
-	str := r.Form["id"][0]
-	productId, err := strconv.Atoi(str)
-	if err != nil || productId < 0 {
-		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusBadRequest)
-		return
-	}
-
-	err = h.CartUCase.DeleteProduct(currentSession.UserId, uint64(productId))
+	err = h.CartUCase.DeleteProduct(currentSession.UserId, identifier)
 	if err != nil {
 		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
 		return
@@ -82,14 +86,14 @@ func (h *CartHandler) ChangeProductInCart(w http.ResponseWriter, r *http.Request
 	}
 	defer r.Body.Close()
 
-	productPosition := &models.ProductPosition{}
-	err = json.Unmarshal(body, productPosition)
+	cartArticle := &models.CartArticle{}
+	err = json.Unmarshal(body, cartArticle)
 	if err != nil {
 		tools.SetJSONResponse(w, errors.ErrCanNotUnmarshal, http.StatusBadRequest)
 		return
 	}
 
-	err = h.CartUCase.ChangeProduct(currentSession.UserId, productPosition)
+	err = h.CartUCase.ChangeProduct(currentSession.UserId, cartArticle)
 	if err != nil {
 		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
 		return
@@ -107,5 +111,23 @@ func (h *CartHandler) GetProductsFromCart(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	tools.SetJSONResponse(w, *userCart, http.StatusOK)
+	previewUserCart := models.PreviewCart{}
+	for id, productPosition := range userCart.Products {
+		product, err := h.ProductUCase.GetProductById(id)
+		if err != nil {
+			tools.SetJSONResponse(w, errors.CreateError(err), http.StatusBadRequest)
+			return
+		}
+
+		previewUserCart.Products = append(previewUserCart.Products,
+			&models.PreviewCartArticle{
+				Id:           product.Id,
+				Title:        product.Title,
+				Price:        product.Price,
+				PreviewImage: product.Images[0],
+				Count:        productPosition.Count,
+			})
+	}
+
+	tools.SetJSONResponse(w, previewUserCart, http.StatusOK)
 }

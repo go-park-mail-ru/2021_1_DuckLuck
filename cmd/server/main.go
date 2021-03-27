@@ -60,17 +60,17 @@ func main() {
 	sessionRepo := session_repo.NewSessionRedisRepository(c)
 	sessionUCase := session_usecase.NewUseCase(sessionRepo)
 
+	productRepo := product_repo.NewSessionPostgresqlRepository(pgConn)
+	productUCase := product_usecase.NewUseCase(productRepo)
+	productHandler := product_delivery.NewHandler(productUCase)
+
 	cartRepo := cart_repo.NewSessionRedisRepository(c)
 	cartUCase := cart_usecase.NewUseCase(cartRepo)
-	cartHandler := cart_delivery.NewHandler(cartUCase)
+	cartHandler := cart_delivery.NewHandler(cartUCase, productUCase)
 
 	userRepo := user_repo.NewSessionPostgresqlRepository(pgConn)
 	userUCase := user_usecase.NewUseCase(userRepo)
 	userHandler := user_delivery.NewHandler(userUCase, sessionUCase)
-
-	productRepo := product_repo.NewSessionPostgresqlRepository(pgConn)
-	productUCase := product_usecase.NewUseCase(productRepo)
-	productHandler := product_delivery.NewHandler(productUCase)
 
 	mainMux := mux.NewRouter()
 	mainMux.Use(middleware.Panic)
