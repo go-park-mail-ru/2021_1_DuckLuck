@@ -15,7 +15,7 @@ type RedisRepository struct {
 	conn redis.Conn
 }
 
-func NewSessionPostgresqlRepository(conn redis.Conn) cart.Repository {
+func NewSessionRedisRepository(conn redis.Conn) cart.Repository {
 	return &RedisRepository{
 		conn: conn,
 	}
@@ -25,63 +25,17 @@ func (rr *RedisRepository) GetNewKey(value uint64) string {
 	return fmt.Sprintf("cart:%d", value)
 }
 
-func (rr *RedisRepository) AddProductPosition(userId uint64, position *models.ProductPosition) error {
-	userCart := &models.Cart{}
+func (rr *RedisRepository) DeleteCart(userId uint64) error {
 	key := rr.GetNewKey(userId)
 
-	data, err := redis.Bytes(rr.conn.Do("GET", key))
-	if err == nil {
-		if err = json.Unmarshal(data, &userCart); err != nil {
-			return errors.ErrCanNotUnmarshal
-		}
-	}
-
-	// If product position already exist then increment counter
-	if _, ok := userCart.Products[position.ProductId]; ok {
-		userCart.Products[position.ProductId].Count++
-	} else {
-		userCart.Products[position.ProductId] = position
-	}
-
-	return rr.AddProductsInCart(userId, userCart)
-}
-
-func (rr *RedisRepository) DeleteProductPosition(userId uint64, productId uint64) error {
-	userCart, err := rr.GetProductsFromCart(userId)
+	_, err := redis.String(rr.conn.Do("DEL", key))
 	if err != nil {
-		return err
+		return errors.ErrDBInternalError
 	}
-
-	// Delete cart if empty
-	key := rr.GetNewKey(userId)
-	if len(userCart.Products) == 1 {
-		_, err = redis.String(rr.conn.Do("DEL", key))
-		if err != nil {
-			return errors.ErrDBInternalError
-		}
-		return nil
-	}
-
-	// Delete only product position
-	delete(userCart.Products, productId)
-	return rr.AddProductsInCart(userId, userCart)
+	return nil
 }
 
-func (rr *RedisRepository) UpdateProductPosition(userId uint64, position *models.ProductPosition) error {
-	userCart, err := rr.GetProductsFromCart(userId)
-	if err != nil {
-		return err
-	}
-
-	if _, ok := userCart.Products[position.ProductId]; !ok {
-		return errors.ErrProductNotFoundInCart
-	}
-	userCart.Products[position.ProductId] = position
-
-	return rr.AddProductsInCart(userId, userCart)
-}
-
-func (rr *RedisRepository) GetProductsFromCart(userId uint64) (*models.Cart, error) {
+func (rr *RedisRepository) GetCart(userId uint64) (*models.Cart, error) {
 	userCart := &models.Cart{}
 	key := rr.GetNewKey(userId)
 
@@ -97,7 +51,7 @@ func (rr *RedisRepository) GetProductsFromCart(userId uint64) (*models.Cart, err
 	return userCart, err
 }
 
-func (rr *RedisRepository) AddProductsInCart(userId uint64, userCart *models.Cart) error {
+func (rr *RedisRepository) AddCart(userId uint64, userCart *models.Cart) error {
 	key := rr.GetNewKey(userId)
 
 	data, err := json.Marshal(userCart)
