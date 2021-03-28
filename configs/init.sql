@@ -27,6 +27,7 @@ CREATE TABLE category (
 );
 
 
+
 DROP TABLE IF EXISTS products CASCADE;
 CREATE TABLE products (
     id SERIAL NOT NULL PRIMARY KEY,
@@ -45,6 +46,7 @@ CREATE TABLE products (
 );
 
 
+
 DROP TABLE IF EXISTS subsetCategory CASCADE;
 CREATE TABLE subsetCategory (
     idCategory INTEGER NOT NULL,
@@ -56,6 +58,12 @@ CREATE TABLE subsetCategory (
 
     CONSTRAINT levelValue CHECK (level > 0)
 );
+
+
+GRANT ALL PRIVILEGES ON TABLE users TO ozon_root;
+GRANT ALL PRIVILEGES ON TABLE category TO ozon_root;
+GRANT ALL PRIVILEGES ON TABLE products TO ozon_root;
+GRANT ALL PRIVILEGES ON TABLE subsetCategory TO ozon_root;
 
 
 -- Data for testing
@@ -149,15 +157,3 @@ VALUES (
            "/product/6043224631.jpg"}',
            4
        );
-
-
-CREATE OR REPLACE FUNCTION getPathOfCategory(INT)
-RETURNS TEXT[] AS $$
-select array(
-            SELECT c.name FROM  subsetCategory s
-            LEFT JOIN category c ON c.id = s.idSubset
-            WHERE s.idCategory = $1
-            ORDER BY s.level
-        )
-$$
-LANGUAGE SQL;

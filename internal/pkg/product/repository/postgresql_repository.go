@@ -23,12 +23,12 @@ func NewSessionPostgresqlRepository(db *sql.DB) product.Repository {
 
 func (pr *PostgresqlRepository) SelectProductById(productId uint64) (*models.Product, error) {
 	row := pr.db.QueryRow(
-		"SELECT id, title, rating, description, baseCost, discount, images, "+
-		"getPathOfCategory(idCategory) "+
-		"FROM products WHERE id = $1",
+		"SELECT id, title, rating, description, baseCost, discount, images, idCategory "+
+			"FROM products WHERE id = $1",
 		productId,
 	)
 
+	var idCategory int
 	productById := models.Product{}
 	err := row.Scan(
 		&productById.Id,
@@ -38,11 +38,32 @@ func (pr *PostgresqlRepository) SelectProductById(productId uint64) (*models.Pro
 		&productById.Price.BaseCost,
 		&productById.Price.Discount,
 		pq.Array(&productById.Images),
-		pq.Array(&productById.Category),
+		&idCategory,
 	)
 
+	rows, err := pr.db.Query(
+		"SELECT c.id, c.name FROM  subsetCategory s "+
+			"LEFT JOIN category c ON c.id = s.idSubset "+
+			"WHERE s.idCategory = $1 "+
+			"ORDER BY s.level",
+		idCategory,
+	)
+	defer rows.Close()
+
 	if err != nil {
-		return nil, errors.ErrProductNotFound
+		return nil, errors.ErrDBInternalError
+	}
+
+	for rows.Next() {
+		nextLevelCategory := &models.CategoriesCatalog{}
+		err = rows.Scan(
+			&nextLevelCategory.Id,
+			&nextLevelCategory.Name,
+		)
+		if err != nil {
+			return nil, err
+		}
+		productById.Category = append(productById.Category, nextLevelCategory)
 	}
 
 	return &productById, nil
@@ -77,9 +98,9 @@ func (pr *PostgresqlRepository) SelectRangeProducts(paginator *models.PaginatorP
 
 	rows, err := pr.db.Query(
 		"SELECT id, title, baseCost, discount, rating, images[1] "+
-		"FROM products "+
-		sortString+
-		"LIMIT $1 OFFSET $2",
+			"FROM products "+
+			sortString+
+			"LIMIT $1 OFFSET $2",
 		paginator.Count,
 		paginator.Count*(paginator.PageNum-1),
 	)

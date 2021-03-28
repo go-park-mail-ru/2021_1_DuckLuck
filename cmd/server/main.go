@@ -8,6 +8,9 @@ import (
 	"net/http"
 	"time"
 
+	category_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/category/handler"
+	category_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/category/repository"
+	category_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/category/usecase"
 	product_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/handler"
 	product_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/repository"
 	product_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/usecase"
@@ -32,11 +35,11 @@ func main() {
 	// Database
 	pgConn, err := sql.Open(
 		"postgres",
-		"user=postgres "+
-		"password=Id47806649 "+
-		"dbname=ozon_db "+
-		"host=localhost "+
-		"port=5432",
+		"user=ozon_root "+
+			"password=qwerty123 "+
+			"dbname=ozon_db "+
+			"host=localhost "+
+			"port=5432",
 	)
 
 	if err != nil {
@@ -65,6 +68,10 @@ func main() {
 	productUCase := product_usecase.NewUseCase(productRepo)
 	productHandler := product_delivery.NewHandler(productUCase)
 
+	categoryRepo := category_repo.NewSessionPostgresqlRepository(pgConn)
+	categoryUCase := category_usecase.NewUseCase(categoryRepo)
+	categoryHandler := category_delivery.NewHandler(categoryUCase)
+
 	mainMux := mux.NewRouter()
 	mainMux.Use(middleware.Panic)
 	mainMux.Use(middleware.Cors)
@@ -72,6 +79,8 @@ func main() {
 	mainMux.HandleFunc("/api/v1/user/login", userHandler.Login).Methods("POST", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/product/{id:[0-9]+}", productHandler.GetProduct).Methods("GET", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/product", productHandler.GetListPreviewProducts).Methods("POST", "OPTIONS")
+	mainMux.HandleFunc("/api/v1/category", categoryHandler.GetCatalogCategories).Methods("GET", "OPTIONS")
+	mainMux.HandleFunc("/api/v1/category/{id:[0-9]+}", categoryHandler.GetSubCategories).Methods("GET", "OPTIONS")
 
 	// Handlers with Auth middleware
 	authMux := mainMux.PathPrefix("/").Subrouter()

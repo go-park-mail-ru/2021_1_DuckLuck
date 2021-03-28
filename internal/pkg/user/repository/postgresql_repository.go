@@ -38,7 +38,7 @@ func (pr *PostgresqlRepository) AddProfile(user *models.SignupUser) (uint64, err
 func (pr *PostgresqlRepository) SelectProfileByEmail(email string) (*models.ProfileUser, error) {
 	row := pr.db.QueryRow(
 		"SELECT id, firstName, lastName, email, password, avatar "+
-		"FROM users WHERE email = $1",
+			"FROM users WHERE email = $1",
 		email,
 	)
 
@@ -66,7 +66,7 @@ func (pr *PostgresqlRepository) SelectProfileByEmail(email string) (*models.Prof
 func (pr *PostgresqlRepository) SelectProfileById(userId uint64) (*models.ProfileUser, error) {
 	row := pr.db.QueryRow(
 		"SELECT id, firstName, lastName, email, password, avatar "+
-		"FROM users WHERE id = $1",
+			"FROM users WHERE id = $1",
 		userId,
 	)
 
@@ -94,9 +94,9 @@ func (pr *PostgresqlRepository) SelectProfileById(userId uint64) (*models.Profil
 func (pr *PostgresqlRepository) UpdateProfile(userId uint64, user *models.UpdateUser) error {
 	_, err := pr.db.Exec(
 		"UPDATE users SET "+
-		"firstName = $1, "+
-		"lastName = $2 "+
-		"WHERE id = $3",
+			"firstName = $1, "+
+			"lastName = $2 "+
+			"WHERE id = $3",
 		user.FirstName,
 		user.LastName,
 		userId,
@@ -111,8 +111,8 @@ func (pr *PostgresqlRepository) UpdateProfile(userId uint64, user *models.Update
 func (pr *PostgresqlRepository) UpdateAvatar(userId uint64, avatarUrl string) error {
 	_, err := pr.db.Exec(
 		"UPDATE users SET "+
-		"avatar = $1 "+
-		"WHERE id = $2",
+			"avatar = $1 "+
+			"WHERE id = $2",
 		avatarUrl,
 		userId,
 	)
