@@ -84,4 +84,7 @@ var (
 	ErrProductNotFoundInCart error = Error{
 		Message: "product not found in cart",
 	}
+	ErrInvalidData error = Error{
+		Message: "invalid data",
+	}
 )
