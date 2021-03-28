@@ -18,7 +18,7 @@ func NewSessionPostgresqlRepository(db *sql.DB) user.Repository {
 	}
 }
 
-func (pr *PostgresqlRepository) AddProfile(user *models.SignupUser) (uint64, error) {
+func (pr *PostgresqlRepository) AddProfile(user *models.ProfileUser) (uint64, error) {
 	row := pr.db.QueryRow(
 		"INSERT INTO users(email, password) VALUES ($1, $2) RETURNING id",
 		user.Email,
