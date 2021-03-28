@@ -8,6 +8,9 @@ import (
 	"net/http"
 	"time"
 
+	cart_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/cart/handler"
+	cart_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/cart/repository"
+	cart_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/cart/usecase"
 	category_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/category/handler"
 	category_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/category/repository"
 	category_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/category/usecase"
@@ -60,13 +63,17 @@ func main() {
 	sessionRepo := session_repo.NewSessionRedisRepository(c)
 	sessionUCase := session_usecase.NewUseCase(sessionRepo)
 
-	userRepo := user_repo.NewSessionPostgresqlRepository(pgConn)
-	userUCase := user_usecase.NewUseCase(userRepo)
-	userHandler := user_delivery.NewHandler(userUCase, sessionUCase)
-
 	productRepo := product_repo.NewSessionPostgresqlRepository(pgConn)
 	productUCase := product_usecase.NewUseCase(productRepo)
 	productHandler := product_delivery.NewHandler(productUCase)
+
+	cartRepo := cart_repo.NewSessionRedisRepository(c)
+	cartUCase := cart_usecase.NewUseCase(cartRepo, productRepo)
+	cartHandler := cart_delivery.NewHandler(cartUCase)
+
+	userRepo := user_repo.NewSessionPostgresqlRepository(pgConn)
+	userUCase := user_usecase.NewUseCase(userRepo)
+	userHandler := user_delivery.NewHandler(userUCase, sessionUCase)
 
 	categoryRepo := category_repo.NewSessionPostgresqlRepository(pgConn)
 	categoryUCase := category_usecase.NewUseCase(categoryRepo)
@@ -91,6 +98,10 @@ func main() {
 	authMux.HandleFunc("/api/v1/user/profile", userHandler.UpdateProfile).Methods("PUT", "OPTIONS")
 	authMux.HandleFunc("/api/v1/user/profile/avatar", userHandler.GetProfileAvatar).Methods("GET", "OPTIONS")
 	authMux.HandleFunc("/api/v1/user/profile/avatar", userHandler.UpdateProfileAvatar).Methods("PUT", "OPTIONS")
+	authMux.HandleFunc("/api/v1/cart", cartHandler.GetProductsFromCart).Methods("GET", "OPTIONS")
+	authMux.HandleFunc("/api/v1/cart/product", cartHandler.ChangeProductInCart).Methods("PUT", "OPTIONS")
+	authMux.HandleFunc("/api/v1/cart/product", cartHandler.AddProductInCart).Methods("POST", "OPTIONS")
+	authMux.HandleFunc("/api/v1/cart/product", cartHandler.DeleteProductInCart).Methods("DELETE", "OPTIONS")
 
 	server := &http.Server{
 		Addr:         ":" + *port,

@@ -78,4 +78,10 @@ var (
 	ErrHashFunctionFailed error = Error{
 		Message: "can't get hash of data",
 	}
+	ErrCartNotFound error = Error{
+		Message: "user cart not found",
+	}
+	ErrProductNotFoundInCart error = Error{
+		Message: "product not found in cart",
+	}
 )
