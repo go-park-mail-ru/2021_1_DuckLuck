@@ -1,8 +1,9 @@
 package tools
 
 import (
-	"github.com/asaskevich/govalidator"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
+
+	"github.com/asaskevich/govalidator"
 )
 
 func ValidateStruct(data interface{}) error {
