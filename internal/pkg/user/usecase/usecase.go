@@ -7,8 +7,7 @@ import (
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
-
-	"golang.org/x/crypto/bcrypt"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools"
 )
 
 type UserUseCase struct {
@@ -27,7 +26,7 @@ func (u *UserUseCase) Authorize(authUser *models.LoginUser) (*models.ProfileUser
 		return nil, errors.ErrIncorrectUserEmail
 	}
 
-	if err = bcrypt.CompareHashAndPassword([]byte(profileUser.Password), []byte(authUser.Password)); err != nil {
+	if ok := tools.CompareHashAndPassword(profileUser.Password, authUser.Password); !ok {
 		return nil, errors.ErrIncorrectUserPassword
 	}
 
@@ -76,13 +75,13 @@ func (u *UserUseCase) AddUser(user *models.SignupUser) (uint64, error) {
 		return 0, errors.ErrEmailAlreadyExist
 	}
 
-	hashOfPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.MinCost)
+	hashOfPassword, err := tools.GenerateHashFromPassword(user.Password)
 	if err != nil {
 		return 0, errors.ErrHashFunctionFailed
 	}
 
-	return u.UserRepo.AddProfile(&models.SignupUser{
+	return u.UserRepo.AddProfile(&models.ProfileUser{
 		Email:    user.Email,
-		Password: string(hashOfPassword),
+		Password: hashOfPassword,
 	})
 }
