@@ -6,5 +6,5 @@ type UseCase interface {
 	AddProduct(userId uint64, cartArticle *models.CartArticle) error
 	DeleteProduct(userId uint64, identifier *models.ProductIdentifier) error
 	ChangeProduct(userId uint64, cartArticle *models.CartArticle) error
-	GetCart(userId uint64) (*models.Cart, error)
+	GetPreviewCart(userId uint64) (*models.PreviewCart, error)
 }

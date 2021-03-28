@@ -3,16 +3,19 @@ package usecase
 import (
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/cart"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 )
 
 type CartUseCase struct {
 	CartRepo cart.Repository
+	ProductRepo product.Repository
 }
 
-func NewUseCase(repo cart.Repository) cart.UseCase {
+func NewUseCase(cartRepo cart.Repository, productRepo product.Repository) cart.UseCase {
 	return &CartUseCase{
-		CartRepo: repo,
+		CartRepo: cartRepo,
+		ProductRepo: productRepo,
 	}
 }
 
@@ -65,6 +68,28 @@ func (c *CartUseCase) ChangeProduct(userId uint64, cartArticle *models.CartArtic
 	return c.CartRepo.AddCart(userId, userCart)
 }
 
-func (c *CartUseCase) GetCart(userId uint64) (*models.Cart, error) {
-	return c.CartRepo.GetCart(userId)
+func (c *CartUseCase) GetPreviewCart(userId uint64) (*models.PreviewCart, error) {
+	userCart, err := c.CartRepo.GetCart(userId)
+	if err != nil {
+		return nil, err
+	}
+
+	previewUserCart := &models.PreviewCart{}
+	for id, productPosition := range userCart.Products {
+		productById, err := c.ProductRepo.SelectProductById(id)
+		if err != nil {
+			return nil, err
+		}
+
+		previewUserCart.Products = append(previewUserCart.Products,
+			&models.PreviewCartArticle{
+				Id:           productById.Id,
+				Title:        productById.Title,
+				Price:        productById.Price,
+				PreviewImage: productById.Images[0],
+				Count:        productPosition.Count,
+			})
+	}
+
+	return previewUserCart, nil
 }

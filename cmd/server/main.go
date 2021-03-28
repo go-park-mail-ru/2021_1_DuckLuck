@@ -65,8 +65,8 @@ func main() {
 	productHandler := product_delivery.NewHandler(productUCase)
 
 	cartRepo := cart_repo.NewSessionRedisRepository(c)
-	cartUCase := cart_usecase.NewUseCase(cartRepo)
-	cartHandler := cart_delivery.NewHandler(cartUCase, productUCase)
+	cartUCase := cart_usecase.NewUseCase(cartRepo, productRepo)
+	cartHandler := cart_delivery.NewHandler(cartUCase)
 
 	userRepo := user_repo.NewSessionPostgresqlRepository(pgConn)
 	userUCase := user_usecase.NewUseCase(userRepo)
