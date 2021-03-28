@@ -44,7 +44,7 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	err = tools.ValidateStruct(authUser)
 	if err != nil {
-		tools.SetJSONResponse(w, errors.ErrInvalidData, http.StatusBadRequest)
+		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusBadRequest)
 		return
 	}
 
@@ -83,7 +83,7 @@ func (h *UserHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 
 	err = tools.ValidateStruct(updateUser)
 	if err != nil {
-		tools.SetJSONResponse(w, errors.ErrInvalidData, http.StatusBadRequest)
+		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusBadRequest)
 		return
 	}
 
@@ -155,7 +155,7 @@ func (h *UserHandler) Signup(w http.ResponseWriter, r *http.Request) {
 
 	err = tools.ValidateStruct(newUser)
 	if err != nil {
-		tools.SetJSONResponse(w, errors.ErrInvalidData, http.StatusBadRequest)
+		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusBadRequest)
 		return
 	}
 

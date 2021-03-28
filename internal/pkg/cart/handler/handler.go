@@ -40,7 +40,7 @@ func (h *CartHandler) AddProductInCart(w http.ResponseWriter, r *http.Request) {
 
 	err = tools.ValidateStruct(cartArticle)
 	if err != nil {
-		tools.SetJSONResponse(w, errors.ErrInvalidData, http.StatusBadRequest)
+		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusBadRequest)
 		return
 	}
 
@@ -72,7 +72,7 @@ func (h *CartHandler) DeleteProductInCart(w http.ResponseWriter, r *http.Request
 
 	err = tools.ValidateStruct(identifier)
 	if err != nil {
-		tools.SetJSONResponse(w, errors.ErrInvalidData, http.StatusBadRequest)
+		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusBadRequest)
 		return
 	}
 
@@ -104,7 +104,7 @@ func (h *CartHandler) ChangeProductInCart(w http.ResponseWriter, r *http.Request
 
 	err = tools.ValidateStruct(cartArticle)
 	if err != nil {
-		tools.SetJSONResponse(w, errors.ErrInvalidData, http.StatusBadRequest)
+		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusBadRequest)
 		return
 	}
 
