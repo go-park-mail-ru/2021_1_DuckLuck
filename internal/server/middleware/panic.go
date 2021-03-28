@@ -1,9 +1,9 @@
 package middleware
 
 import (
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	"net/http"
 
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools"
 )
 

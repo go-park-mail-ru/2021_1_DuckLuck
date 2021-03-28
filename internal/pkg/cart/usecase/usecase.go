@@ -8,13 +8,13 @@ import (
 )
 
 type CartUseCase struct {
-	CartRepo cart.Repository
+	CartRepo    cart.Repository
 	ProductRepo product.Repository
 }
 
 func NewUseCase(cartRepo cart.Repository, productRepo product.Repository) cart.UseCase {
 	return &CartUseCase{
-		CartRepo: cartRepo,
+		CartRepo:    cartRepo,
 		ProductRepo: productRepo,
 	}
 }

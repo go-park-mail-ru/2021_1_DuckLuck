@@ -2,11 +2,11 @@ package middleware
 
 import (
 	"context"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	"net/http"
 
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/session"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools"
 )
 

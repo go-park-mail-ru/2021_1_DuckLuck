@@ -12,12 +12,12 @@ import (
 )
 
 type CartHandler struct {
-	CartUCase    cart.UseCase
+	CartUCase cart.UseCase
 }
 
 func NewHandler(cartUCase cart.UseCase) cart.Handler {
 	return &CartHandler{
-		CartUCase:    cartUCase,
+		CartUCase: cartUCase,
 	}
 }
 
