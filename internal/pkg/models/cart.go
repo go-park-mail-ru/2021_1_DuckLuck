@@ -5,11 +5,11 @@ type PreviewCart struct {
 }
 
 type PreviewCartArticle struct {
-	Id           uint64       `json:"id" valid:"type(uint64)"`
+	Id           uint64       `json:"id"`
 	Title        string       `json:"title" valid:"minstringlength(3)"`
 	Price        ProductPrice `json:"price" valid:"notnull"`
 	PreviewImage string       `json:"preview_image" valid:"minstringlength(3)"`
-	Count        uint64       `json:"count" valid:"type(uint64)"`
+	Count        uint64       `json:"count"`
 }
 
 type Cart struct {
@@ -22,9 +22,9 @@ type CartArticle struct {
 }
 
 type ProductPosition struct {
-	Count uint64 `json:"count" valid:"type(uint64)"`
+	Count uint64 `json:"count"`
 }
 
 type ProductIdentifier struct {
-	ProductId uint64 `json:"product_id" valid:"type(uint64)"`
+	ProductId uint64 `json:"product_id"`
 }
