@@ -38,6 +38,12 @@ func (h *CartHandler) AddProductInCart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	err = tools.ValidateStruct(cartArticle)
+	if err != nil {
+		tools.SetJSONResponse(w, errors.ErrInvalidData, http.StatusBadRequest)
+		return
+	}
+
 	err = h.CartUCase.AddProduct(currentSession.UserId, cartArticle)
 	if err != nil {
 		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
@@ -64,6 +70,12 @@ func (h *CartHandler) DeleteProductInCart(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	err = tools.ValidateStruct(identifier)
+	if err != nil {
+		tools.SetJSONResponse(w, errors.ErrInvalidData, http.StatusBadRequest)
+		return
+	}
+
 	err = h.CartUCase.DeleteProduct(currentSession.UserId, identifier)
 	if err != nil {
 		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
@@ -87,6 +99,12 @@ func (h *CartHandler) ChangeProductInCart(w http.ResponseWriter, r *http.Request
 	err = json.Unmarshal(body, cartArticle)
 	if err != nil {
 		tools.SetJSONResponse(w, errors.ErrCanNotUnmarshal, http.StatusBadRequest)
+		return
+	}
+
+	err = tools.ValidateStruct(cartArticle)
+	if err != nil {
+		tools.SetJSONResponse(w, errors.ErrInvalidData, http.StatusBadRequest)
 		return
 	}
 

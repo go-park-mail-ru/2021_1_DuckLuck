@@ -3,6 +3,7 @@ module github.com/go-park-mail-ru/2021_1_DuckLuck
 go 1.15
 
 require (
+	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
 	github.com/golang/mock v1.5.0
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/gorilla/mux v1.8.0

@@ -55,6 +55,12 @@ func (h *ProductHandler) GetListPreviewProducts(w http.ResponseWriter, r *http.R
 		return
 	}
 
+	err = tools.ValidateStruct(paginator)
+	if err != nil {
+		tools.SetJSONResponse(w, errors.ErrInvalidData, http.StatusBadRequest)
+		return
+	}
+
 	listPreviewProducts, err := h.ProductUCase.SelectRangeProducts(&paginator)
 	if err != nil {
 		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
