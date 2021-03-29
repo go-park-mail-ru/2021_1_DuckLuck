@@ -7,7 +7,7 @@ import (
 //go:generate mockgen -destination=./mock/mock_repository.go -package=mock github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user Repository
 
 type Repository interface {
-	AddProfile(user *models.SignupUser) (uint64, error)
+	AddProfile(user *models.ProfileUser) (uint64, error)
 	UpdateProfile(userId uint64, user *models.UpdateUser) error
 	SelectProfileByEmail(email string) (*models.ProfileUser, error)
 	SelectProfileById(userId uint64) (*models.ProfileUser, error)

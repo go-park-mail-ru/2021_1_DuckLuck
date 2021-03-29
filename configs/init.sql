@@ -15,7 +15,7 @@ CREATE TABLE users (
     firstName TEXT,
     lastName TEXT,
     email TEXT NOT NULL,
-    password TEXT NOT NULL,
+    password BYTEA NOT NULL,
     avatar TEXT
 );
 
@@ -64,6 +64,7 @@ GRANT ALL PRIVILEGES ON TABLE users TO ozon_root;
 GRANT ALL PRIVILEGES ON TABLE category TO ozon_root;
 GRANT ALL PRIVILEGES ON TABLE products TO ozon_root;
 GRANT ALL PRIVILEGES ON TABLE subsetCategory TO ozon_root;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO ozon_root;
 
 
 -- Data for testing

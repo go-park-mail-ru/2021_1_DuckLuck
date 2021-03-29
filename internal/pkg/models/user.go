@@ -7,7 +7,7 @@ type ProfileUser struct {
 	FirstName sql.NullString `json:"first_name" valid:"utfletter, stringlength(3|30)"`
 	LastName  sql.NullString `json:"last_name" valid:"utfletter, stringlength(3|30)"`
 	Email     string         `json:"email" valid:"email"`
-	Password  string         `json:"-"`
+  Password  []byte         `json:"-"`
 	Avatar    Avatar         `json:"avatar" valid:"notnull, json"`
 }
 
