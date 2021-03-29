@@ -42,6 +42,12 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	err = tools.ValidateStruct(authUser)
+	if err != nil {
+		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusBadRequest)
+		return
+	}
+
 	profileUser, err := h.UserUCase.Authorize(&authUser)
 	if err != nil {
 		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusBadRequest)
@@ -72,6 +78,12 @@ func (h *UserHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	err = json.Unmarshal(body, &updateUser)
 	if err != nil {
 		tools.SetJSONResponse(w, errors.ErrCanNotUnmarshal, http.StatusBadRequest)
+		return
+	}
+
+	err = tools.ValidateStruct(updateUser)
+	if err != nil {
+		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusBadRequest)
 		return
 	}
 
@@ -138,6 +150,12 @@ func (h *UserHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	err = json.Unmarshal(body, &newUser)
 	if err != nil {
 		tools.SetJSONResponse(w, errors.ErrCanNotUnmarshal, http.StatusBadRequest)
+		return
+	}
+
+	err = tools.ValidateStruct(newUser)
+	if err != nil {
+		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusBadRequest)
 		return
 	}
 
