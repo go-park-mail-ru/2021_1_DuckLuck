@@ -10,10 +10,10 @@ import (
 )
 
 const (
-	times = 1
-	memory = 64 * 1024
+	times   = 1
+	memory  = 64 * 1024
 	threads = 4
-	keyLen = 32
+	keyLen  = 32
 	saltLen = 8
 )
 
