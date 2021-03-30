@@ -82,6 +82,7 @@ func main() {
 	mainMux := mux.NewRouter()
 	mainMux.Use(middleware.Panic)
 	mainMux.Use(middleware.Cors)
+	mainMux.Use(middleware.AccessLog)
 	mainMux.HandleFunc("/api/v1/user/signup", userHandler.Signup).Methods("POST", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/user/login", userHandler.Login).Methods("POST", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/product/{id:[0-9]+}", productHandler.GetProduct).Methods("GET", "OPTIONS")

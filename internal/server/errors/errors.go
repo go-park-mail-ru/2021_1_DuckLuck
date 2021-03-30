@@ -87,4 +87,7 @@ var (
 	ErrInvalidData error = Error{
 		Message: "invalid data",
 	}
+	ErrRequireIdNotFound error = Error{
+		Message: "require id not found",
+	}
 )
