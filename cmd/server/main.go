@@ -24,6 +24,7 @@ import (
 	user_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user/usecase"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/middleware"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools"
 
 	"github.com/gomodule/redigo/redis"
 	"github.com/gorilla/mux"
@@ -59,6 +60,9 @@ func main() {
 		panic(errors.ErrDBFailedConnection.Error())
 	}
 	defer c.Close()
+
+	logger := tools.Logger{}
+	logger.InitLogger()
 
 	sessionRepo := session_repo.NewSessionRedisRepository(c)
 	sessionUCase := session_usecase.NewUseCase(sessionRepo)

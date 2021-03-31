@@ -1,6 +1,7 @@
 # Project gitignore
 .idea
 go.sum
+log/log.txt
 
 # Binaries for programs and plugins
 *.exe

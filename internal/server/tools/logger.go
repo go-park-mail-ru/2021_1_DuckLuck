@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
+
+	nested "github.com/antonfisher/nested-logrus-formatter"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -12,7 +14,7 @@ type Logger struct {
 	logFile *os.File
 }
 
-func (l *Logger) init() {
+func (l *Logger) InitLogger() {
 	file, err := os.OpenFile(configs.PathToLogFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if err != nil {
 		panic("can't open file for log")
@@ -22,9 +24,10 @@ func (l *Logger) init() {
 	log.SetOutput(file)
 	l.logFile = file
 
-	log.SetFormatter(&log.TextFormatter{
-		DisableColors: true,
-		FullTimestamp: true,
+	log.SetFormatter(&nested.Formatter{
+		HideKeys:    false,
+		NoColors:    true,
+		FieldsOrder: []string{"requireId", "urlPath"},
 	})
 
 	switch configs.LogLevel {
@@ -41,14 +44,13 @@ func (l *Logger) init() {
 	}
 }
 
-func AccessLogStart(urlPath, remoteAddr, method, requireId string, startTime time.Time) {
+func AccessLogStart(urlPath, remoteAddr, method, requireId string) {
 	log.WithFields(log.Fields{
 		"urlPath":    urlPath,
 		"requireId":  requireId,
 		"method":     method,
 		"remoteAddr": remoteAddr,
-		"startTime":  startTime,
-	}).Info("[START] " + urlPath)
+	}).Info("Start of request processing")
 }
 
 func AccessLogEnd(urlPath, remoteAddr, method, requireId string, startTime time.Time) {
@@ -58,10 +60,10 @@ func AccessLogEnd(urlPath, remoteAddr, method, requireId string, startTime time.
 		"method":      method,
 		"remoteAddr":  remoteAddr,
 		"reqDuration": time.Since(startTime),
-	}).Info("[END] " + urlPath)
+	}).Info("End of request processing")
 }
 
-func LogInfo(packageName, functionName, urlPath, msg, requireId string) {
+func LogInfo(urlPath, packageName, functionName, msg, requireId string) {
 	log.WithFields(log.Fields{
 		"urlPath":   urlPath,
 		"requireId": requireId,
@@ -70,7 +72,7 @@ func LogInfo(packageName, functionName, urlPath, msg, requireId string) {
 	}).Info(msg)
 }
 
-func LogError(packageName, functionName, urlPath, requireId string, err error) {
+func LogError(urlPath, packageName, functionName, requireId string, err error) {
 	log.WithFields(log.Fields{
 		"urlPath":   urlPath,
 		"requireId": requireId,

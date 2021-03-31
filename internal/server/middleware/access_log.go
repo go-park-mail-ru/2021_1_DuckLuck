@@ -18,7 +18,7 @@ func AccessLog(next http.Handler) http.Handler {
 		r = r.WithContext(ctx)
 
 		startTime := time.Now()
-		tools.AccessLogStart(r.URL.Path, r.RemoteAddr, r.Method, requireId, startTime)
+		tools.AccessLogStart(r.URL.Path, r.RemoteAddr, r.Method, requireId)
 		next.ServeHTTP(w, r)
 		tools.AccessLogEnd(r.URL.Path, r.RemoteAddr, r.Method, requireId, startTime)
 	})
