@@ -62,7 +62,10 @@ func main() {
 	defer c.Close()
 
 	logger := tools.Logger{}
-	logger.InitLogger()
+	err = logger.InitLogger()
+	if err != nil {
+		panic(errors.ErrOpenFile.Error())
+	}
 
 	sessionRepo := session_repo.NewSessionRedisRepository(c)
 	sessionUCase := session_usecase.NewUseCase(sessionRepo)

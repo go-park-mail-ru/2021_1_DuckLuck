@@ -90,4 +90,7 @@ var (
 	ErrRequireIdNotFound error = Error{
 		Message: "require id not found",
 	}
+	ErrOpenFile error = Error{
+		Message: "can't open file",
+	}
 )

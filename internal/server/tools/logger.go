@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 
 	nested "github.com/antonfisher/nested-logrus-formatter"
 	log "github.com/sirupsen/logrus"
@@ -14,10 +15,10 @@ type Logger struct {
 	logFile *os.File
 }
 
-func (l *Logger) InitLogger() {
+func (l *Logger) InitLogger() error {
 	file, err := os.OpenFile(configs.PathToLogFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if err != nil {
-		panic("can't open file for log")
+		return errors.ErrOpenFile
 	}
 	defer l.logFile.Close()
 
@@ -42,6 +43,8 @@ func (l *Logger) InitLogger() {
 	default:
 		log.SetLevel(log.DebugLevel)
 	}
+
+	return nil
 }
 
 func AccessLogStart(urlPath, remoteAddr, method, requireId string) {
