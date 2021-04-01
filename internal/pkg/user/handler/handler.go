@@ -28,6 +28,14 @@ func NewHandler(userUCase user.UseCase, sessionUCase session.UseCase) user.Handl
 }
 
 func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
+	var err error
+	defer func() {
+		requireId := tools.MustGetRequireId(r.Context())
+		if err != nil {
+			tools.LogError(r.URL.Path, "user_handler", "Login", requireId, err)
+		}
+	}()
+
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		tools.SetJSONResponse(w, errors.ErrBadRequest, http.StatusBadRequest)
@@ -65,6 +73,14 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
+	var err error
+	defer func() {
+		requireId := tools.MustGetRequireId(r.Context())
+		if err != nil {
+			tools.LogError(r.URL.Path, "user_handler", "UpdateProfile", requireId, err)
+		}
+	}()
+
 	currentSession := tools.MustGetSessionFromContext(r.Context())
 
 	body, err := ioutil.ReadAll(r.Body)
@@ -97,6 +113,14 @@ func (h *UserHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) UpdateProfileAvatar(w http.ResponseWriter, r *http.Request) {
+	var err error
+	defer func() {
+		requireId := tools.MustGetRequireId(r.Context())
+		if err != nil {
+			tools.LogError(r.URL.Path, "user_handler", "UpdateProfileAvatar", requireId, err)
+		}
+	}()
+
 	currentSession := tools.MustGetSessionFromContext(r.Context())
 
 	fileName, err := tools.UploadFile(r, "avatar", configs.PathToUpload+configs.UrlToAvatar)
@@ -115,6 +139,14 @@ func (h *UserHandler) UpdateProfileAvatar(w http.ResponseWriter, r *http.Request
 }
 
 func (h *UserHandler) GetProfileAvatar(w http.ResponseWriter, r *http.Request) {
+	var err error
+	defer func() {
+		requireId := tools.MustGetRequireId(r.Context())
+		if err != nil {
+			tools.LogError(r.URL.Path, "user_handler", "GetProfileAvatar", requireId, err)
+		}
+	}()
+
 	currentSession := tools.MustGetSessionFromContext(r.Context())
 
 	fileUrl, err := h.UserUCase.GetAvatar(currentSession.UserId)
@@ -127,6 +159,14 @@ func (h *UserHandler) GetProfileAvatar(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
+	var err error
+	defer func() {
+		requireId := tools.MustGetRequireId(r.Context())
+		if err != nil {
+			tools.LogError(r.URL.Path, "user_handler", "GetProfile", requireId, err)
+		}
+	}()
+
 	currentSession := tools.MustGetSessionFromContext(r.Context())
 
 	profileUser, err := h.UserUCase.GetUserById(currentSession.UserId)
@@ -139,6 +179,14 @@ func (h *UserHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) Signup(w http.ResponseWriter, r *http.Request) {
+	var err error
+	defer func() {
+		requireId := tools.MustGetRequireId(r.Context())
+		if err != nil {
+			tools.LogError(r.URL.Path, "user_handler", "Signup", requireId, err)
+		}
+	}()
+
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		tools.SetJSONResponse(w, errors.ErrBadRequest, http.StatusBadRequest)
@@ -176,10 +224,18 @@ func (h *UserHandler) Signup(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) Logout(w http.ResponseWriter, r *http.Request) {
+	var err error
+	defer func() {
+		requireId := tools.MustGetRequireId(r.Context())
+		if err != nil {
+			tools.LogError(r.URL.Path, "user_handler", "Logout", requireId, err)
+		}
+	}()
+
 	// Middleware auth add session in context
 	currentSession := tools.MustGetSessionFromContext(r.Context())
 
-	err := h.SessionUCase.DestroyCurrent(currentSession.Value)
+	err = h.SessionUCase.DestroyCurrent(currentSession.Value)
 	if err != nil {
 		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusUnauthorized)
 		return

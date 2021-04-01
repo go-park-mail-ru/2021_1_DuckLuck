@@ -22,6 +22,14 @@ func NewHandler(cartUCase cart.UseCase) cart.Handler {
 }
 
 func (h *CartHandler) AddProductInCart(w http.ResponseWriter, r *http.Request) {
+	var err error
+	defer func() {
+		requireId := tools.MustGetRequireId(r.Context())
+		if err != nil {
+			tools.LogError(r.URL.Path, "cart_handler", "AddProductInCart", requireId, err)
+		}
+	}()
+
 	currentSession := tools.MustGetSessionFromContext(r.Context())
 
 	body, err := ioutil.ReadAll(r.Body)
@@ -54,6 +62,14 @@ func (h *CartHandler) AddProductInCart(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *CartHandler) DeleteProductInCart(w http.ResponseWriter, r *http.Request) {
+	var err error
+	defer func() {
+		requireId := tools.MustGetRequireId(r.Context())
+		if err != nil {
+			tools.LogError(r.URL.Path, "cart_handler", "DeleteProductInCart", requireId, err)
+		}
+	}()
+
 	currentSession := tools.MustGetSessionFromContext(r.Context())
 
 	body, err := ioutil.ReadAll(r.Body)
@@ -86,6 +102,14 @@ func (h *CartHandler) DeleteProductInCart(w http.ResponseWriter, r *http.Request
 }
 
 func (h *CartHandler) ChangeProductInCart(w http.ResponseWriter, r *http.Request) {
+	var err error
+	defer func() {
+		requireId := tools.MustGetRequireId(r.Context())
+		if err != nil {
+			tools.LogError(r.URL.Path, "cart_handler", "ChangeProductInCart", requireId, err)
+		}
+	}()
+
 	currentSession := tools.MustGetSessionFromContext(r.Context())
 
 	body, err := ioutil.ReadAll(r.Body)
@@ -118,6 +142,14 @@ func (h *CartHandler) ChangeProductInCart(w http.ResponseWriter, r *http.Request
 }
 
 func (h *CartHandler) GetProductsFromCart(w http.ResponseWriter, r *http.Request) {
+	var err error
+	defer func() {
+		requireId := tools.MustGetRequireId(r.Context())
+		if err != nil {
+			tools.LogError(r.URL.Path, "cart_handler", "GetProductsFromCart", requireId, err)
+		}
+	}()
+
 	currentSession := tools.MustGetSessionFromContext(r.Context())
 
 	previewUserCart, err := h.CartUCase.GetPreviewCart(currentSession.UserId)

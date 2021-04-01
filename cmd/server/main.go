@@ -24,6 +24,7 @@ import (
 	user_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user/usecase"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/middleware"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools"
 
 	"github.com/gomodule/redigo/redis"
 	"github.com/gorilla/mux"
@@ -60,6 +61,12 @@ func main() {
 	}
 	defer c.Close()
 
+	logger := tools.Logger{}
+	err = logger.InitLogger()
+	if err != nil {
+		panic(errors.ErrOpenFile.Error())
+	}
+
 	sessionRepo := session_repo.NewSessionRedisRepository(c)
 	sessionUCase := session_usecase.NewUseCase(sessionRepo)
 
@@ -82,6 +89,7 @@ func main() {
 	mainMux := mux.NewRouter()
 	mainMux.Use(middleware.Panic)
 	mainMux.Use(middleware.Cors)
+	mainMux.Use(middleware.AccessLog)
 	mainMux.HandleFunc("/api/v1/user/signup", userHandler.Signup).Methods("POST", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/user/login", userHandler.Login).Methods("POST", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/product/{id:[0-9]+}", productHandler.GetProduct).Methods("GET", "OPTIONS")

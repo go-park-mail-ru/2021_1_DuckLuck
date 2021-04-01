@@ -54,3 +54,12 @@ func MustGetSessionFromContext(ctx context.Context) *models.Session {
 
 	return session
 }
+
+func MustGetRequireId(ctx context.Context) string {
+	requireId, ok := ctx.Value(models.RequireIdKey).(string)
+	if !ok {
+		panic(errors.ErrRequireIdNotFound.Error())
+	}
+
+	return requireId
+}

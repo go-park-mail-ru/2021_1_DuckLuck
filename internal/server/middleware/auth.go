@@ -13,6 +13,14 @@ import (
 func Auth(sm session.UseCase) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			var err error
+			defer func() {
+				requireId := tools.MustGetRequireId(r.Context())
+				if err != nil {
+					tools.LogError(r.URL.Path, "middleware", "Auth", requireId, err)
+				}
+			}()
+
 			sessionCookie, err := r.Cookie(models.SessionCookieName)
 			if err != nil {
 				tools.SetJSONResponse(w, errors.ErrUserUnauthorized, http.StatusUnauthorized)

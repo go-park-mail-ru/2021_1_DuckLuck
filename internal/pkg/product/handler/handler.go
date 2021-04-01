@@ -25,6 +25,14 @@ func NewHandler(UCase product.UseCase) product.Handler {
 }
 
 func (h *ProductHandler) GetProduct(w http.ResponseWriter, r *http.Request) {
+	var err error
+	defer func() {
+		requireId := tools.MustGetRequireId(r.Context())
+		if err != nil {
+			tools.LogError(r.URL.Path, "product_handler", "GetProduct", requireId, err)
+		}
+	}()
+
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil || id < 1 {
@@ -41,6 +49,14 @@ func (h *ProductHandler) GetProduct(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *ProductHandler) GetListPreviewProducts(w http.ResponseWriter, r *http.Request) {
+	var err error
+	defer func() {
+		requireId := tools.MustGetRequireId(r.Context())
+		if err != nil {
+			tools.LogError(r.URL.Path, "product_handler", "GetListPreviewProducts", requireId, err)
+		}
+	}()
+
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		tools.SetJSONResponse(w, errors.ErrBadRequest, http.StatusBadRequest)

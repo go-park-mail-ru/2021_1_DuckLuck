@@ -22,6 +22,14 @@ func NewHandler(UCase category.UseCase) category.Handler {
 }
 
 func (h *CategoryHandler) GetCatalogCategories(w http.ResponseWriter, r *http.Request) {
+	var err error
+	defer func() {
+		requireId := tools.MustGetRequireId(r.Context())
+		if err != nil {
+			tools.LogError(r.URL.Path, "category_handler", "GetCatalogCategories", requireId, err)
+		}
+	}()
+
 	categories, err := h.CategoryUCase.GetCatalogCategories()
 	if err != nil {
 		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
@@ -32,6 +40,14 @@ func (h *CategoryHandler) GetCatalogCategories(w http.ResponseWriter, r *http.Re
 }
 
 func (h *CategoryHandler) GetSubCategories(w http.ResponseWriter, r *http.Request) {
+	var err error
+	defer func() {
+		requireId := tools.MustGetRequireId(r.Context())
+		if err != nil {
+			tools.LogError(r.URL.Path, "category_handler", "GetSubCategories", requireId, err)
+		}
+	}()
+
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil || id < 1 {
