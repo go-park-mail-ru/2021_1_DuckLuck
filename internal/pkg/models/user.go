@@ -2,7 +2,7 @@ package models
 
 import (
 	"database/sql"
-	sanitizer2 "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/sanitizer"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/sanitizer"
 )
 
 // All user information
@@ -28,7 +28,7 @@ type UpdateUser struct {
 }
 
 func (uu *UpdateUser) Sanitize() {
-	sanitizer := sanitizer2.NewSanitizer()
+	sanitizer := sanitizer.NewSanitizer()
 	uu.FirstName = sanitizer.Sanitize(uu.FirstName)
 	uu.LastName = sanitizer.Sanitize(uu.LastName)
 }
@@ -40,7 +40,7 @@ type LoginUser struct {
 }
 
 func (lu *LoginUser) Sanitize() {
-	sanitizer := sanitizer2.NewSanitizer()
+	sanitizer := sanitizer.NewSanitizer()
 	lu.Email = sanitizer.Sanitize(lu.Email)
 	lu.Password = sanitizer.Sanitize(lu.Password)
 }
@@ -52,7 +52,7 @@ type SignupUser struct {
 }
 
 func (su *SignupUser) Sanitize() {
-	sanitizer := sanitizer2.NewSanitizer()
+	sanitizer := sanitizer.NewSanitizer()
 	su.Email = sanitizer.Sanitize(su.Email)
 	su.Password = sanitizer.Sanitize(su.Password)
 }

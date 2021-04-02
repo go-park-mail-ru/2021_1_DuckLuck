@@ -2,7 +2,7 @@ package models
 
 import (
 	"database/sql"
-	sanitizer2 "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/sanitizer"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/sanitizer"
 )
 
 var (
@@ -57,7 +57,7 @@ type PaginatorProducts struct {
 }
 
 func (pp *PaginatorProducts) Sanitize() {
-	sanitizer := sanitizer2.NewSanitizer()
+	sanitizer := sanitizer.NewSanitizer()
 	pp.SortKey = sanitizer.Sanitize(pp.SortKey)
 	pp.SortDirection = sanitizer.Sanitize(pp.SortDirection)
 }
