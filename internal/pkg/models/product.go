@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/sanitizer"
 )
 

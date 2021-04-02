@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/logger"
+
 	"github.com/lithammer/shortuuid"
 )
 
