@@ -3,6 +3,10 @@ package handler
 import (
 	"database/sql"
 	"encoding/json"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/file_utils"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/http_utils"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/logger"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/validator"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -12,7 +16,6 @@ import (
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/session"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools"
 )
 
 type UserHandler struct {
@@ -30,15 +33,15 @@ func NewHandler(userUCase user.UseCase, sessionUCase session.UseCase) user.Handl
 func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 	var err error
 	defer func() {
-		requireId := tools.MustGetRequireId(r.Context())
+		requireId := http_utils.MustGetRequireId(r.Context())
 		if err != nil {
-			tools.LogError(r.URL.Path, "user_handler", "Login", requireId, err)
+			logger.LogError(r.URL.Path, "user_handler", "Login", requireId, err)
 		}
 	}()
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		tools.SetJSONResponse(w, errors.ErrBadRequest, http.StatusBadRequest)
+		http_utils.SetJSONResponse(w, errors.ErrBadRequest, http.StatusBadRequest)
 		return
 	}
 	defer r.Body.Close()
@@ -46,46 +49,47 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 	var authUser models.LoginUser
 	err = json.Unmarshal(body, &authUser)
 	if err != nil {
-		tools.SetJSONResponse(w, errors.ErrCanNotUnmarshal, http.StatusBadRequest)
+		http_utils.SetJSONResponse(w, errors.ErrCanNotUnmarshal, http.StatusBadRequest)
 		return
 	}
+	authUser.Sanitize()
 
-	err = tools.ValidateStruct(authUser)
+	err = validator.ValidateStruct(authUser)
 	if err != nil {
-		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusBadRequest)
+		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusBadRequest)
 		return
 	}
 
 	profileUser, err := h.UserUCase.Authorize(&authUser)
 	if err != nil {
-		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusBadRequest)
+		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusBadRequest)
 		return
 	}
 
 	currentSession, err := h.SessionUCase.Create(profileUser.Id)
 	if err != nil {
-		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
+		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
 		return
 	}
 
-	tools.SetCookie(w, models.SessionCookieName, currentSession.Value, models.ExpireSessionCookie*time.Second)
-	tools.SetJSONResponseSuccess(w, http.StatusOK)
+	http_utils.SetCookie(w, models.SessionCookieName, currentSession.Value, models.ExpireSessionCookie*time.Second)
+	http_utils.SetJSONResponseSuccess(w, http.StatusOK)
 }
 
 func (h *UserHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	var err error
 	defer func() {
-		requireId := tools.MustGetRequireId(r.Context())
+		requireId := http_utils.MustGetRequireId(r.Context())
 		if err != nil {
-			tools.LogError(r.URL.Path, "user_handler", "UpdateProfile", requireId, err)
+			logger.LogError(r.URL.Path, "user_handler", "UpdateProfile", requireId, err)
 		}
 	}()
 
-	currentSession := tools.MustGetSessionFromContext(r.Context())
+	currentSession := http_utils.MustGetSessionFromContext(r.Context())
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		tools.SetJSONResponse(w, errors.ErrBadRequest, http.StatusBadRequest)
+		http_utils.SetJSONResponse(w, errors.ErrBadRequest, http.StatusBadRequest)
 		return
 	}
 	defer r.Body.Close()
@@ -93,103 +97,104 @@ func (h *UserHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	var updateUser models.UpdateUser
 	err = json.Unmarshal(body, &updateUser)
 	if err != nil {
-		tools.SetJSONResponse(w, errors.ErrCanNotUnmarshal, http.StatusBadRequest)
+		http_utils.SetJSONResponse(w, errors.ErrCanNotUnmarshal, http.StatusBadRequest)
 		return
 	}
+	updateUser.Sanitize()
 
-	err = tools.ValidateStruct(updateUser)
+	err = validator.ValidateStruct(updateUser)
 	if err != nil {
-		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusBadRequest)
+		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusBadRequest)
 		return
 	}
 
 	err = h.UserUCase.UpdateProfile(currentSession.UserId, &updateUser)
 	if err != nil {
-		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
+		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
 		return
 	}
 
-	tools.SetJSONResponseSuccess(w, http.StatusOK)
+	http_utils.SetJSONResponseSuccess(w, http.StatusOK)
 }
 
 func (h *UserHandler) UpdateProfileAvatar(w http.ResponseWriter, r *http.Request) {
 	var err error
 	defer func() {
-		requireId := tools.MustGetRequireId(r.Context())
+		requireId := http_utils.MustGetRequireId(r.Context())
 		if err != nil {
-			tools.LogError(r.URL.Path, "user_handler", "UpdateProfileAvatar", requireId, err)
+			logger.LogError(r.URL.Path, "user_handler", "UpdateProfileAvatar", requireId, err)
 		}
 	}()
 
-	currentSession := tools.MustGetSessionFromContext(r.Context())
+	currentSession := http_utils.MustGetSessionFromContext(r.Context())
 
-	fileName, err := tools.UploadFile(r, "avatar", configs.PathToUpload+configs.UrlToAvatar)
+	fileName, err := file_utils.UploadFile(r, "avatar", configs.PathToUpload+configs.UrlToAvatar)
 	if err != nil {
-		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
+		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
 		return
 	}
 
 	fileUrl, err := h.UserUCase.SetAvatar(currentSession.UserId, fileName)
 	if err != nil {
-		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
+		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
 		return
 	}
 
-	tools.SetJSONResponse(w, models.Avatar{Url: sql.NullString{String: fileUrl}}, http.StatusOK)
+	http_utils.SetJSONResponse(w, models.Avatar{Url: sql.NullString{String: fileUrl}}, http.StatusOK)
 }
 
 func (h *UserHandler) GetProfileAvatar(w http.ResponseWriter, r *http.Request) {
 	var err error
 	defer func() {
-		requireId := tools.MustGetRequireId(r.Context())
+		requireId := http_utils.MustGetRequireId(r.Context())
 		if err != nil {
-			tools.LogError(r.URL.Path, "user_handler", "GetProfileAvatar", requireId, err)
+			logger.LogError(r.URL.Path, "user_handler", "GetProfileAvatar", requireId, err)
 		}
 	}()
 
-	currentSession := tools.MustGetSessionFromContext(r.Context())
+	currentSession := http_utils.MustGetSessionFromContext(r.Context())
 
 	fileUrl, err := h.UserUCase.GetAvatar(currentSession.UserId)
 	if err == errors.ErrUserNotFound {
-		tools.SetJSONResponse(w, errors.ErrUserNotFound, http.StatusInternalServerError)
+		http_utils.SetJSONResponse(w, errors.ErrUserNotFound, http.StatusInternalServerError)
 		return
 	}
 
-	tools.SetJSONResponse(w, models.Avatar{Url: sql.NullString{String: fileUrl}}, http.StatusOK)
+	http_utils.SetJSONResponse(w, models.Avatar{Url: sql.NullString{String: fileUrl}}, http.StatusOK)
 }
 
 func (h *UserHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 	var err error
 	defer func() {
-		requireId := tools.MustGetRequireId(r.Context())
+		requireId := http_utils.MustGetRequireId(r.Context())
 		if err != nil {
-			tools.LogError(r.URL.Path, "user_handler", "GetProfile", requireId, err)
+			logger.LogError(r.URL.Path, "user_handler", "GetProfile", requireId, err)
 		}
 	}()
 
-	currentSession := tools.MustGetSessionFromContext(r.Context())
+	currentSession := http_utils.MustGetSessionFromContext(r.Context())
 
 	profileUser, err := h.UserUCase.GetUserById(currentSession.UserId)
 	if err != nil {
-		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusBadRequest)
+		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusBadRequest)
 		return
 	}
 
-	tools.SetJSONResponse(w, profileUser, http.StatusOK)
+	http_utils.SetJSONResponse(w, profileUser, http.StatusOK)
 }
 
 func (h *UserHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	var err error
 	defer func() {
-		requireId := tools.MustGetRequireId(r.Context())
+		requireId := http_utils.MustGetRequireId(r.Context())
 		if err != nil {
-			tools.LogError(r.URL.Path, "user_handler", "Signup", requireId, err)
+			logger.LogError(r.URL.Path, "user_handler", "Signup", requireId, err)
 		}
 	}()
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		tools.SetJSONResponse(w, errors.ErrBadRequest, http.StatusBadRequest)
+		http_utils.SetJSONResponse(w, errors.ErrBadRequest, http.StatusBadRequest)
 		return
 	}
 	defer r.Body.Close()
@@ -197,53 +202,54 @@ func (h *UserHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	var newUser models.SignupUser
 	err = json.Unmarshal(body, &newUser)
 	if err != nil {
-		tools.SetJSONResponse(w, errors.ErrCanNotUnmarshal, http.StatusBadRequest)
+		http_utils.SetJSONResponse(w, errors.ErrCanNotUnmarshal, http.StatusBadRequest)
 		return
 	}
+	newUser.Sanitize()
 
-	err = tools.ValidateStruct(newUser)
+	err = validator.ValidateStruct(newUser)
 	if err != nil {
-		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusBadRequest)
+		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusBadRequest)
 		return
 	}
 
 	addedUserId, err := h.UserUCase.AddUser(&newUser)
 	if err != nil {
-		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusConflict)
+		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusConflict)
 		return
 	}
 
 	currentSession, err := h.SessionUCase.Create(addedUserId)
 	if err != nil {
-		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
+		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
 		return
 	}
 
-	tools.SetCookie(w, models.SessionCookieName, currentSession.Value, models.ExpireSessionCookie*time.Second)
-	tools.SetJSONResponseSuccess(w, http.StatusCreated)
+	http_utils.SetCookie(w, models.SessionCookieName, currentSession.Value, models.ExpireSessionCookie*time.Second)
+	http_utils.SetJSONResponseSuccess(w, http.StatusCreated)
 }
 
 func (h *UserHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	var err error
 	defer func() {
-		requireId := tools.MustGetRequireId(r.Context())
+		requireId := http_utils.MustGetRequireId(r.Context())
 		if err != nil {
-			tools.LogError(r.URL.Path, "user_handler", "Logout", requireId, err)
+			logger.LogError(r.URL.Path, "user_handler", "Logout", requireId, err)
 		}
 	}()
 
 	// Middleware auth add session in context
-	currentSession := tools.MustGetSessionFromContext(r.Context())
+	currentSession := http_utils.MustGetSessionFromContext(r.Context())
 
 	err = h.SessionUCase.DestroyCurrent(currentSession.Value)
 	if err != nil {
-		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusUnauthorized)
+		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusUnauthorized)
 		return
 	}
 
 	// Auth middleware control existence of session cookie
 	sessionCookie, _ := r.Cookie(models.SessionCookieName)
-	tools.DestroyCookie(w, sessionCookie)
+	http_utils.DestroyCookie(w, sessionCookie)
 
-	tools.SetJSONResponseSuccess(w, http.StatusOK)
+	http_utils.SetJSONResponseSuccess(w, http.StatusOK)
 }

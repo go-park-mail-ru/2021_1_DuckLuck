@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	logger2 "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/logger"
 	"log"
 	"net/http"
 	"time"
@@ -24,8 +25,6 @@ import (
 	user_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user/usecase"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/middleware"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools"
-
 	"github.com/gomodule/redigo/redis"
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
@@ -61,7 +60,7 @@ func main() {
 	}
 	defer c.Close()
 
-	logger := tools.Logger{}
+	logger := logger2.Logger{}
 	err = logger.InitLogger()
 	if err != nil {
 		panic(errors.ErrOpenFile.Error())

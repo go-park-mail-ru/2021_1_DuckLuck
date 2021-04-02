@@ -2,13 +2,15 @@ package handler
 
 import (
 	"encoding/json"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/http_utils"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/logger"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/validator"
 	"io/ioutil"
 	"net/http"
 
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/cart"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools"
 )
 
 type CartHandler struct {
@@ -24,17 +26,17 @@ func NewHandler(cartUCase cart.UseCase) cart.Handler {
 func (h *CartHandler) AddProductInCart(w http.ResponseWriter, r *http.Request) {
 	var err error
 	defer func() {
-		requireId := tools.MustGetRequireId(r.Context())
+		requireId := http_utils.MustGetRequireId(r.Context())
 		if err != nil {
-			tools.LogError(r.URL.Path, "cart_handler", "AddProductInCart", requireId, err)
+			logger.LogError(r.URL.Path, "cart_handler", "AddProductInCart", requireId, err)
 		}
 	}()
 
-	currentSession := tools.MustGetSessionFromContext(r.Context())
+	currentSession := http_utils.MustGetSessionFromContext(r.Context())
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		tools.SetJSONResponse(w, errors.ErrBadRequest, http.StatusBadRequest)
+		http_utils.SetJSONResponse(w, errors.ErrBadRequest, http.StatusBadRequest)
 		return
 	}
 	defer r.Body.Close()
@@ -42,39 +44,39 @@ func (h *CartHandler) AddProductInCart(w http.ResponseWriter, r *http.Request) {
 	cartArticle := &models.CartArticle{}
 	err = json.Unmarshal(body, cartArticle)
 	if err != nil {
-		tools.SetJSONResponse(w, errors.ErrCanNotUnmarshal, http.StatusBadRequest)
+		http_utils.SetJSONResponse(w, errors.ErrCanNotUnmarshal, http.StatusBadRequest)
 		return
 	}
 
-	err = tools.ValidateStruct(cartArticle)
+	err = validator.ValidateStruct(cartArticle)
 	if err != nil {
-		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusBadRequest)
+		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusBadRequest)
 		return
 	}
 
 	err = h.CartUCase.AddProduct(currentSession.UserId, cartArticle)
 	if err != nil {
-		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
+		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
 		return
 	}
 
-	tools.SetJSONResponseSuccess(w, http.StatusOK)
+	http_utils.SetJSONResponseSuccess(w, http.StatusOK)
 }
 
 func (h *CartHandler) DeleteProductInCart(w http.ResponseWriter, r *http.Request) {
 	var err error
 	defer func() {
-		requireId := tools.MustGetRequireId(r.Context())
+		requireId := http_utils.MustGetRequireId(r.Context())
 		if err != nil {
-			tools.LogError(r.URL.Path, "cart_handler", "DeleteProductInCart", requireId, err)
+			logger.LogError(r.URL.Path, "cart_handler", "DeleteProductInCart", requireId, err)
 		}
 	}()
 
-	currentSession := tools.MustGetSessionFromContext(r.Context())
+	currentSession := http_utils.MustGetSessionFromContext(r.Context())
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		tools.SetJSONResponse(w, errors.ErrBadRequest, http.StatusBadRequest)
+		http_utils.SetJSONResponse(w, errors.ErrBadRequest, http.StatusBadRequest)
 		return
 	}
 	defer r.Body.Close()
@@ -82,39 +84,39 @@ func (h *CartHandler) DeleteProductInCart(w http.ResponseWriter, r *http.Request
 	identifier := &models.ProductIdentifier{}
 	err = json.Unmarshal(body, identifier)
 	if err != nil {
-		tools.SetJSONResponse(w, errors.ErrCanNotUnmarshal, http.StatusBadRequest)
+		http_utils.SetJSONResponse(w, errors.ErrCanNotUnmarshal, http.StatusBadRequest)
 		return
 	}
 
-	err = tools.ValidateStruct(identifier)
+	err = validator.ValidateStruct(identifier)
 	if err != nil {
-		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusBadRequest)
+		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusBadRequest)
 		return
 	}
 
 	err = h.CartUCase.DeleteProduct(currentSession.UserId, identifier)
 	if err != nil {
-		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
+		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
 		return
 	}
 
-	tools.SetJSONResponseSuccess(w, http.StatusOK)
+	http_utils.SetJSONResponseSuccess(w, http.StatusOK)
 }
 
 func (h *CartHandler) ChangeProductInCart(w http.ResponseWriter, r *http.Request) {
 	var err error
 	defer func() {
-		requireId := tools.MustGetRequireId(r.Context())
+		requireId := http_utils.MustGetRequireId(r.Context())
 		if err != nil {
-			tools.LogError(r.URL.Path, "cart_handler", "ChangeProductInCart", requireId, err)
+			logger.LogError(r.URL.Path, "cart_handler", "ChangeProductInCart", requireId, err)
 		}
 	}()
 
-	currentSession := tools.MustGetSessionFromContext(r.Context())
+	currentSession := http_utils.MustGetSessionFromContext(r.Context())
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		tools.SetJSONResponse(w, errors.ErrBadRequest, http.StatusBadRequest)
+		http_utils.SetJSONResponse(w, errors.ErrBadRequest, http.StatusBadRequest)
 		return
 	}
 	defer r.Body.Close()
@@ -122,41 +124,41 @@ func (h *CartHandler) ChangeProductInCart(w http.ResponseWriter, r *http.Request
 	cartArticle := &models.CartArticle{}
 	err = json.Unmarshal(body, cartArticle)
 	if err != nil {
-		tools.SetJSONResponse(w, errors.ErrCanNotUnmarshal, http.StatusBadRequest)
+		http_utils.SetJSONResponse(w, errors.ErrCanNotUnmarshal, http.StatusBadRequest)
 		return
 	}
 
-	err = tools.ValidateStruct(cartArticle)
+	err = validator.ValidateStruct(cartArticle)
 	if err != nil {
-		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusBadRequest)
+		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusBadRequest)
 		return
 	}
 
 	err = h.CartUCase.ChangeProduct(currentSession.UserId, cartArticle)
 	if err != nil {
-		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
+		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
 		return
 	}
 
-	tools.SetJSONResponseSuccess(w, http.StatusOK)
+	http_utils.SetJSONResponseSuccess(w, http.StatusOK)
 }
 
 func (h *CartHandler) GetProductsFromCart(w http.ResponseWriter, r *http.Request) {
 	var err error
 	defer func() {
-		requireId := tools.MustGetRequireId(r.Context())
+		requireId := http_utils.MustGetRequireId(r.Context())
 		if err != nil {
-			tools.LogError(r.URL.Path, "cart_handler", "GetProductsFromCart", requireId, err)
+			logger.LogError(r.URL.Path, "cart_handler", "GetProductsFromCart", requireId, err)
 		}
 	}()
 
-	currentSession := tools.MustGetSessionFromContext(r.Context())
+	currentSession := http_utils.MustGetSessionFromContext(r.Context())
 
 	previewUserCart, err := h.CartUCase.GetPreviewCart(currentSession.UserId)
 	if err != nil {
-		tools.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
+		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
 		return
 	}
 
-	tools.SetJSONResponse(w, previewUserCart, http.StatusOK)
+	http_utils.SetJSONResponse(w, previewUserCart, http.StatusOK)
 }
