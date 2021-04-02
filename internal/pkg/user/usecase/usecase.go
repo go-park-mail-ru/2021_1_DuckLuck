@@ -1,13 +1,13 @@
 package usecase
 
 import (
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/password_hasher"
 	"os"
 
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/password_hasher"
 )
 
 type UserUseCase struct {

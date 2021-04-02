@@ -3,10 +3,6 @@ package handler
 import (
 	"database/sql"
 	"encoding/json"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/file_utils"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/http_utils"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/logger"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/validator"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -16,6 +12,10 @@ import (
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/session"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/file_utils"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/http_utils"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/logger"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/validator"
 )
 
 type UserHandler struct {

@@ -2,9 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/http_utils"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/logger"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/validator"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -12,6 +9,10 @@ import (
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/http_utils"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/logger"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/validator"
+
 	"github.com/gorilla/mux"
 )
 

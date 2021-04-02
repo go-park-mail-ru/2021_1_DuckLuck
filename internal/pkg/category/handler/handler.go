@@ -1,13 +1,14 @@
 package handler
 
 import (
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/http_utils"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/logger"
 	"net/http"
 	"strconv"
 
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/category"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/http_utils"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/logger"
+
 	"github.com/gorilla/mux"
 )
 
