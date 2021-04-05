@@ -99,4 +99,7 @@ var (
 	ErrIncorrectCsrfToken error = Error{
 		Message: "incorrect csrf token",
 	}
+	ErrIncorrectJwtToken error = Error{
+		Message: "incorrect jwt token",
+	}
 )
