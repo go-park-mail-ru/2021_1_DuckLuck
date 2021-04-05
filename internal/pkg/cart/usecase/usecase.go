@@ -19,8 +19,9 @@ func NewUseCase(cartRepo cart.Repository, productRepo product.Repository) cart.U
 	}
 }
 
-func (c *CartUseCase) AddProduct(userId uint64, cartArticle *models.CartArticle) error {
-	userCart, err := c.CartRepo.GetCart(userId)
+// Add product in user cart
+func (u *CartUseCase) AddProduct(userId uint64, cartArticle *models.CartArticle) error {
+	userCart, err := u.CartRepo.SelectCartById(userId)
 	if err != nil {
 		userCart = &models.Cart{}
 		userCart.Products = make(map[uint64]*models.ProductPosition, 0)
@@ -34,28 +35,30 @@ func (c *CartUseCase) AddProduct(userId uint64, cartArticle *models.CartArticle)
 		}
 	}
 
-	return c.CartRepo.AddCart(userId, userCart)
+	return u.CartRepo.AddCart(userId, userCart)
 }
 
-func (c *CartUseCase) DeleteProduct(userId uint64, identifier *models.ProductIdentifier) error {
-	userCart, err := c.CartRepo.GetCart(userId)
+// Delete product from cart
+func (u *CartUseCase) DeleteProduct(userId uint64, identifier *models.ProductIdentifier) error {
+	userCart, err := u.CartRepo.SelectCartById(userId)
 	if err != nil {
 		return err
 	}
 
 	// Delete cart of current user
 	if len(userCart.Products) == 1 {
-		if err = c.CartRepo.DeleteCart(userId); err != nil {
+		if err = u.CartRepo.DeleteCart(userId); err != nil {
 			return err
 		}
 	}
 
 	delete(userCart.Products, identifier.ProductId)
-	return c.CartRepo.AddCart(userId, userCart)
+	return u.CartRepo.AddCart(userId, userCart)
 }
 
-func (c *CartUseCase) ChangeProduct(userId uint64, cartArticle *models.CartArticle) error {
-	userCart, err := c.CartRepo.GetCart(userId)
+// Change product in user cart
+func (u *CartUseCase) ChangeProduct(userId uint64, cartArticle *models.CartArticle) error {
+	userCart, err := u.CartRepo.SelectCartById(userId)
 	if err != nil {
 		return err
 	}
@@ -65,18 +68,19 @@ func (c *CartUseCase) ChangeProduct(userId uint64, cartArticle *models.CartArtic
 	}
 	userCart.Products[cartArticle.ProductId] = &cartArticle.ProductPosition
 
-	return c.CartRepo.AddCart(userId, userCart)
+	return u.CartRepo.AddCart(userId, userCart)
 }
 
-func (c *CartUseCase) GetPreviewCart(userId uint64) (*models.PreviewCart, error) {
-	userCart, err := c.CartRepo.GetCart(userId)
+// Get preview cart
+func (u *CartUseCase) GetPreviewCart(userId uint64) (*models.PreviewCart, error) {
+	userCart, err := u.CartRepo.SelectCartById(userId)
 	if err != nil {
 		return nil, err
 	}
 
 	previewUserCart := &models.PreviewCart{}
 	for id, productPosition := range userCart.Products {
-		productById, err := c.ProductRepo.SelectProductById(id)
+		productById, err := u.ProductRepo.SelectProductById(id)
 		if err != nil {
 			return nil, err
 		}

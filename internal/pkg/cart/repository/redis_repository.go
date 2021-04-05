@@ -21,25 +21,27 @@ func NewSessionRedisRepository(conn redis.Conn) cart.Repository {
 	}
 }
 
-func (rr *RedisRepository) GetNewKey(value uint64) string {
+func (r *RedisRepository) getNewKey(value uint64) string {
 	return fmt.Sprintf("cart:%d", value)
 }
 
-func (rr *RedisRepository) DeleteCart(userId uint64) error {
-	key := rr.GetNewKey(userId)
+// Delete user cart
+func (r *RedisRepository) DeleteCart(userId uint64) error {
+	key := r.getNewKey(userId)
 
-	_, err := redis.String(rr.conn.Do("DEL", key))
-	if err != nil {
+	result, err := redis.String(r.conn.Do("DEL", key))
+	if err != nil || result != "OK" {
 		return errors.ErrDBInternalError
 	}
 	return nil
 }
 
-func (rr *RedisRepository) GetCart(userId uint64) (*models.Cart, error) {
+// Select user cart by id
+func (r *RedisRepository) SelectCartById(userId uint64) (*models.Cart, error) {
 	userCart := &models.Cart{}
-	key := rr.GetNewKey(userId)
+	key := r.getNewKey(userId)
 
-	data, err := redis.Bytes(rr.conn.Do("GET", key))
+	data, err := redis.Bytes(r.conn.Do("GET", key))
 	if err != nil {
 		return nil, errors.ErrCartNotFound
 	}
@@ -51,16 +53,17 @@ func (rr *RedisRepository) GetCart(userId uint64) (*models.Cart, error) {
 	return userCart, err
 }
 
-func (rr *RedisRepository) AddCart(userId uint64, userCart *models.Cart) error {
-	key := rr.GetNewKey(userId)
+// Add new user cart
+func (r *RedisRepository) AddCart(userId uint64, userCart *models.Cart) error {
+	key := r.getNewKey(userId)
 
 	data, err := json.Marshal(userCart)
 	if err != nil {
 		return errors.ErrCanNotMarshal
 	}
 
-	_, err = redis.String(rr.conn.Do("SET", key, data))
-	if err != nil {
+	result, err := redis.String(r.conn.Do("SET", key, data))
+	if err != nil || result != "OK" {
 		return errors.ErrDBInternalError
 	}
 	return nil
