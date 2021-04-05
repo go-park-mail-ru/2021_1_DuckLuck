@@ -1,4 +1,4 @@
-package tools
+package password_hasher
 
 import (
 	"bytes"
