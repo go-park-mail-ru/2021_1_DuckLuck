@@ -26,6 +26,7 @@ func NewHandler(UCase product.UseCase) product.Handler {
 	}
 }
 
+// Get product info by id
 func (h *ProductHandler) GetProduct(w http.ResponseWriter, r *http.Request) {
 	var err error
 	defer func() {
@@ -50,6 +51,7 @@ func (h *ProductHandler) GetProduct(w http.ResponseWriter, r *http.Request) {
 	http_utils.SetJSONResponse(w, productById, http.StatusOK)
 }
 
+// Get range of preview products
 func (h *ProductHandler) GetListPreviewProducts(w http.ResponseWriter, r *http.Request) {
 	var err error
 	defer func() {
@@ -79,7 +81,7 @@ func (h *ProductHandler) GetListPreviewProducts(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	listPreviewProducts, err := h.ProductUCase.SelectRangeProducts(&paginator)
+	listPreviewProducts, err := h.ProductUCase.GetRangeProducts(&paginator)
 	if err != nil {
 		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
 		return

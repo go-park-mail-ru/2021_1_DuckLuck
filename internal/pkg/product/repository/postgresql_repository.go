@@ -21,8 +21,9 @@ func NewSessionPostgresqlRepository(db *sql.DB) product.Repository {
 	}
 }
 
-func (pr *PostgresqlRepository) SelectProductById(productId uint64) (*models.Product, error) {
-	row := pr.db.QueryRow(
+// Select one product by id
+func (r *PostgresqlRepository) SelectProductById(productId uint64) (*models.Product, error) {
+	row := r.db.QueryRow(
 		"SELECT id, title, rating, description, baseCost, discount, images, idCategory "+
 			"FROM products WHERE id = $1",
 		productId,
@@ -41,7 +42,7 @@ func (pr *PostgresqlRepository) SelectProductById(productId uint64) (*models.Pro
 		&idCategory,
 	)
 
-	rows, err := pr.db.Query(
+	rows, err := r.db.Query(
 		"SELECT c.id, c.name FROM  subsetCategory s "+
 			"LEFT JOIN category c ON c.id = s.idSubset "+
 			"WHERE s.idCategory = $1 "+
@@ -69,8 +70,9 @@ func (pr *PostgresqlRepository) SelectProductById(productId uint64) (*models.Pro
 	return &productById, nil
 }
 
-func (pr *PostgresqlRepository) SelectRangeProducts(paginator *models.PaginatorProducts) (*models.RangeProducts, error) {
-	row := pr.db.QueryRow(
+// Select range of products by paginate settings
+func (r *PostgresqlRepository) SelectRangeProducts(paginator *models.PaginatorProducts) (*models.RangeProducts, error) {
+	row := r.db.QueryRow(
 		"SELECT ceil(count(*) / $1) FROM products",
 		paginator.Count,
 	)
@@ -96,7 +98,7 @@ func (pr *PostgresqlRepository) SelectRangeProducts(paginator *models.PaginatorP
 		}
 	}
 
-	rows, err := pr.db.Query(
+	rows, err := r.db.Query(
 		"SELECT id, title, baseCost, discount, rating, images[1] "+
 			"FROM products "+
 			sortString+

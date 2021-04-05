@@ -16,14 +16,16 @@ func NewUseCase(repo product.Repository) product.UseCase {
 	}
 }
 
-func (lr *ProductUseCase) GetProductById(productId uint64) (*models.Product, error) {
-	return lr.ProductRepo.SelectProductById(productId)
+// Get product by id from repo
+func (u *ProductUseCase) GetProductById(productId uint64) (*models.Product, error) {
+	return u.ProductRepo.SelectProductById(productId)
 }
 
-func (lr *ProductUseCase) SelectRangeProducts(paginator *models.PaginatorProducts) (*models.RangeProducts, error) {
+// Get range products by paginator settings from repo
+func (u *ProductUseCase) GetRangeProducts(paginator *models.PaginatorProducts) (*models.RangeProducts, error) {
 	if paginator.PageNum < 1 || paginator.Count < 1 {
 		return nil, errors.ErrIncorrectPaginator
 	}
 
-	return lr.ProductRepo.SelectRangeProducts(paginator)
+	return u.ProductRepo.SelectRangeProducts(paginator)
 }
