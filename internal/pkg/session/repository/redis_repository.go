@@ -1,7 +1,8 @@
 package repository
 
 import (
-	"encoding/json"
+	"fmt"
+	"strconv"
 
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/session"
@@ -20,38 +21,48 @@ func NewSessionRedisRepository(conn redis.Conn) session.Repository {
 	}
 }
 
-func (rr *RedisRepository) AddSession(session *models.Session) error {
-	data, err := json.Marshal(session)
-	if err != nil {
-		return errors.ErrCanNotMarshal
-	}
+func (r *RedisRepository) getNewKey(value string) string {
+	return fmt.Sprintf("session:%s", value)
+}
 
-	_, err = redis.String(rr.conn.Do("SET", session.Value, data, "EX", models.ExpireSessionCookie))
-	if err != nil {
+// Add user session in repository
+func (r *RedisRepository) AddSession(session *models.Session) error {
+	data := fmt.Sprintf("%d", session.UserId)
+	key := r.getNewKey(session.Value)
+
+	result, err := redis.String(r.conn.Do("SET", key, data, "EX", models.ExpireSessionCookie))
+	if err != nil || result != "OK" {
 		return errors.ErrDBInternalError
 	}
+
 	return nil
 }
 
-func (rr *RedisRepository) SelectSessionByValue(sessionValue string) (*models.Session, error) {
-	data, err := redis.Bytes(rr.conn.Do("GET", sessionValue))
+// Get user global id from redis db
+func (r *RedisRepository) SelectUserIdBySession(sessionValue string) (uint64, error) {
+	key := r.getNewKey(sessionValue)
+
+	data, err := redis.String(r.conn.Do("GET", key))
 	if err != nil {
-		return nil, errors.ErrSessionNotFound
+		return 0, errors.ErrSessionNotFound
 	}
 
-	currentSession := &models.Session{}
-	err = json.Unmarshal(data, currentSession)
+	userId, err := strconv.ParseUint(data, 10, 64)
 	if err != nil {
-		return nil, errors.ErrCanNotUnmarshal
+		return 0, errors.ErrInternalError
 	}
 
-	return currentSession, nil
+	return userId, nil
 }
 
-func (rr *RedisRepository) DeleteByValue(sessionValue string) error {
-	_, err := redis.Int(rr.conn.Do("DEL", sessionValue))
-	if err != nil {
+// Delete session from db
+func (r *RedisRepository) DeleteSessionByValue(sessionValue string) error {
+	key := r.getNewKey(sessionValue)
+
+	result, err := redis.String(r.conn.Do("DEL", key))
+	if err != nil || result != "OK" {
 		return errors.ErrDBInternalError
 	}
+
 	return nil
 }
