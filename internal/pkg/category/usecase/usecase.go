@@ -16,21 +16,22 @@ func NewUseCase(repo category.Repository) category.UseCase {
 	}
 }
 
-func (lr *CategoryUseCase) GetCatalogCategories() ([]*models.CategoriesCatalog, error) {
-	categories, err := lr.CategoryRepo.GetCategoriesByLevel(1)
+// Get first three levels of categories tree
+func (u *CategoryUseCase) GetCatalogCategories() ([]*models.CategoriesCatalog, error) {
+	categories, err := u.CategoryRepo.GetCategoriesByLevel(1)
 	if err != nil {
 		return nil, errors.ErrDBInternalError
 	}
 
 	for _, category := range categories {
-		nextLevel, err := lr.CategoryRepo.GetNextLevelCategories(category.Id)
+		nextLevel, err := u.CategoryRepo.GetNextLevelCategories(category.Id)
 		if err != nil {
 			return nil, errors.ErrDBInternalError
 		}
 		category.Next = nextLevel
 
 		for _, subCategory := range category.Next {
-			nextLevel, err = lr.CategoryRepo.GetNextLevelCategories(subCategory.Id)
+			nextLevel, err = u.CategoryRepo.GetNextLevelCategories(subCategory.Id)
 			if err != nil {
 				return nil, errors.ErrDBInternalError
 			}
@@ -41,11 +42,7 @@ func (lr *CategoryUseCase) GetCatalogCategories() ([]*models.CategoriesCatalog, 
 	return categories, nil
 }
 
-func (lr *CategoryUseCase) GetSubCategoriesById(categoryId uint64) ([]*models.CategoriesCatalog, error) {
-	categories, err := lr.CategoryRepo.GetNextLevelCategories(categoryId)
-	if err != nil {
-		return nil, errors.ErrDBInternalError
-	}
-
-	return categories, nil
+// Get subcategories by category id
+func (u *CategoryUseCase) GetSubCategoriesById(categoryId uint64) ([]*models.CategoriesCatalog, error) {
+	return u.CategoryRepo.GetNextLevelCategories(categoryId)
 }

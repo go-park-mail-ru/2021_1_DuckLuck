@@ -18,8 +18,9 @@ func NewSessionPostgresqlRepository(db *sql.DB) category.Repository {
 	}
 }
 
-func (pr *PostgresqlRepository) GetNextLevelCategories(categoryId uint64) ([]*models.CategoriesCatalog, error) {
-	rows, err := pr.db.Query(
+// Get lower level in categories tree
+func (r *PostgresqlRepository) GetNextLevelCategories(categoryId uint64) ([]*models.CategoriesCatalog, error) {
+	rows, err := r.db.Query(
 		"SELECT c.id, c.name "+
 			"FROM category c "+
 			"JOIN subsetCategory s1 ON c.id = s1.idCategory "+
@@ -52,8 +53,9 @@ func (pr *PostgresqlRepository) GetNextLevelCategories(categoryId uint64) ([]*mo
 	return categories, nil
 }
 
-func (pr *PostgresqlRepository) GetCategoriesByLevel(level uint64) ([]*models.CategoriesCatalog, error) {
-	rows, err := pr.db.Query(
+// Get categories in select level
+func (r *PostgresqlRepository) GetCategoriesByLevel(level uint64) ([]*models.CategoriesCatalog, error) {
+	rows, err := r.db.Query(
 		"SELECT c.id, c.name "+
 			"FROM category c "+
 			"JOIN subsetCategory s1 ON c.id = s1.idCategory "+

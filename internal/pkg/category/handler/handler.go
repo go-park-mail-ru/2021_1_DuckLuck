@@ -22,6 +22,7 @@ func NewHandler(UCase category.UseCase) category.Handler {
 	}
 }
 
+// Get preview category catalog
 func (h *CategoryHandler) GetCatalogCategories(w http.ResponseWriter, r *http.Request) {
 	var err error
 	defer func() {
@@ -40,6 +41,7 @@ func (h *CategoryHandler) GetCatalogCategories(w http.ResponseWriter, r *http.Re
 	http_utils.SetJSONResponse(w, categories, http.StatusOK)
 }
 
+// Get subcategories of category
 func (h *CategoryHandler) GetSubCategories(w http.ResponseWriter, r *http.Request) {
 	var err error
 	defer func() {
