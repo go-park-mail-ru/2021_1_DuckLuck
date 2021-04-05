@@ -4,6 +4,8 @@ import uuid "github.com/satori/go.uuid"
 
 const (
 	CsrfTokenHeaderName = "X-CSRF-TOKEN"
+	CsrfTokenCookieName = "jwt_token"
+	CsrfTokenContextKey = "csrf_token_key"
 	ExpireCsrfToken     = 900
 )
 
