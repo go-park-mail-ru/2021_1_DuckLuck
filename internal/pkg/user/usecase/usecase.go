@@ -7,7 +7,7 @@ import (
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/password_hasher"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/hasher"
 )
 
 type UserUseCase struct {
@@ -27,7 +27,7 @@ func (u *UserUseCase) Authorize(authUser *models.LoginUser) (*models.ProfileUser
 		return nil, errors.ErrIncorrectUserEmail
 	}
 
-	if ok := password_hasher.CompareHashAndPassword(profileUser.Password, authUser.Password); !ok {
+	if ok := hasher.CompareHashAndPassword(profileUser.Password, authUser.Password); !ok {
 		return nil, errors.ErrIncorrectUserPassword
 	}
 
@@ -76,7 +76,7 @@ func (u *UserUseCase) AddUser(user *models.SignupUser) (uint64, error) {
 		return 0, errors.ErrEmailAlreadyExist
 	}
 
-	hashOfPassword, err := password_hasher.GenerateHashFromPassword(user.Password)
+	hashOfPassword, err := hasher.GenerateHashFromPassword(user.Password)
 	if err != nil {
 		return 0, errors.ErrHashFunctionFailed
 	}
