@@ -33,7 +33,7 @@ import (
 
 func main() {
 	port := flag.String("p", "8080", "port to serve on")
-	redisAddr := flag.String("addr", "redis://user:@localhost:6379/0", "redis addr")
+	redisAddr := flag.String("addr", "redis://user:@redis:6379/0", "redis addr")
 	flag.Parse()
 
 	// Database
@@ -42,7 +42,7 @@ func main() {
 		"user=ozon_root "+
 			"password=qwerty123 "+
 			"dbname=ozon_db "+
-			"host=localhost "+
+			"host=postgres "+
 			"port=5432",
 	)
 
