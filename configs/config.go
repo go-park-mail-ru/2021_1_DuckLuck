@@ -12,5 +12,5 @@ var (
 	PathToLogFile = PathProject + "/log/log.txt"
 	LogLevel      = "debug"
 
-	CorsOrigin = "http://localhost:3000"
+	CorsOrigin = "https://duckluckmarket.xyz"
 )
