@@ -59,5 +59,4 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.PRIVATE_KEY }}
           script: |
-            sudo docker rm -f $(sudo docker ps -aq)
-            sudo docker run -d -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/godeploy:${GITHUB_SHA::8}
+            sudo docker-compose up -d
