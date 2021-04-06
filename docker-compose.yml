@@ -1,0 +1,46 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    volumes:
+      - ./configs/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - app-network
+  redis:
+    image: redis
+    restart: unless-stopped
+    networks:
+      - app-network
+  server:
+    depends_on:
+      - postgres
+    image: duckluckmarket/godeploy:${TAG}
+    container_name: server
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./log:/log
+    networks:
+      - app-network
+  fileserver:
+    depends_on:
+      - postgres
+    image: duckluckmarket/godeploy:${TAG}
+    command: "./fileserver"
+    container_name: fileserver
+    restart: unless-stopped
+    ports:
+      - "8100:8100"
+    volumes:
+      - ./log:/log
+      - ./uploads:/uploads
+    networks:
+      - app-network
+networks:
+  app-network:
+    driver: bridge
