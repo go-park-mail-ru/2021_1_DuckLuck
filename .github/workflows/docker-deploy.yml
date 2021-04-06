@@ -25,6 +25,7 @@ jobs:
             ./docker-compose.yml
             ./log
             ./configs/init.sql
+            ./uploads
   deploy:
     runs-on: ubuntu-latest
     needs: build

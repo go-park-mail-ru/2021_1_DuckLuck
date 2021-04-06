@@ -18,13 +18,26 @@ services:
   server:
     depends_on:
       - postgres
-    image: duckluckmarket/godeploy:4bc074fd
+    image: duckluckmarket/godeploy:1cf0121d
     container_name: server
     restart: unless-stopped
     ports:
       - "8080:8080"
     volumes:
       - ./log:/log
+    networks:
+      - app-network
+  fileserver:
+    depends_on:
+      - postgres
+    image: duckluckmarket/godeploy:1cf0121d
+    container_name: fileserver
+    restart: unless-stopped
+    ports:
+      - "8180:8100"
+    volumes:
+      - ./log:/log
+      - ./uploads:/uploads
     networks:
       - app-network
 networks:
