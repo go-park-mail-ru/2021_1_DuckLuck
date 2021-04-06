@@ -7,7 +7,7 @@ WORKDIR /project
 RUN make build
 
 
-FROM alphine:latest
+FROM alpine:latest
 
 COPY --from=build /project/bin/server /bin/
 
