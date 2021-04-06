@@ -31,10 +31,11 @@ services:
     depends_on:
       - postgres
     image: duckluckmarket/godeploy:1cf0121d
+    command: "./fileserver"
     container_name: fileserver
     restart: unless-stopped
     ports:
-      - "8180:8100"
+      - "8100:8100"
     volumes:
       - ./log:/log
       - ./uploads:/uploads

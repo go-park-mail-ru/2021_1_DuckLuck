@@ -9,6 +9,6 @@ RUN make build
 
 FROM ubuntu:latest
 
-COPY --from=build /project/bin/server /
+COPY --from=build /project/bin/ /
 
 CMD ["./server"]
