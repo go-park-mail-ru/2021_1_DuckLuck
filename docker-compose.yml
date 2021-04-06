@@ -1,0 +1,91 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    volumes:
+      - ./configs/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - app-network
+  redis:
+    image: redis
+    restart: unless-stopped
+    networks:
+      - app-network
+  server:
+    depends_on:
+      - postgres
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: server
+    container_name: server
+    restart: unless-stopped
+    ports:
+    - "8080:8080"
+    networks:
+      - app-network
+  fileserver:
+    depends_on:
+      - postgres
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: fileserver
+    container_name: fileserver
+    command: "./bin/fileserver"
+    restart: unless-stopped
+    ports:
+      - "8100:8100"
+    networks:
+      - app-network
+  webserver:
+    image: nginx:mainline-alpine
+    container_name: webserver
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - web-root:/var/www/html
+      - ./nginx-conf:/etc/nginx/conf.d
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/lib/letsencrypt
+      - dhparam:/etc/ssl/certs
+    depends_on:
+      - server
+    networks:
+      - app-network
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/lib/letsencrypt
+      - web-root:/var/www/html
+    depends_on:
+      - webserver
+    command: certonly --webroot --webroot-path=/var/www/html --email mrdivan07@gmail.com --agree-tos --no-eff-email --force-renewal -d duckluckmarket.xyz  -d www.duckluckmarket.xyz
+
+volumes:
+  certbot-etc:
+  certbot-var:
+  web-root:
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/duckluck/2021_1_DuckLuck/
+      o: bind
+  dhparam:
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/duckluck/2021_1_DuckLuck/dhparam/
+      o: bind
+networks:
+  app-network:
+    driver: bridge
