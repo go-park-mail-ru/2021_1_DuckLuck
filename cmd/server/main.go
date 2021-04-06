@@ -43,7 +43,8 @@ func main() {
 			"password=qwerty123 "+
 			"dbname=ozon_db "+
 			"host=postgres "+
-			"port=5432",
+			"port=5432 " +
+			"sslmode=disable",
 	)
 
 	if err != nil {
