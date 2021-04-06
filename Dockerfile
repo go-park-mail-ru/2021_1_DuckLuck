@@ -7,8 +7,8 @@ WORKDIR /project
 RUN make build
 
 
-FROM alpine:latest
+FROM ubuntu:latest
 
-COPY --from=build /project/bin/server /bin/
+COPY --from=build /project/bin/server /
 
-CMD ["server"]
+CMD ["./server"]
