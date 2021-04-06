@@ -17,7 +17,12 @@ jobs:
         run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/godeploy:${GITHUB_SHA::8} .
       - name: Push the image
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/godeploy:${GITHUB_SHA::8}
-
+      - name: Upload dependencies
+        uses: actions/upload-artifact@v2
+        with:
+          name: Backend
+          path: |
+            ./docker-compose.yml
   deploy:
     runs-on: ubuntu-latest
     needs: build
