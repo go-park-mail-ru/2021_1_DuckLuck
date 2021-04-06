@@ -24,7 +24,7 @@ jobs:
           path: |
             ./docker-compose.yml
             ./log
-            ./configs/init.sql
+            ./configs
   deploy:
     runs-on: ubuntu-latest
     needs: build
