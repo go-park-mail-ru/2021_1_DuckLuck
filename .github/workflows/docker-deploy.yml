@@ -23,6 +23,7 @@ jobs:
           name: Backend
           path: |
             ./docker-compose.yml
+            ./log
   deploy:
     runs-on: ubuntu-latest
     needs: build
