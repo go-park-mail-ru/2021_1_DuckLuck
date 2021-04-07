@@ -18,8 +18,9 @@ func NewSessionPostgresqlRepository(db *sql.DB) user.Repository {
 	}
 }
 
-func (pr *PostgresqlRepository) AddProfile(user *models.ProfileUser) (uint64, error) {
-	row := pr.db.QueryRow(
+// Add new user profile in db
+func (r *PostgresqlRepository) AddProfile(user *models.ProfileUser) (uint64, error) {
+	row := r.db.QueryRow(
 		"INSERT INTO users(email, password) VALUES ($1, $2) RETURNING id",
 		user.Email,
 		user.Password,
@@ -35,8 +36,9 @@ func (pr *PostgresqlRepository) AddProfile(user *models.ProfileUser) (uint64, er
 	return userId, nil
 }
 
-func (pr *PostgresqlRepository) SelectProfileByEmail(email string) (*models.ProfileUser, error) {
-	row := pr.db.QueryRow(
+// Select one profile by email
+func (r *PostgresqlRepository) SelectProfileByEmail(email string) (*models.ProfileUser, error) {
+	row := r.db.QueryRow(
 		"SELECT id, firstName, lastName, email, password, avatar "+
 			"FROM users WHERE email = $1",
 		email,
@@ -63,8 +65,9 @@ func (pr *PostgresqlRepository) SelectProfileByEmail(email string) (*models.Prof
 	}
 }
 
-func (pr *PostgresqlRepository) SelectProfileById(userId uint64) (*models.ProfileUser, error) {
-	row := pr.db.QueryRow(
+// Select one profile by id
+func (r *PostgresqlRepository) SelectProfileById(userId uint64) (*models.ProfileUser, error) {
+	row := r.db.QueryRow(
 		"SELECT id, firstName, lastName, email, password, avatar "+
 			"FROM users WHERE id = $1",
 		userId,
@@ -91,8 +94,9 @@ func (pr *PostgresqlRepository) SelectProfileById(userId uint64) (*models.Profil
 	}
 }
 
-func (pr *PostgresqlRepository) UpdateProfile(userId uint64, user *models.UpdateUser) error {
-	_, err := pr.db.Exec(
+// Update info in user profile
+func (r *PostgresqlRepository) UpdateProfile(userId uint64, user *models.UpdateUser) error {
+	_, err := r.db.Exec(
 		"UPDATE users SET "+
 			"firstName = $1, "+
 			"lastName = $2 "+
@@ -108,8 +112,9 @@ func (pr *PostgresqlRepository) UpdateProfile(userId uint64, user *models.Update
 	return nil
 }
 
-func (pr *PostgresqlRepository) UpdateAvatar(userId uint64, avatarUrl string) error {
-	_, err := pr.db.Exec(
+// Update user avatar
+func (r *PostgresqlRepository) UpdateAvatar(userId uint64, avatarUrl string) error {
+	_, err := r.db.Exec(
 		"UPDATE users SET "+
 			"avatar = $1 "+
 			"WHERE id = $2",

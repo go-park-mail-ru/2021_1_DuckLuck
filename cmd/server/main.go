@@ -14,6 +14,7 @@ import (
 	category_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/category/handler"
 	category_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/category/repository"
 	category_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/category/usecase"
+	csrf_token_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/csrf_token/handler"
 	product_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/handler"
 	product_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/repository"
 	product_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/usecase"
@@ -86,10 +87,16 @@ func main() {
 	categoryUCase := category_usecase.NewUseCase(categoryRepo)
 	categoryHandler := category_delivery.NewHandler(categoryUCase)
 
+	csrfTokenHandler := csrf_token_delivery.NewHandler()
+
 	mainMux := mux.NewRouter()
+	mainMux.Use(middleware.AccessLog)
 	mainMux.Use(middleware.Panic)
 	mainMux.Use(middleware.Cors)
-	mainMux.Use(middleware.AccessLog)
+	// Check csrf token
+	mainMux.Use(middleware.CsrfCheck)
+
+	mainMux.HandleFunc("/api/v1/csrf", csrfTokenHandler.GetCsrfToken).Methods("GET", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/user/signup", userHandler.Signup).Methods("POST", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/user/login", userHandler.Login).Methods("POST", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/product/{id:[0-9]+}", productHandler.GetProduct).Methods("GET", "OPTIONS")

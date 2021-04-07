@@ -93,4 +93,13 @@ var (
 	ErrOpenFile error = Error{
 		Message: "can't open file",
 	}
+	ErrNotFoundCsrfToken error = Error{
+		Message: "csrf token not found",
+	}
+	ErrIncorrectCsrfToken error = Error{
+		Message: "incorrect csrf token",
+	}
+	ErrIncorrectJwtToken error = Error{
+		Message: "incorrect jwt token",
+	}
 )

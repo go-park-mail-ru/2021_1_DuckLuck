@@ -30,6 +30,7 @@ func NewHandler(userUCase user.UseCase, sessionUCase session.UseCase) user.Handl
 	}
 }
 
+// Handle login user
 func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 	var err error
 	defer func() {
@@ -66,7 +67,7 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	currentSession, err := h.SessionUCase.Create(profileUser.Id)
+	currentSession, err := h.SessionUCase.CreateNewSession(profileUser.Id)
 	if err != nil {
 		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
 		return
@@ -76,6 +77,7 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 	http_utils.SetJSONResponseSuccess(w, http.StatusOK)
 }
 
+// Handle update user profile
 func (h *UserHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	var err error
 	defer func() {
@@ -117,6 +119,7 @@ func (h *UserHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	http_utils.SetJSONResponseSuccess(w, http.StatusOK)
 }
 
+// Handle update avatar in user profile
 func (h *UserHandler) UpdateProfileAvatar(w http.ResponseWriter, r *http.Request) {
 	var err error
 	defer func() {
@@ -143,6 +146,7 @@ func (h *UserHandler) UpdateProfileAvatar(w http.ResponseWriter, r *http.Request
 	http_utils.SetJSONResponse(w, models.Avatar{Url: sql.NullString{String: fileUrl}}, http.StatusOK)
 }
 
+// Handle get user avatar
 func (h *UserHandler) GetProfileAvatar(w http.ResponseWriter, r *http.Request) {
 	var err error
 	defer func() {
@@ -163,6 +167,7 @@ func (h *UserHandler) GetProfileAvatar(w http.ResponseWriter, r *http.Request) {
 	http_utils.SetJSONResponse(w, models.Avatar{Url: sql.NullString{String: fileUrl}}, http.StatusOK)
 }
 
+// Handle get profile of current user
 func (h *UserHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 	var err error
 	defer func() {
@@ -183,6 +188,7 @@ func (h *UserHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 	http_utils.SetJSONResponse(w, profileUser, http.StatusOK)
 }
 
+// Handle signup user
 func (h *UserHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	var err error
 	defer func() {
@@ -219,7 +225,7 @@ func (h *UserHandler) Signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	currentSession, err := h.SessionUCase.Create(addedUserId)
+	currentSession, err := h.SessionUCase.CreateNewSession(addedUserId)
 	if err != nil {
 		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
 		return
@@ -229,6 +235,7 @@ func (h *UserHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	http_utils.SetJSONResponseSuccess(w, http.StatusCreated)
 }
 
+// Handle logout user
 func (h *UserHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	var err error
 	defer func() {
@@ -241,7 +248,7 @@ func (h *UserHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	// Middleware auth add session in context
 	currentSession := http_utils.MustGetSessionFromContext(r.Context())
 
-	err = h.SessionUCase.DestroyCurrent(currentSession.Value)
+	err = h.SessionUCase.DestroySession(currentSession.Value)
 	if err != nil {
 		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusUnauthorized)
 		return

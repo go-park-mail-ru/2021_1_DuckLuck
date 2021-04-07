@@ -28,14 +28,18 @@ func Auth(sm session.UseCase) func(http.Handler) http.Handler {
 				return
 			}
 
-			sess, err := sm.Check(sessionCookie.Value)
+			userId, err := sm.GetUserIdBySession(sessionCookie.Value)
 			if err != nil {
 				http_utils.SetJSONResponse(w, errors.ErrUserUnauthorized, http.StatusUnauthorized)
 				return
 			}
 
 			ctx := r.Context()
-			ctx = context.WithValue(r.Context(), models.SessionContextKey, sess)
+			ctx = context.WithValue(r.Context(), models.SessionContextKey,
+				&models.Session{
+					Value:  sessionCookie.Value,
+					UserId: userId,
+				})
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}

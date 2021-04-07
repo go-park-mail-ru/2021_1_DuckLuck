@@ -23,6 +23,7 @@ func NewHandler(cartUCase cart.UseCase) cart.Handler {
 	}
 }
 
+// Add product in user cart
 func (h *CartHandler) AddProductInCart(w http.ResponseWriter, r *http.Request) {
 	var err error
 	defer func() {
@@ -63,6 +64,7 @@ func (h *CartHandler) AddProductInCart(w http.ResponseWriter, r *http.Request) {
 	http_utils.SetJSONResponseSuccess(w, http.StatusOK)
 }
 
+// Delete product from user cart
 func (h *CartHandler) DeleteProductInCart(w http.ResponseWriter, r *http.Request) {
 	var err error
 	defer func() {
@@ -103,6 +105,7 @@ func (h *CartHandler) DeleteProductInCart(w http.ResponseWriter, r *http.Request
 	http_utils.SetJSONResponseSuccess(w, http.StatusOK)
 }
 
+// Change product characteristics in user cart
 func (h *CartHandler) ChangeProductInCart(w http.ResponseWriter, r *http.Request) {
 	var err error
 	defer func() {
@@ -143,6 +146,7 @@ func (h *CartHandler) ChangeProductInCart(w http.ResponseWriter, r *http.Request
 	http_utils.SetJSONResponseSuccess(w, http.StatusOK)
 }
 
+// Get all preview products from user cart
 func (h *CartHandler) GetProductsFromCart(w http.ResponseWriter, r *http.Request) {
 	var err error
 	defer func() {
