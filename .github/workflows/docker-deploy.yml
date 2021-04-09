@@ -52,11 +52,6 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.PRIVATE_KEY }}
           script: sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/godeploy:${{ env.TAG }}
-      - shell: bash
-        env:
-          POSTGRESQL: ${{ secrets.POSTGRESQL }}
-        run: |
-          echo "$POSTGRESQL" > /home/ubuntu/duckluckmarket/Backend/configs/envs/postgresql.env
       - name: deploy docker image
         uses: appleboy/ssh-action@master
         with:
@@ -67,6 +62,8 @@ jobs:
           script: |
             cd /home/ubuntu/duckluckmarket/Backend
             echo TAG=${{ env.TAG }} > .env
+            base64 -i ./configs/envs/postgresql.env
+            echo ${{ secrets.POSTGRESQL }} | base64 -d > ./configs/envs/postgresql.env
             echo ${{ secrets.API_SERVER }} > ./configs/envs/api_server.env
             echo ${{ secrets.REDIS }} > ./configs/envs/redis.env
             echo ${{ secrets.S3 }} > ./configs/envs/s3.env
