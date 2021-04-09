@@ -2,11 +2,14 @@ package repository
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
+	"strconv"
+	"time"
+
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/session"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
+
 	"github.com/go-redis/redis/v8"
 )
 
@@ -32,16 +35,11 @@ func (r *RedisRepository) AddSession(session *models.Session) error {
 			fmt.Println(err)
 		}
 	}()
-	data, err := json.Marshal(session.UserData)
-	if err != nil {
-		return errors.ErrCanNotMarshal
-	}
-
+	data := fmt.Sprintf("%d", session.UserData.Id)
 	key := r.getNewKey(session.Value)
 
-	fmt.Println(key)
-	result, err := r.conn.Set(context.Background(), key, data, models.ExpireSessionCookie).Result()
-	if err != nil || result != "OK" {
+	err = r.conn.Set(context.Background(), key, data, models.ExpireSessionCookie*time.Second).Err()
+	if err != nil {
 		return errors.ErrDBInternalError
 	}
 
@@ -52,22 +50,17 @@ func (r *RedisRepository) AddSession(session *models.Session) error {
 func (r *RedisRepository) SelectUserIdBySession(sessionValue string) (uint64, error) {
 	key := r.getNewKey(sessionValue)
 
-	fmt.Println(key)
 	data, err := r.conn.Get(context.Background(), key).Bytes()
 	if err != nil {
 		return 0, errors.ErrSessionNotFound
 	}
-	fmt.Println(data)
 
-	userData := &models.UserId{}
-	err = json.Unmarshal(data, userData)
+	userId, err := strconv.ParseUint(string(data), 10, 64)
 	if err != nil {
-		return 0, errors.ErrCanNotUnmarshal
+		return 0, errors.ErrInternalError
 	}
 
-	fmt.Println(err)
-
-	return userData.Id, nil
+	return userId, nil
 }
 
 // Delete session from db
