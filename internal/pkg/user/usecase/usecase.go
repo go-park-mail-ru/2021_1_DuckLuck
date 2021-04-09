@@ -1,13 +1,13 @@
 package usecase
 
 import (
-	"os"
+	"mime/multipart"
 
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/hasher"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/s3_utils"
 )
 
 type UserUseCase struct {
@@ -35,19 +35,27 @@ func (u *UserUseCase) Authorize(authUser *models.LoginUser) (*models.ProfileUser
 }
 
 // Set new avatar
-func (u *UserUseCase) SetAvatar(userId uint64, avatar string) (string, error) {
-	// Destroy old user avatar
-	profileUser, err := u.UserRepo.SelectProfileById(userId)
-	if err == nil || profileUser.Avatar.Url.Valid {
-		err = os.Remove(configs.PathToUpload + profileUser.Avatar.Url.String)
-	}
-
-	err = u.UserRepo.UpdateAvatar(userId, configs.UrlToAvatar+avatar)
+func (u *UserUseCase) SetAvatar(userId uint64, file *multipart.File, header *multipart.FileHeader) (string, error) {
+	// Upload new user avatar to S3
+	fileName, err := s3_utils.UploadMultipartFile(file, header)
 	if err != nil {
 		return "", err
 	}
 
-	return configs.UrlToAvatar + avatar, nil
+	// Destroy old user avatar
+	profileUser, err := u.UserRepo.SelectProfileById(userId)
+	if err == nil && profileUser.Avatar.Url.Valid {
+		if err = s3_utils.DeleteFile(profileUser.Avatar.Url.String); err != nil {
+			return "", err
+		}
+	}
+
+	err = u.UserRepo.UpdateAvatar(userId, fileName)
+	if err != nil {
+		return "", err
+	}
+
+	return s3_utils.PathToFile(fileName), nil
 }
 
 // Get user avatar
@@ -57,7 +65,7 @@ func (u *UserUseCase) GetAvatar(userId uint64) (string, error) {
 		return "", err
 	}
 
-	return profileUser.Avatar.Url.String, nil
+	return s3_utils.PathToFile(profileUser.Avatar.Url.String), nil
 }
 
 // Update user profile in repo

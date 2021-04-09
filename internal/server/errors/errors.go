@@ -102,4 +102,7 @@ var (
 	ErrIncorrectJwtToken error = Error{
 		Message: "incorrect jwt token",
 	}
+	ErrS3InternalError error = Error{
+		Message: "can't upload file to S3",
+	}
 )

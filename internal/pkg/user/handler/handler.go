@@ -7,12 +7,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/session"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/file_utils"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/http_utils"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/logger"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/validator"
@@ -131,13 +129,16 @@ func (h *UserHandler) UpdateProfileAvatar(w http.ResponseWriter, r *http.Request
 
 	currentSession := http_utils.MustGetSessionFromContext(r.Context())
 
-	fileName, err := file_utils.UploadFile(r, "avatar", configs.PathToUpload+configs.UrlToAvatar)
+	// Max size - 10 Mb
+	r.ParseMultipartForm(10 * 1024 * 1024)
+	file, header, err := r.FormFile("avatar")
 	if err != nil {
-		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
+		http_utils.SetJSONResponse(w, errors.ErrFileNotRead, http.StatusBadRequest)
 		return
 	}
+	defer file.Close()
 
-	fileUrl, err := h.UserUCase.SetAvatar(currentSession.UserData.Id, fileName)
+	fileUrl, err := h.UserUCase.SetAvatar(currentSession.UserData.Id, &file, header)
 	if err != nil {
 		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
 		return
