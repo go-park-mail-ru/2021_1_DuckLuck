@@ -9,11 +9,8 @@ var (
 	UrlToAvatar     = "/avatar/"
 	UrlToProductImg = "/product/"
 
-	PostgresHost = "postgres"
-	RedisHost = "redis"
-
 	PathToLogFile = PathProject + "/log/log.txt"
 	LogLevel      = "debug"
 
-	CorsOrigin = "https://duckluckmarket.xyz"
+	CorsOrigin = "http://localhost:3000"
 )

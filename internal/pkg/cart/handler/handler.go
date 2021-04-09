@@ -55,7 +55,7 @@ func (h *CartHandler) AddProductInCart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.CartUCase.AddProduct(currentSession.UserId, cartArticle)
+	err = h.CartUCase.AddProduct(currentSession.UserData.Id, cartArticle)
 	if err != nil {
 		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
 		return
@@ -96,7 +96,7 @@ func (h *CartHandler) DeleteProductInCart(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	err = h.CartUCase.DeleteProduct(currentSession.UserId, identifier)
+	err = h.CartUCase.DeleteProduct(currentSession.UserData.Id, identifier)
 	if err != nil {
 		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
 		return
@@ -137,7 +137,7 @@ func (h *CartHandler) ChangeProductInCart(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	err = h.CartUCase.ChangeProduct(currentSession.UserId, cartArticle)
+	err = h.CartUCase.ChangeProduct(currentSession.UserData.Id, cartArticle)
 	if err != nil {
 		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
 		return
@@ -158,7 +158,7 @@ func (h *CartHandler) GetProductsFromCart(w http.ResponseWriter, r *http.Request
 
 	currentSession := http_utils.MustGetSessionFromContext(r.Context())
 
-	previewUserCart, err := h.CartUCase.GetPreviewCart(currentSession.UserId)
+	previewUserCart, err := h.CartUCase.GetPreviewCart(currentSession.UserData.Id)
 	if err != nil {
 		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
 		return

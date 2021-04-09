@@ -1,6 +1,7 @@
 package file_utils
 
 import (
+	"fmt"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	"net/http"
@@ -14,13 +15,13 @@ import (
 var sessionS3 *session.Session
 
 func init() {
-	accessKeyID := ""
-	secretAccessKey := ""
+	accessKeyID := "3rnonniNuYMrbnrr519hes"
+	secretAccessKey := "an9weAagS9F3N8L2J2zned3wEgec5v438sMdeqy13KMz"
 	myRegion := "ap-northeast-1"
 	var err error
 	sessionS3, err = session.NewSession(
 		&aws.Config{
-			Region: aws.String(myRegion),
+			Region:   aws.String(myRegion),
 			Endpoint: aws.String("hb.bizmrg.com"),
 			Credentials: credentials.NewStaticCredentials(
 				accessKeyID,
@@ -63,5 +64,7 @@ func UploadFile(r *http.Request, fileKey string, pathToUpload string) (string, e
 		Key:    aws.String("test_file_name"),
 		Body:   file,
 	})
+	fmt.Println(err)
+
 	return newName, nil
 }

@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
 	"log"
 	"net/http"
 	"time"
@@ -26,8 +25,10 @@ import (
 	user_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user/usecase"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/middleware"
+	_ "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/file_utils"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/logger"
 
+	r "github.com/go-redis/redis/v8"
 	"github.com/gomodule/redigo/redis"
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
@@ -35,7 +36,7 @@ import (
 
 func main() {
 	port := flag.String("p", "8080", "port to serve on")
-	redisAddr := flag.String("addr", "redis://user:@" + configs.RedisHost + ":6379/0", "redis addr")
+	redisAddr := flag.String("addr", "redis://user:@localhost:6379/0", "redis addr")
 	flag.Parse()
 
 	// Database
@@ -44,7 +45,7 @@ func main() {
 		"user=ozon_root "+
 			"password=qwerty123 "+
 			"dbname=ozon_db "+
-			"host=" + configs.PostgresHost +
+			"host=localhost "+
 			"port=5432 "+
 			"sslmode=disable",
 	)
@@ -64,13 +65,19 @@ func main() {
 	}
 	defer c.Close()
 
+	rdb := r.NewClient(&r.Options{
+		Addr:     "localhost:6379",
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
+
 	logger := logger.Logger{}
 	err = logger.InitLogger()
 	if err != nil {
 		panic(errors.ErrOpenFile.Error())
 	}
 
-	sessionRepo := session_repo.NewSessionRedisRepository(c)
+	sessionRepo := session_repo.NewSessionRedisRepository(rdb)
 	sessionUCase := session_usecase.NewUseCase(sessionRepo)
 
 	productRepo := product_repo.NewSessionPostgresqlRepository(pgConn)

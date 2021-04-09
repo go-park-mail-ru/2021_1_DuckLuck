@@ -110,7 +110,7 @@ func (h *UserHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.UserUCase.UpdateProfile(currentSession.UserId, &updateUser)
+	err = h.UserUCase.UpdateProfile(currentSession.UserData.Id, &updateUser)
 	if err != nil {
 		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
 		return
@@ -137,7 +137,7 @@ func (h *UserHandler) UpdateProfileAvatar(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	fileUrl, err := h.UserUCase.SetAvatar(currentSession.UserId, fileName)
+	fileUrl, err := h.UserUCase.SetAvatar(currentSession.UserData.Id, fileName)
 	if err != nil {
 		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
 		return
@@ -158,7 +158,7 @@ func (h *UserHandler) GetProfileAvatar(w http.ResponseWriter, r *http.Request) {
 
 	currentSession := http_utils.MustGetSessionFromContext(r.Context())
 
-	fileUrl, err := h.UserUCase.GetAvatar(currentSession.UserId)
+	fileUrl, err := h.UserUCase.GetAvatar(currentSession.UserData.Id)
 	if err == errors.ErrUserNotFound {
 		http_utils.SetJSONResponse(w, errors.ErrUserNotFound, http.StatusInternalServerError)
 		return
@@ -179,7 +179,7 @@ func (h *UserHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 
 	currentSession := http_utils.MustGetSessionFromContext(r.Context())
 
-	profileUser, err := h.UserUCase.GetUserById(currentSession.UserId)
+	profileUser, err := h.UserUCase.GetUserById(currentSession.UserData.Id)
 	if err != nil {
 		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusBadRequest)
 		return

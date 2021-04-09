@@ -37,8 +37,10 @@ func Auth(sm session.UseCase) func(http.Handler) http.Handler {
 			ctx := r.Context()
 			ctx = context.WithValue(r.Context(), models.SessionContextKey,
 				&models.Session{
-					Value:  sessionCookie.Value,
-					UserId: userId,
+					Value: sessionCookie.Value,
+					UserData: models.UserId{
+						Id: userId,
+					},
 				})
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
