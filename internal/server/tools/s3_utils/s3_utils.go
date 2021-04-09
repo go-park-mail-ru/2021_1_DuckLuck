@@ -1,28 +1,44 @@
 package file_utils
 
 import (
-	"fmt"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
+	"github.com/joho/godotenv"
+	"log"
 	"net/http"
+	"os"
+
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	uuid "github.com/satori/go.uuid"
 )
 
-var sessionS3 *session.Session
+var (
+	sessionS3 *session.Session
+	bucketS3 string
+	aclS3 string
+)
 
 func init() {
-	accessKeyID := "3rnonniNuYMrbnrr519hes"
-	secretAccessKey := "an9weAagS9F3N8L2J2zned3wEgec5v438sMdeqy13KMz"
-	myRegion := "ap-northeast-1"
-	var err error
+	// Load environment
+	err := godotenv.Load(configs.PathToConfigEnv)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	accessKeyID := os.Getenv("S3_ACCESS_KEY_ID")
+	secretAccessKey := os.Getenv("S3_SECRET_ACCESS_KEY")
+	myRegion := os.Getenv("S3_REGION")
+	bucketS3 = os.Getenv("S3_BUCKET")
+	aclS3 = os.Getenv("S3_ACL")
+	//var err error
 	sessionS3, err = session.NewSession(
 		&aws.Config{
 			Region:   aws.String(myRegion),
-			Endpoint: aws.String("hb.bizmrg.com"),
+			Endpoint: aws.String(os.Getenv("S3_ENDPOINT")),
 			Credentials: credentials.NewStaticCredentials(
 				accessKeyID,
 				secretAccessKey,
@@ -30,7 +46,7 @@ func init() {
 			),
 		})
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 }
 
@@ -57,14 +73,15 @@ func UploadFile(r *http.Request, fileKey string, pathToUpload string) (string, e
 
 	newName := uuid.NewV4().String() + fileType
 	uploader := s3manager.NewUploader(sessionS3)
-
-	_, err = uploader.Upload(&s3manager.UploadInput{
-		Bucket: aws.String("duckluckmarket"),
-		ACL:    aws.String("public-read"),
-		Key:    aws.String("test_file_name"),
+	res, err := uploader.Upload(&s3manager.UploadInput{
+		Bucket: aws.String(bucketS3),
+		ACL:    aws.String(aclS3),
+		Key:    aws.String(newName),
 		Body:   file,
 	})
-	fmt.Println(err)
+	if err != nil {
+		return "", errors.ErrUploadToS3
+	}
 
-	return newName, nil
+	return res.Location, nil
 }
