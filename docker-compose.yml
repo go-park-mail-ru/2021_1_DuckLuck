@@ -25,6 +25,7 @@ services:
       - "8080:8080"
     volumes:
       - ./log:/log
+      - ./configs/envs:/configs/envs
     networks:
       - app-network
   fileserver:
@@ -39,6 +40,7 @@ services:
     volumes:
       - ./log:/log
       - ./uploads:/uploads
+      - ./configs/envs:/configs/envs
     networks:
       - app-network
 networks:
