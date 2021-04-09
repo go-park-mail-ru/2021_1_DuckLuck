@@ -4,6 +4,8 @@ env:
   TAG: v1.0
 
 on:
+  push:
+    branches: [ develop, main ]
   pull_request:
     branches: [ develop, main ]
 
@@ -62,9 +64,4 @@ jobs:
           script: |
             cd /home/ubuntu/duckluckmarket/Backend
             echo TAG=${{ env.TAG }} > .env
-            base64 -i ./configs/envs/postgresql.env
-            sudo echo ${{ secrets.POSTGRESQL }} | base64 -d > ./configs/envs/postgresql.env
-            sudo echo ${{ secrets.API_SERVER }} > ./configs/envs/api_server.env
-            sudo echo ${{ secrets.REDIS }} > ./configs/envs/redis.env
-            sudo echo ${{ secrets.S3 }} > ./configs/envs/s3.env
             sudo docker-compose up -d
