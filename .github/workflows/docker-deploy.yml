@@ -68,7 +68,6 @@ jobs:
             cd /home/ubuntu/duckluckmarket/Backend
             echo TAG=${{ env.TAG }} > .env
             echo ${{ secrets.API_SERVER }} > ./configs/envs/api_server.env
-#            echo ${{ secrets.POSTGRESQL }} > ./configs/envs/postgresql.env
             echo ${{ secrets.REDIS }} > ./configs/envs/redis.env
             echo ${{ secrets.S3 }} > ./configs/envs/s3.env
             sudo docker-compose up -d
