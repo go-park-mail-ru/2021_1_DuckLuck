@@ -1,30 +1,34 @@
-package file_utils
+package s3_utils
 
 import (
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
-	"github.com/joho/godotenv"
+	"fmt"
 	"log"
-	"net/http"
+	"mime/multipart"
 	"os"
 
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
+	"github.com/joho/godotenv"
 	uuid "github.com/satori/go.uuid"
 )
 
 var (
-	sessionS3 *session.Session
-	bucketS3 string
-	aclS3 string
+	sess     *session.Session
+	bucket   string
+	acl      string
+	endpoint string
+	svc      *s3.S3
 )
 
 func init() {
-	// Load environment
-	err := godotenv.Load(configs.PathToConfigEnv)
+	// Load s3 environment
+	err := godotenv.Load(configs.PathToS3Env)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -32,35 +36,29 @@ func init() {
 	accessKeyID := os.Getenv("S3_ACCESS_KEY_ID")
 	secretAccessKey := os.Getenv("S3_SECRET_ACCESS_KEY")
 	myRegion := os.Getenv("S3_REGION")
-	bucketS3 = os.Getenv("S3_BUCKET")
-	aclS3 = os.Getenv("S3_ACL")
+	bucket = os.Getenv("S3_BUCKET")
+	acl = os.Getenv("S3_ACL")
+	endpoint = os.Getenv("S3_ENDPOINT")
 	//var err error
-	sessionS3, err = session.NewSession(
+	sess, err = session.NewSession(
 		&aws.Config{
 			Region:   aws.String(myRegion),
-			Endpoint: aws.String(os.Getenv("S3_ENDPOINT")),
+			Endpoint: aws.String(endpoint),
 			Credentials: credentials.NewStaticCredentials(
 				accessKeyID,
 				secretAccessKey,
 				"",
 			),
 		})
+	svc = s3.New(sess)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-func UploadFile(r *http.Request, fileKey string, pathToUpload string) (string, error) {
-	// Max size - 10 Mb
-	r.ParseMultipartForm(10 * 1024 * 1024)
-	file, handler, err := r.FormFile(fileKey)
-	if err != nil {
-		return "", errors.ErrFileNotRead
-	}
-	defer file.Close()
-
+func UploadMultipartFile(file *multipart.File, header *multipart.FileHeader) (string, error) {
 	var fileType string
-	switch handler.Header.Get("Content-Type") {
+	switch header.Header.Get("Content-Type") {
 	case "image/png":
 		fileType = ".png"
 	case "image/jpg":
@@ -72,16 +70,34 @@ func UploadFile(r *http.Request, fileKey string, pathToUpload string) (string, e
 	}
 
 	newName := uuid.NewV4().String() + fileType
-	uploader := s3manager.NewUploader(sessionS3)
-	res, err := uploader.Upload(&s3manager.UploadInput{
-		Bucket: aws.String(bucketS3),
-		ACL:    aws.String(aclS3),
+	uploader := s3manager.NewUploader(sess)
+	_, err := uploader.Upload(&s3manager.UploadInput{
+		Bucket: aws.String(bucket),
+		ACL:    aws.String(acl),
 		Key:    aws.String(newName),
-		Body:   file,
+		Body:   *file,
 	})
 	if err != nil {
-		return "", errors.ErrUploadToS3
+		return "", errors.ErrS3InternalError
 	}
 
-	return res.Location, nil
+	return newName, nil
+}
+
+func DeleteFile(fileName string) error {
+	input := &s3.DeleteObjectInput{
+		Bucket: aws.String(bucket),
+		Key:    aws.String(fileName),
+	}
+
+	_, err := svc.DeleteObject(input)
+	if err != nil {
+		return errors.ErrS3InternalError
+	}
+
+	return nil
+}
+
+func PathToFile(fileName string) string {
+	return fmt.Sprintf("https://%s.%s/%s", bucket, endpoint, fileName)
 }
