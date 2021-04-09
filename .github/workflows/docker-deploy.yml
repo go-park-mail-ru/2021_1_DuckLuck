@@ -1,4 +1,4 @@
-name: Docker Build
+name: Build and deploy
 
 env:
   TAG: v1.0
