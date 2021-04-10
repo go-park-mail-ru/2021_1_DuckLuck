@@ -18,7 +18,7 @@ func NewUseCase(repo category.Repository) category.UseCase {
 
 // Get first three levels of categories tree
 func (u *CategoryUseCase) GetCatalogCategories() ([]*models.CategoriesCatalog, error) {
-	categories, err := u.CategoryRepo.GetCategoriesByLevel(1)
+	categories, err := u.CategoryRepo.GetCategoriesByLevel(2)
 	if err != nil {
 		return nil, errors.ErrDBInternalError
 	}
