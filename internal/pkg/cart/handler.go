@@ -7,4 +7,5 @@ type Handler interface {
 	DeleteProductInCart(w http.ResponseWriter, r *http.Request)
 	ChangeProductInCart(w http.ResponseWriter, r *http.Request)
 	GetProductsFromCart(w http.ResponseWriter, r *http.Request)
+	DeleteProductsFromCart(w http.ResponseWriter, r *http.Request)
 }
