@@ -27,9 +27,7 @@ func (r *PostgresqlRepository) AddProfile(user *models.ProfileUser) (uint64, err
 	)
 
 	var userId uint64
-	err := row.Scan(&userId)
-
-	if err != nil {
+	if err := row.Scan(&userId); err != nil {
 		return 0, errors.ErrDBInternalError
 	}
 
