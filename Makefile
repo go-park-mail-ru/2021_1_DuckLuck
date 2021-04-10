@@ -1,7 +1,6 @@
 .PHONY: build
 build:
 	go build -o bin/server -v ./cmd/server
-	go build -o bin/fileserver -v ./cmd/fileserver
 
 .PHONY: test
 test:
