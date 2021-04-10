@@ -28,21 +28,6 @@ services:
       - ./configs/envs:/configs/envs
     networks:
       - app-network
-  fileserver:
-    depends_on:
-      - postgres
-    image: duckluckmarket/godeploy:${TAG}
-    command: "./fileserver"
-    container_name: fileserver
-    restart: unless-stopped
-    ports:
-      - "8100:8100"
-    volumes:
-      - ./log:/log
-      - ./uploads:/uploads
-      - ./configs/envs:/configs/envs
-    networks:
-      - app-network
 networks:
   app-network:
     driver: bridge
