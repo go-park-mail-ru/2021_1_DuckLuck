@@ -1,6 +1,7 @@
 # Project gitignore
 configs/envs
 .idea
+bin
 go.sum
 log/log.txt
 
