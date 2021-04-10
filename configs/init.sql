@@ -96,7 +96,6 @@ GRANT ALL PRIVILEGES ON TABLE category TO ozon_root;
 GRANT ALL PRIVILEGES ON TABLE products TO ozon_root;
 GRANT ALL PRIVILEGES ON TABLE subsetCategory TO ozon_root;
 GRANT ALL PRIVILEGES ON TABLE userOrder TO ozon_root;
-GRANT ALL PRIVILEGES ON TYPE orderArticle TO ozon_root;
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO ozon_root;
 
 
