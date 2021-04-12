@@ -71,7 +71,7 @@ func (r *PostgresqlRepository) SelectProductById(productId uint64) (*models.Prod
 }
 
 // Select range of products by paginate settings
-func (r *PostgresqlRepository) SelectRangeProducts(paginator *models.PaginatorProducts) (*models.RangeProducts, error) {
+func (r *PostgresqlRepository) SelectRangeProducts(paginator *models.PaginatorProducts, categories []uint64) (*models.RangeProducts, error) {
 	row := r.db.QueryRow(
 		"SELECT ceil(count(*) / $1) FROM products",
 		paginator.Count,
@@ -101,16 +101,17 @@ func (r *PostgresqlRepository) SelectRangeProducts(paginator *models.PaginatorPr
 	rows, err := r.db.Query(
 		"SELECT id, title, baseCost, discount, rating, images[1] "+
 			"FROM products "+
+			"WHERE idCategory = ANY($1) "+
 			sortString+
-			"LIMIT $1 OFFSET $2",
+			"LIMIT $2 OFFSET $3",
+		pq.Array(categories),
 		paginator.Count,
 		paginator.Count*(paginator.PageNum-1),
 	)
-	defer rows.Close()
-
 	if err != nil {
 		return nil, errors.ErrIncorrectPaginator
 	}
+	defer rows.Close()
 
 	products := make([]*models.ViewProduct, 0)
 	for rows.Next() {

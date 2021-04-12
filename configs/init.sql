@@ -68,11 +68,12 @@ GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO ozon_root;
 
 
 -- Data for testing
+INSERT INTO category(name) VALUES ('Base');
 INSERT INTO category(name) VALUES ('Home');
 INSERT INTO category(name) VALUES ('Kitchen');
 INSERT INTO category(name) VALUES ('Dishes');
 INSERT INTO category(name) VALUES ('Electronics');
-INSERT INTO category(name) VALUES ('Food');
+INSERT INTO category(name) VALUES ('Mixer');
 
 INSERT INTO subsetCategory(idCategory, idSubSet, level) VALUES (1, 1, 1);
 
@@ -91,6 +92,11 @@ INSERT INTO subsetCategory(idCategory, idSubSet, level) VALUES (5, 1, 1);
 INSERT INTO subsetCategory(idCategory, idSubSet, level) VALUES (5, 2, 2);
 INSERT INTO subsetCategory(idCategory, idSubSet, level) VALUES (5, 5, 3);
 
+INSERT INTO subsetCategory(idCategory, idSubSet, level) VALUES (6, 1, 1);
+INSERT INTO subsetCategory(idCategory, idSubSet, level) VALUES (6, 2, 2);
+INSERT INTO subsetCategory(idCategory, idSubSet, level) VALUES (6, 5, 3);
+INSERT INTO subsetCategory(idCategory, idSubSet, level) VALUES (6, 6, 4);
+
 INSERT INTO products(title, rating, description, baseCost, discount, images, idCategory)
 VALUES (
             'Hair dryer brush Rowenta',
@@ -106,7 +112,7 @@ VALUES (
             20,
             '{"/product/1021166584.jpg", "/product/1021166585.jpg",
             "/product/1021166586.jpg", "/product/6043447767.jpg"}',
-            4
+            6
        );
 
 INSERT INTO products(title, rating, description, baseCost, discount, images, idCategory)

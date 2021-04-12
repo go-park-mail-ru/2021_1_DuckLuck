@@ -1,18 +1,21 @@
 package product
 
 import (
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/category"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 )
 
 type ProductUseCase struct {
-	ProductRepo product.Repository
+	ProductRepo  product.Repository
+	CategoryRepo category.Repository
 }
 
-func NewUseCase(repo product.Repository) product.UseCase {
+func NewUseCase(productRepo product.Repository, categoryRepo category.Repository) product.UseCase {
 	return &ProductUseCase{
-		ProductRepo: repo,
+		ProductRepo:  productRepo,
+		CategoryRepo: categoryRepo,
 	}
 }
 
@@ -27,5 +30,10 @@ func (u *ProductUseCase) GetRangeProducts(paginator *models.PaginatorProducts) (
 		return nil, errors.ErrIncorrectPaginator
 	}
 
-	return u.ProductRepo.SelectRangeProducts(paginator)
+	categoriesId, err := u.CategoryRepo.GetAllSubCategoriesId(paginator.Category)
+	if err != nil {
+		return nil, err
+	}
+
+	return u.ProductRepo.SelectRangeProducts(paginator, categoriesId)
 }

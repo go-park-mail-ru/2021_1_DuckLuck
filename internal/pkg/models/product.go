@@ -55,6 +55,7 @@ type PaginatorProducts struct {
 	Count         int    `json:"count"`
 	SortKey       string `json:"sort_key" valid:"in(cost|rating)"`
 	SortDirection string `json:"sort_direction" valid:"in(ASC|DECS)"`
+	Category      uint64 `json:"category"`
 }
 
 func (pp *PaginatorProducts) Sanitize() {

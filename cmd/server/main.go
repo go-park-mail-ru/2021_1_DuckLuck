@@ -104,8 +104,12 @@ func main() {
 	sessionRepo := session_repo.NewSessionRedisRepository(redisConn)
 	sessionUCase := session_usecase.NewUseCase(sessionRepo)
 
+	categoryRepo := category_repo.NewSessionPostgresqlRepository(postgreSqlConn)
+	categoryUCase := category_usecase.NewUseCase(categoryRepo)
+	categoryHandler := category_delivery.NewHandler(categoryUCase)
+
 	productRepo := product_repo.NewSessionPostgresqlRepository(postgreSqlConn)
-	productUCase := product_usecase.NewUseCase(productRepo)
+	productUCase := product_usecase.NewUseCase(productRepo, categoryRepo)
 	productHandler := product_delivery.NewHandler(productUCase)
 
 	cartRepo := cart_repo.NewSessionRedisRepository(redisConn)
@@ -115,10 +119,6 @@ func main() {
 	userRepo := user_repo.NewSessionPostgresqlRepository(postgreSqlConn)
 	userUCase := user_usecase.NewUseCase(userRepo)
 	userHandler := user_delivery.NewHandler(userUCase, sessionUCase)
-
-	categoryRepo := category_repo.NewSessionPostgresqlRepository(postgreSqlConn)
-	categoryUCase := category_usecase.NewUseCase(categoryRepo)
-	categoryHandler := category_delivery.NewHandler(categoryUCase)
 
 	csrfTokenHandler := csrf_token_delivery.NewHandler()
 

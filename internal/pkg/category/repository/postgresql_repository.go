@@ -84,3 +84,32 @@ func (r *PostgresqlRepository) GetCategoriesByLevel(level uint64) ([]*models.Cat
 
 	return categories, nil
 }
+
+// Get id of all subcategories
+func (r *PostgresqlRepository) GetAllSubCategoriesId(categoryId uint64) ([]uint64, error) {
+	rows, err := r.db.Query(
+		"SELECT idCategory "+
+			"FROM SubSetCategory "+
+			"WHERE idSubSet = $1",
+		categoryId,
+	)
+	defer rows.Close()
+
+	if err != nil {
+		return nil, errors.ErrDBInternalError
+	}
+
+	categoriesId := make([]uint64, 0)
+	for rows.Next() {
+		var id uint64
+		err = rows.Scan(
+			&id,
+		)
+		if err != nil {
+			return nil, err
+		}
+		categoriesId = append(categoriesId, id)
+	}
+
+	return categoriesId, nil
+}
