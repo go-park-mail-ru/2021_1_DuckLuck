@@ -1,9 +1,11 @@
-name: Docker Build
+name: Build and deploy
 
 env:
   TAG: v1.0
 
 on:
+  push:
+    branches: [ develop, main ]
   pull_request:
     branches: [ develop, main ]
 

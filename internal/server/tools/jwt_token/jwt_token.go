@@ -2,6 +2,7 @@ package jwt_token
 
 import (
 	"encoding/base64"
+	"os"
 	"time"
 
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
@@ -10,7 +11,7 @@ import (
 )
 
 var (
-	secretKey = "8M21KctQCIRcZYNs178X7I1tP0dHsJ20"
+	secretKey = os.Getenv("JWT_TOKEN")
 )
 
 type JwtToken struct {

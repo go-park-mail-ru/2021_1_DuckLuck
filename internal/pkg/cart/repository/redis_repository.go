@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
@@ -8,14 +9,14 @@ import (
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 
-	"github.com/gomodule/redigo/redis"
+	"github.com/go-redis/redis/v8"
 )
 
 type RedisRepository struct {
-	conn redis.Conn
+	conn *redis.Client
 }
 
-func NewSessionRedisRepository(conn redis.Conn) cart.Repository {
+func NewSessionRedisRepository(conn *redis.Client) cart.Repository {
 	return &RedisRepository{
 		conn: conn,
 	}
@@ -29,8 +30,8 @@ func (r *RedisRepository) getNewKey(value uint64) string {
 func (r *RedisRepository) DeleteCart(userId uint64) error {
 	key := r.getNewKey(userId)
 
-	result, err := redis.String(r.conn.Do("DEL", key))
-	if err != nil || result != "OK" {
+	err := r.conn.Del(context.Background(), key).Err()
+	if err != nil {
 		return errors.ErrDBInternalError
 	}
 	return nil
@@ -41,7 +42,7 @@ func (r *RedisRepository) SelectCartById(userId uint64) (*models.Cart, error) {
 	userCart := &models.Cart{}
 	key := r.getNewKey(userId)
 
-	data, err := redis.Bytes(r.conn.Do("GET", key))
+	data, err := r.conn.Get(context.Background(), key).Bytes()
 	if err != nil {
 		return nil, errors.ErrCartNotFound
 	}
@@ -62,8 +63,8 @@ func (r *RedisRepository) AddCart(userId uint64, userCart *models.Cart) error {
 		return errors.ErrCanNotMarshal
 	}
 
-	result, err := redis.String(r.conn.Do("SET", key, data))
-	if err != nil || result != "OK" {
+	err = r.conn.Set(context.Background(), key, data, 0).Err()
+	if err != nil {
 		return errors.ErrDBInternalError
 	}
 	return nil

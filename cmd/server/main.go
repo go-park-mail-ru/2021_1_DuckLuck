@@ -2,12 +2,13 @@ package main
 
 import (
 	"database/sql"
-	"flag"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
 	cart_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/cart/handler"
 	cart_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/cart/repository"
 	cart_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/cart/usecase"
@@ -26,65 +27,96 @@ import (
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/middleware"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/logger"
+	_ "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/s3_utils"
 
-	"github.com/gomodule/redigo/redis"
+	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
+func init() {
+	// Load server api environment
+	err := godotenv.Load(configs.PathToApiServerEnv)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Load postgresql environment
+	err = godotenv.Load(configs.PathToPostgreSqlEnv)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Load redis environment
+	err = godotenv.Load(configs.PathToRedisEnv)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Init logger
+	mainLogger := logger.Logger{}
+	err = mainLogger.InitLogger()
+	if err != nil {
+		log.Fatal(errors.ErrOpenFile.Error())
+	}
+}
+
 func main() {
-	port := flag.String("p", "8080", "port to serve on")
-	redisAddr := flag.String("addr", "redis://user:@redis:6379/0", "redis addr")
-	flag.Parse()
-
-	// Database
-	pgConn, err := sql.Open(
+	// Connect to postgreSql db
+	postgreSqlConn, err := sql.Open(
 		"postgres",
-		"user=ozon_root "+
-			"password=qwerty123 "+
-			"dbname=ozon_db "+
-			"host=postgres "+
-			"port=5432 "+
-			"sslmode=disable",
+		fmt.Sprintf("user=%s "+
+			"password=%s "+
+			"dbname=%s "+
+			"host=%s "+
+			"port=%s "+
+			"sslmode=%s ",
+			os.Getenv("PG_USER"),
+			os.Getenv("PG_PASS"),
+			os.Getenv("PG_DB_NAME"),
+			os.Getenv("PG_HOST"),
+			os.Getenv("PG_PORT"),
+			os.Getenv("PG_SSL_MODE"),
+		),
 	)
-
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer pgConn.Close()
-
-	if err := pgConn.Ping(); err != nil {
+	defer postgreSqlConn.Close()
+	if err := postgreSqlConn.Ping(); err != nil {
 		log.Fatal(err)
 	}
 
-	c, err := redis.DialURL(*redisAddr)
-	if err != nil {
-		panic(errors.ErrDBFailedConnection.Error())
+	// Connect to redis db
+	redisConn := redis.NewClient(&redis.Options{
+		Addr: fmt.Sprintf("%s:%s",
+			os.Getenv("REDIS_HOST"),
+			os.Getenv("REDIS_PORT")),
+		Password: os.Getenv("REDIS_PASS"),
+		DB:       0,
+	})
+	if redisConn == nil {
+		log.Fatal(errors.ErrDBFailedConnection.Error())
 	}
-	defer c.Close()
+	defer redisConn.Close()
 
-	logger := logger.Logger{}
-	err = logger.InitLogger()
-	if err != nil {
-		panic(errors.ErrOpenFile.Error())
-	}
-
-	sessionRepo := session_repo.NewSessionRedisRepository(c)
+	sessionRepo := session_repo.NewSessionRedisRepository(redisConn)
 	sessionUCase := session_usecase.NewUseCase(sessionRepo)
 
-	productRepo := product_repo.NewSessionPostgresqlRepository(pgConn)
+	productRepo := product_repo.NewSessionPostgresqlRepository(postgreSqlConn)
 	productUCase := product_usecase.NewUseCase(productRepo)
 	productHandler := product_delivery.NewHandler(productUCase)
 
-	cartRepo := cart_repo.NewSessionRedisRepository(c)
+	cartRepo := cart_repo.NewSessionRedisRepository(redisConn)
 	cartUCase := cart_usecase.NewUseCase(cartRepo, productRepo)
 	cartHandler := cart_delivery.NewHandler(cartUCase)
 
-	userRepo := user_repo.NewSessionPostgresqlRepository(pgConn)
+	userRepo := user_repo.NewSessionPostgresqlRepository(postgreSqlConn)
 	userUCase := user_usecase.NewUseCase(userRepo)
 	userHandler := user_delivery.NewHandler(userUCase, sessionUCase)
 
-	categoryRepo := category_repo.NewSessionPostgresqlRepository(pgConn)
+	categoryRepo := category_repo.NewSessionPostgresqlRepository(postgreSqlConn)
 	categoryUCase := category_usecase.NewUseCase(categoryRepo)
 	categoryHandler := category_delivery.NewHandler(categoryUCase)
 
@@ -120,15 +152,16 @@ func main() {
 	authMux.HandleFunc("/api/v1/cart/product", cartHandler.DeleteProductInCart).Methods("DELETE", "OPTIONS")
 
 	server := &http.Server{
-		Addr:         ":" + *port,
+		Addr: fmt.Sprintf("%s:%s",
+			os.Getenv("API_SERVER_HOST"),
+			os.Getenv("API_SERVER_PORT")),
 		WriteTimeout: time.Second * 15,
 		ReadTimeout:  time.Second * 15,
 		IdleTimeout:  time.Second * 60,
 		Handler:      mainMux,
 	}
 
-	fmt.Println("starting server")
 	if err := server.ListenAndServe(); err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 }

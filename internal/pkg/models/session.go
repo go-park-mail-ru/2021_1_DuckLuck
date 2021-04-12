@@ -13,14 +13,20 @@ const (
 )
 
 type Session struct {
-	Value  string
-	UserId uint64
+	Value    string
+	UserData UserId
+}
+
+type UserId struct {
+	Id uint64
 }
 
 func NewSession(userId uint64) *Session {
 	newValue := uuid.NewV4()
 	return &Session{
-		Value:  newValue.String(),
-		UserId: userId,
+		Value: newValue.String(),
+		UserData: UserId{
+			Id: userId,
+		},
 	}
 }
