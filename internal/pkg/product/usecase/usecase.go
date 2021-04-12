@@ -21,7 +21,19 @@ func NewUseCase(productRepo product.Repository, categoryRepo category.Repository
 
 // Get product by id from repo
 func (u *ProductUseCase) GetProductById(productId uint64) (*models.Product, error) {
-	return u.ProductRepo.SelectProductById(productId)
+	productById, err := u.ProductRepo.SelectProductById(productId)
+	if err != nil {
+		return nil, errors.ErrProductNotFound
+	}
+
+	categories, err := u.CategoryRepo.GetPathToCategory(productById.Category)
+	if err != nil {
+		return nil, errors.ErrCategoryNotFound
+	}
+
+	productById.CategoryPath = categories
+
+	return productById, nil
 }
 
 // Get range products by paginator settings from repo
@@ -32,8 +44,8 @@ func (u *ProductUseCase) GetRangeProducts(paginator *models.PaginatorProducts) (
 
 	categoriesId, err := u.CategoryRepo.GetAllSubCategoriesId(paginator.Category)
 	if err != nil {
-		return nil, err
+		return nil, errors.ErrCategoryNotFound
 	}
 
-	return u.ProductRepo.SelectRangeProducts(paginator, categoriesId)
+	return u.ProductRepo.SelectRangeProducts(paginator, &categoriesId)
 }
