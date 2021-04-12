@@ -34,12 +34,12 @@ func TestUserHandler_Login(t *testing.T) {
 		LastName:  "last",
 		Email:     "test@test.ru",
 		Password:  []byte{1, 43, 23},
-		Avatar:    models.Avatar{
+		Avatar: models.Avatar{
 			Url: "http://test.png",
 		},
 	}
 	sess := models.Session{
-		Value:    "fdsfdsfdsf",
+		Value: "fdsfdsfdsf",
 		UserData: models.UserId{
 			Id: 3,
 		},
@@ -366,7 +366,7 @@ func TestUserHandler_GetProfile(t *testing.T) {
 		LastName:  "last",
 		Email:     "test@test.ru",
 		Password:  []byte{1, 43, 23},
-		Avatar:    models.Avatar{
+		Avatar: models.Avatar{
 			Url: "http://test.png",
 		},
 	}
@@ -594,9 +594,9 @@ func TestUserHandler_Logout(t *testing.T) {
 		req, _ := http.NewRequestWithContext(cctx, "GET", "/api/v1/user/logout",
 			bytes.NewBuffer(nil))
 		req.AddCookie(&http.Cookie{
-			Name:       models.SessionCookieName,
-			Value:      sess.Value,
-			Expires:	time.Now().Add(models.ExpireSessionCookie*time.Second),
+			Name:    models.SessionCookieName,
+			Value:   sess.Value,
+			Expires: time.Now().Add(models.ExpireSessionCookie * time.Second),
 		})
 
 		rr := httptest.NewRecorder()
@@ -623,9 +623,9 @@ func TestUserHandler_Logout(t *testing.T) {
 		req, _ := http.NewRequestWithContext(cctx, "GET", "/api/v1/user/logout",
 			bytes.NewBuffer(nil))
 		req.AddCookie(&http.Cookie{
-			Name:       models.SessionCookieName,
-			Value:      sess.Value,
-			Expires:	time.Now().Add(models.ExpireSessionCookie*time.Second),
+			Name:    models.SessionCookieName,
+			Value:   sess.Value,
+			Expires: time.Now().Add(models.ExpireSessionCookie * time.Second),
 		})
 
 		rr := httptest.NewRecorder()
