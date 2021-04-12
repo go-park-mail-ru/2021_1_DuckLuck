@@ -59,11 +59,43 @@ CREATE TABLE subsetCategory (
     CONSTRAINT levelValue CHECK (level > 0)
 );
 
+DROP TABLE IF EXISTS userOrder CASCADE;
+CREATE TABLE userOrder (
+    id SERIAL NOT NULL PRIMARY KEY,
+    userId INTEGER NOT NULL,
+    firstName TEXT NOT NULL,
+    lastName TEXT NOT NULL,
+    email TEXT NOT NULL,
+    address TEXT NOT NULL,
+    baseCost INTEGER NOT NULL,
+    totalCost INTEGER NOT NULL,
+    discount INTEGER NOT NULL,
+
+    FOREIGN KEY (userId) REFERENCES users(id)
+);
+
+DROP TABLE IF EXISTS orderedProducts CASCADE;
+CREATE TABLE orderedProducts (
+    id SERIAL NOT NULL PRIMARY KEY,
+    productId INTEGER NOT NULL,
+    orderId INTEGER NOT NULL,
+    num INTEGER NOT NULL,
+    baseCost INTEGER NOT NULL,
+    discount INTEGER NOT NULL,
+
+    FOREIGN KEY (productId) REFERENCES products(id),
+    FOREIGN KEY (orderId) REFERENCES userOrder(id),
+
+    CONSTRAINT numValue CHECK (num >= 0)
+);
+
 
 GRANT ALL PRIVILEGES ON TABLE users TO ozon_root;
+GRANT ALL PRIVILEGES ON TABLE orderedProducts TO ozon_root;
 GRANT ALL PRIVILEGES ON TABLE category TO ozon_root;
 GRANT ALL PRIVILEGES ON TABLE products TO ozon_root;
 GRANT ALL PRIVILEGES ON TABLE subsetCategory TO ozon_root;
+GRANT ALL PRIVILEGES ON TABLE userOrder TO ozon_root;
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO ozon_root;
 
 
@@ -122,7 +154,7 @@ VALUES (
             'Chupa Chups Mini is Chupa Chups'' favorite candy on a stick ' ||
             'in mini format. In the showbox there are 100 Chupa. ' ||
             'Chups with the best flavors: strawberry, cola, orange, apple.',
-            6.25,
+            6,
             0,
             '{"/product/6024670802.jpg", "/product/6024670803.jpg",
             "/product/6024670804.jpg", "/product/6024670805.jpg"}',

@@ -166,3 +166,24 @@ func (h *CartHandler) GetProductsFromCart(w http.ResponseWriter, r *http.Request
 
 	http_utils.SetJSONResponse(w, previewUserCart, http.StatusOK)
 }
+
+// Delete user cart
+func (h *CartHandler) DeleteProductsFromCart(w http.ResponseWriter, r *http.Request) {
+	var err error
+	defer func() {
+		requireId := http_utils.MustGetRequireId(r.Context())
+		if err != nil {
+			logger.LogError(r.URL.Path, "cart_handler", "GetProductsFromCart", requireId, err)
+		}
+	}()
+
+	currentSession := http_utils.MustGetSessionFromContext(r.Context())
+
+	err = h.CartUCase.DeleteCart(currentSession.UserData.Id)
+	if err != nil {
+		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
+		return
+	}
+
+	http_utils.SetJSONResponseSuccess(w, http.StatusOK)
+}

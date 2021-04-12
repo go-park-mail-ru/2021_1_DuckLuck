@@ -24,6 +24,7 @@ type ProductIdentifier struct {
 // This model contains field for preview information
 type PreviewCart struct {
 	Products []*PreviewCartArticle `json:"products" valid:"notnull"`
+	Price    TotalPrice            `json:"price" valid:"notnull"`
 }
 
 // View of product in cart
@@ -34,4 +35,12 @@ type PreviewCartArticle struct {
 	Price        ProductPrice `json:"price" valid:"notnull"`
 	PreviewImage string       `json:"preview_image" valid:"minstringlength(3)"`
 	Count        uint64       `json:"count"`
+}
+
+// Order price kept in integer nums
+// and contains base price and discount
+type TotalPrice struct {
+	TotalDiscount int `json:"total_discount"`
+	TotalCost     int `json:"total_cost"`
+	TotalBaseCost int `json:"total_base_cost"`
 }

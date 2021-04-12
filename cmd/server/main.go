@@ -16,6 +16,9 @@ import (
 	category_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/category/repository"
 	category_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/category/usecase"
 	csrf_token_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/csrf_token/handler"
+	order_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/order/handler"
+	order_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/order/repository"
+	order_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/order/usecase"
 	product_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/handler"
 	product_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/repository"
 	product_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/usecase"
@@ -120,6 +123,10 @@ func main() {
 	userUCase := user_usecase.NewUseCase(userRepo)
 	userHandler := user_delivery.NewHandler(userUCase, sessionUCase)
 
+	orderRepo := order_repo.NewSessionPostgresqlRepository(postgreSqlConn)
+	orderUCase := order_usecase.NewUseCase(orderRepo, cartRepo, productRepo, userRepo)
+	orderHandler := order_delivery.NewHandler(orderUCase, cartUCase)
+
 	csrfTokenHandler := csrf_token_delivery.NewHandler()
 
 	mainMux := mux.NewRouter()
@@ -147,9 +154,12 @@ func main() {
 	authMux.HandleFunc("/api/v1/user/profile/avatar", userHandler.GetProfileAvatar).Methods("GET", "OPTIONS")
 	authMux.HandleFunc("/api/v1/user/profile/avatar", userHandler.UpdateProfileAvatar).Methods("PUT", "OPTIONS")
 	authMux.HandleFunc("/api/v1/cart", cartHandler.GetProductsFromCart).Methods("GET", "OPTIONS")
+	authMux.HandleFunc("/api/v1/cart", cartHandler.DeleteProductsFromCart).Methods("DELETE", "OPTIONS")
 	authMux.HandleFunc("/api/v1/cart/product", cartHandler.ChangeProductInCart).Methods("PUT", "OPTIONS")
 	authMux.HandleFunc("/api/v1/cart/product", cartHandler.AddProductInCart).Methods("POST", "OPTIONS")
 	authMux.HandleFunc("/api/v1/cart/product", cartHandler.DeleteProductInCart).Methods("DELETE", "OPTIONS")
+	authMux.HandleFunc("/api/v1/order", orderHandler.GetOrderFromCart).Methods("GET", "OPTIONS")
+	authMux.HandleFunc("/api/v1/order", orderHandler.AddCompletedOrder).Methods("POST", "OPTIONS")
 
 	server := &http.Server{
 		Addr: fmt.Sprintf("%s:%s",
