@@ -24,11 +24,11 @@ func NewUseCase(repo user.Repository) user.UseCase {
 func (u *UserUseCase) Authorize(authUser *models.LoginUser) (*models.ProfileUser, error) {
 	profileUser, err := u.UserRepo.SelectProfileByEmail(authUser.Email)
 	if err != nil {
-		return nil, errors.ErrIncorrectUserEmail
+		return nil, errors.ErrIncorrectAuthData
 	}
 
 	if ok := hasher.CompareHashAndPassword(profileUser.Password, authUser.Password); !ok {
-		return nil, errors.ErrIncorrectUserPassword
+		return nil, errors.ErrIncorrectAuthData
 	}
 
 	return profileUser, nil
@@ -44,8 +44,8 @@ func (u *UserUseCase) SetAvatar(userId uint64, file *multipart.File, header *mul
 
 	// Destroy old user avatar
 	profileUser, err := u.UserRepo.SelectProfileById(userId)
-	if err == nil && profileUser.Avatar.Url.Valid {
-		if err = s3_utils.DeleteFile(profileUser.Avatar.Url.String); err != nil {
+	if err == nil && profileUser.Avatar.Url != "" {
+		if err = s3_utils.DeleteFile(profileUser.Avatar.Url); err != nil {
 			return "", err
 		}
 	}
@@ -62,10 +62,10 @@ func (u *UserUseCase) SetAvatar(userId uint64, file *multipart.File, header *mul
 func (u *UserUseCase) GetAvatar(userId uint64) (string, error) {
 	profileUser, err := u.UserRepo.SelectProfileById(userId)
 	if err != nil {
-		return "", err
+		return "", errors.ErrUserNotFound
 	}
 
-	return s3_utils.PathToFile(profileUser.Avatar.Url.String), nil
+	return s3_utils.PathToFile(profileUser.Avatar.Url), nil
 }
 
 // Update user profile in repo
