@@ -77,7 +77,7 @@ func (u *CartUseCase) GetPreviewCart(userId uint64) (*models.PreviewCart, error)
 	userCart, err := u.CartRepo.SelectCartById(userId)
 	switch err {
 	case errors.ErrCartNotFound:
-		return previewUserCart, err
+		return previewUserCart, nil
 	case nil:
 
 	default:
