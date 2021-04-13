@@ -3,15 +3,13 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/logger"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/s3_utils"
 	"github.com/joho/godotenv"
 	"log"
 	"net/http"
 	"os"
 	"time"
 
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
 	_ "github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
 	cart_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/cart/handler"
 	cart_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/cart/repository"
@@ -33,6 +31,8 @@ import (
 	user_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user/usecase"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/middleware"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/logger"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/s3_utils"
 	_ "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/s3_utils"
 
 	"github.com/go-redis/redis/v8"

@@ -274,7 +274,7 @@ func TestCartHandler_GetProductsFromCart(t *testing.T) {
 	}
 	previewCart := models.PreviewCart{
 		Products: nil,
-		Price:    models.TotalPrice{
+		Price: models.TotalPrice{
 			TotalDiscount: 12,
 			TotalCost:     23,
 			TotalBaseCost: 43,
