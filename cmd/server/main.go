@@ -25,6 +25,7 @@ import (
 	product_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/usecase"
 	session_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/session/repository"
 	session_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/session/usecase"
+	session_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/session/handler"
 	user_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user/handler"
 	user_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user/repository"
 	user_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user/usecase"
@@ -111,6 +112,7 @@ func main() {
 
 	sessionRepo := session_repo.NewSessionRedisRepository(redisConn)
 	sessionUCase := session_usecase.NewUseCase(sessionRepo)
+	sessionHandler := session_delivery.NewHandler(sessionUCase)
 
 	categoryRepo := category_repo.NewSessionPostgresqlRepository(postgreSqlConn)
 	categoryUCase := category_usecase.NewUseCase(categoryRepo)
@@ -139,7 +141,7 @@ func main() {
 	mainMux.Use(middleware.Panic)
 	mainMux.Use(middleware.Cors)
 	// Check csrf token
-	//mainMux.Use(middleware.CsrfCheck)
+	mainMux.Use(middleware.CsrfCheck)
 
 	mainMux.HandleFunc("/api/v1/csrf", csrfTokenHandler.GetCsrfToken).Methods("GET", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/user/signup", userHandler.Signup).Methods("POST", "OPTIONS")
@@ -153,6 +155,7 @@ func main() {
 	authMux := mainMux.PathPrefix("/").Subrouter()
 	middlewareAuth := middleware.Auth(sessionUCase)
 	authMux.Use(middlewareAuth)
+	authMux.HandleFunc("/api/v1/session", sessionHandler.CheckSession).Methods("GET", "OPTIONS")
 	authMux.HandleFunc("/api/v1/user/profile", userHandler.GetProfile).Methods("GET", "OPTIONS")
 	authMux.HandleFunc("/api/v1/user/logout", userHandler.Logout).Methods("DELETE", "OPTIONS")
 	authMux.HandleFunc("/api/v1/user/profile", userHandler.UpdateProfile).Methods("PUT", "OPTIONS")
