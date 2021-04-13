@@ -73,12 +73,17 @@ func (u *CartUseCase) ChangeProduct(userId uint64, cartArticle *models.CartArtic
 
 // Get preview cart
 func (u *CartUseCase) GetPreviewCart(userId uint64) (*models.PreviewCart, error) {
+	previewUserCart := &models.PreviewCart{}
 	userCart, err := u.CartRepo.SelectCartById(userId)
-	if err != nil {
+	switch err {
+	case errors.ErrCartNotFound:
+		return previewUserCart, err
+	case nil:
+
+	default:
 		return nil, err
 	}
 
-	previewUserCart := &models.PreviewCart{}
 	for id, productPosition := range userCart.Products {
 		productById, err := u.ProductRepo.SelectProductById(id)
 		if err != nil {
