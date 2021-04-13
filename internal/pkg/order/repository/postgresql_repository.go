@@ -22,8 +22,8 @@ func NewSessionPostgresqlRepository(db *sql.DB) order.Repository {
 func (r *PostgresqlRepository) AddOrder(order *models.Order, userId uint64,
 	products []*models.PreviewCartArticle, price *models.TotalPrice) (uint64, error) {
 	row := r.db.QueryRow(
-		"INSERT INTO userOrder(userId, firstName, lastName, email, "+
-			"address, baseCost, totalCost, discount) "+
+		"INSERT INTO user_orders(user_id, first_name, last_name, email, "+
+			"address, base_cost, total_cost, discount) "+
 			"VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id",
 		userId,
 		order.Recipient.FirstName,
@@ -41,7 +41,7 @@ func (r *PostgresqlRepository) AddOrder(order *models.Order, userId uint64,
 
 	for _, item := range products {
 		res := r.db.QueryRow(
-			"INSERT INTO orderedProducts(productId, orderId, num, baseCost, discount) "+
+			"INSERT INTO ordered_products(product_id, order_id, num, base_cost, discount) "+
 				"VALUES ($1, $2, $3, $4, $5) RETURNING id",
 			item.Id,
 			orderId,
