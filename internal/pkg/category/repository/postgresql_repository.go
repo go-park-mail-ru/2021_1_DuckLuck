@@ -22,9 +22,9 @@ func NewSessionPostgresqlRepository(db *sql.DB) category.Repository {
 func (r *PostgresqlRepository) GetNextLevelCategories(categoryId uint64) ([]*models.CategoriesCatalog, error) {
 	rows, err := r.db.Query(
 		"SELECT c.id, c.name "+
-			"FROM category c "+
-			"JOIN subset_category s1 ON c.id = s1.id_category "+
-			"JOIN subset_category s2 on s1.id_category = s2.id_category "+
+			"FROM categories c "+
+			"JOIN subsets_category s1 ON c.id = s1.id_category "+
+			"JOIN subsets_category s2 on s1.id_category = s2.id_category "+
 			"WHERE (s1.id_subset = $1) and (s2.id_category = s2.id_subset) "+
 			"and (s2.level = s1.level + 1)"+
 			"GROUP BY c.id, c.name "+
@@ -56,8 +56,8 @@ func (r *PostgresqlRepository) GetNextLevelCategories(categoryId uint64) ([]*mod
 func (r *PostgresqlRepository) GetCategoriesByLevel(level uint64) ([]*models.CategoriesCatalog, error) {
 	rows, err := r.db.Query(
 		"SELECT c.id, c.name "+
-			"FROM category c "+
-			"JOIN subset_category s1 ON c.id = s1.id_category "+
+			"FROM categories c "+
+			"JOIN subsets_category s1 ON c.id = s1.id_category "+
 			"GROUP BY c.id, c.name "+
 			"HAVING count(*) = $1",
 		level,
@@ -115,7 +115,7 @@ func (r *PostgresqlRepository) GetAllSubCategoriesId(categoryId uint64) ([]uint6
 func (r *PostgresqlRepository) GetPathToCategory(categoryId uint64) ([]*models.CategoriesCatalog, error) {
 	rows, err := r.db.Query(
 		"SELECT c.id, c.name FROM  subsets_category s "+
-			"LEFT JOIN category c ON c.id = s.id_subset "+
+			"LEFT JOIN categories c ON c.id = s.id_subset "+
 			"WHERE s.id_category = $1 "+
 			"ORDER BY s.level",
 		categoryId,

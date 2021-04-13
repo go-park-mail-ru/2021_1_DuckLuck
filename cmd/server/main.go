@@ -139,7 +139,7 @@ func main() {
 	mainMux.Use(middleware.Panic)
 	mainMux.Use(middleware.Cors)
 	// Check csrf token
-	mainMux.Use(middleware.CsrfCheck)
+	//mainMux.Use(middleware.CsrfCheck)
 
 	mainMux.HandleFunc("/api/v1/csrf", csrfTokenHandler.GetCsrfToken).Methods("GET", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/user/signup", userHandler.Signup).Methods("POST", "OPTIONS")
