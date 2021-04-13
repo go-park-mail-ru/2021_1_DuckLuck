@@ -6,6 +6,7 @@ import (
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/order"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 )
 
 type OrderUseCase struct {
@@ -35,11 +36,11 @@ func (u *OrderUseCase) GetPreviewOrder(userId uint64,
 	// Get info about user account for order
 	userProfile, err := u.UserRepo.SelectProfileById(userId)
 	if err != nil {
-		return nil, err
+		return nil, errors.ErrUserNotFound
 	}
 	previewOrder.Recipient = models.OrderRecipient{
-		FirstName: userProfile.FirstName.String,
-		LastName:  userProfile.LastName.String,
+		FirstName: userProfile.FirstName,
+		LastName:  userProfile.LastName,
 		Email:     userProfile.Email,
 	}
 
@@ -54,11 +55,11 @@ func (u *OrderUseCase) AddCompletedOrder(order *models.Order, userId uint64,
 
 	orderId, err := u.OrderRepo.AddOrder(order, userId, products, &price)
 	if err != nil {
-		return 0, err
+		return 0, errors.ErrInternalError
 	}
 
 	if err = u.CartRepo.DeleteCart(userId); err != nil {
-		return 0, err
+		return 0, errors.ErrCartNotFound
 	}
 
 	return orderId, nil
