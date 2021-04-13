@@ -75,7 +75,12 @@ func (u *UserUseCase) UpdateProfile(userId uint64, updateUser *models.UpdateUser
 
 // Get user profile by id
 func (u *UserUseCase) GetUserById(userId uint64) (*models.ProfileUser, error) {
-	return u.UserRepo.SelectProfileById(userId)
+	userById, err := u.UserRepo.SelectProfileById(userId)
+	if err != nil {
+		return nil, err
+	}
+	userById.Avatar.Url = s3_utils.PathToFile(userById.Avatar.Url)
+	return userById, nil
 }
 
 // Create new user in repo

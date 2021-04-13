@@ -41,7 +41,7 @@ func InitS3() {
 	acl = os.Getenv("S3_ACL")
 	endpoint = os.Getenv("S3_ENDPOINT")
 	//var err error
-	sess, err := session.NewSession(
+	sess, err = session.NewSession(
 		&aws.Config{
 			Region:   aws.String(myRegion),
 			Endpoint: aws.String(endpoint),
