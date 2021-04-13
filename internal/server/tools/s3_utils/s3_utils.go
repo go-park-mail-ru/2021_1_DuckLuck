@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
+	_ "github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -26,7 +27,7 @@ var (
 	svc      *s3.S3
 )
 
-func init() {
+func InitS3() {
 	// Load s3 environment
 	err := godotenv.Load(configs.PathToS3Env)
 	if err != nil {
@@ -40,7 +41,7 @@ func init() {
 	acl = os.Getenv("S3_ACL")
 	endpoint = os.Getenv("S3_ENDPOINT")
 	//var err error
-	sess, err = session.NewSession(
+	sess, err := session.NewSession(
 		&aws.Config{
 			Region:   aws.String(myRegion),
 			Endpoint: aws.String(endpoint),

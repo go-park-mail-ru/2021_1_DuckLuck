@@ -18,7 +18,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestUserHandler_GetOrderFromCart(t *testing.T) {
+func TestOrderHandler_GetOrderFromCart(t *testing.T) {
 	sess := models.Session{
 		Value: "fdsfdsfdsf",
 		UserData: models.UserId{
@@ -133,7 +133,7 @@ func TestUserHandler_GetOrderFromCart(t *testing.T) {
 	})
 }
 
-func TestUserHandler_AddCompletedOrder(t *testing.T) {
+func TestOrderHandler_AddCompletedOrder(t *testing.T) {
 	sess := models.Session{
 		Value: "fdsfdsfdsf",
 		UserData: models.UserId{

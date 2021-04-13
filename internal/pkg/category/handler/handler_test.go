@@ -18,7 +18,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestUserHandler_GetCatalogCategories(t *testing.T) {
+func TestCategoryHandler_GetCatalogCategories(t *testing.T) {
 	categories := []*models.CategoriesCatalog{
 		&models.CategoriesCatalog{
 			Id:   4,
@@ -71,7 +71,7 @@ func TestUserHandler_GetCatalogCategories(t *testing.T) {
 	})
 }
 
-func TestUserHandler_GetSubCategories(t *testing.T) {
+func TestCategoryHandler_GetSubCategories(t *testing.T) {
 	categories := []*models.CategoriesCatalog{
 		&models.CategoriesCatalog{
 			Id:   4,

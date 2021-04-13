@@ -1,25 +1,23 @@
 package models
 
 import (
-	"database/sql"
-
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/sanitizer"
 )
 
 // All user information
 // This models saved in database
 type ProfileUser struct {
-	Id        uint64         `json:"-"`
-	FirstName sql.NullString `json:"first_name" valid:"utfletter, stringlength(3|30)"`
-	LastName  sql.NullString `json:"last_name" valid:"utfletter, stringlength(3|30)"`
-	Email     string         `json:"email" valid:"email"`
-	Password  []byte         `json:"-"`
-	Avatar    Avatar         `json:"avatar" valid:"notnull, json"`
+	Id        uint64 `json:"-"`
+	FirstName string `json:"first_name" valid:"utfletter, stringlength(3|30)"`
+	LastName  string `json:"last_name" valid:"utfletter, stringlength(3|30)"`
+	Email     string `json:"email" valid:"email"`
+	Password  []byte `json:"-"`
+	Avatar    Avatar `json:"avatar" valid:"notnull, json"`
 }
 
 // User avatar
 type Avatar struct {
-	Url sql.NullString `json:"url" valid:"minstringlength(3)"`
+	Url string `json:"url" valid:"minstringlength(3)"`
 }
 
 // Model contains fields for updating user information

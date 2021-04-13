@@ -1,8 +1,6 @@
 package models
 
 import (
-	"database/sql"
-
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/sanitizer"
 )
 
@@ -17,13 +15,14 @@ var (
 // All product information
 // This models saved in database
 type Product struct {
-	Id          uint64               `json:"id"`
-	Title       string               `json:"title" valid:"minstringlength(3)"`
-	Price       ProductPrice         `json:"price" valid:"notnull, json"`
-	Rating      float32              `json:"rating" valid:"float, range(0, 10)"`
-	Description sql.NullString       `json:"description" valid:"utfletter"`
-	Category    []*CategoriesCatalog `json:"category" valid:"notnull"`
-	Images      []string             `json:"images" valid:"notnull"`
+	Id           uint64               `json:"id"`
+	Title        string               `json:"title" valid:"minstringlength(3)"`
+	Price        ProductPrice         `json:"price" valid:"notnull, json"`
+	Rating       float32              `json:"rating" valid:"float, range(0, 10)"`
+	Description  string               `json:"description" valid:"utfletter"`
+	Category     uint64               `json:"category"`
+	CategoryPath []*CategoriesCatalog `json:"category_path" valid:"notnull"`
+	Images       []string             `json:"images" valid:"notnull"`
 }
 
 // View of product

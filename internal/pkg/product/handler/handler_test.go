@@ -19,7 +19,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestUserHandler_GetProduct(t *testing.T) {
+func TestProductHandler_GetProduct(t *testing.T) {
 	productId := uint64(4)
 	product := models.Product{
 		Id:    productId,
@@ -45,10 +45,10 @@ func TestUserHandler_GetProduct(t *testing.T) {
 			GetProductById(productId).
 			Return(&product, nil)
 
-		userHandler := NewHandler(productUCase)
+		productHandler := NewHandler(productUCase)
 
 		ctx := context.WithValue(context.Background(), models.RequireIdKey, shortuuid.New())
-		req, _ := http.NewRequestWithContext(ctx, "GET", "/api/v1/product",
+		req, _ := http.NewRequestWithContext(ctx, "GET", "/api/v1/product/{id:[0-9]+}",
 			bytes.NewBuffer(nil))
 
 		vars := map[string]string{
@@ -57,7 +57,7 @@ func TestUserHandler_GetProduct(t *testing.T) {
 		req = mux.SetURLVars(req, vars)
 
 		rr := httptest.NewRecorder()
-		handler := http.HandlerFunc(userHandler.GetProduct)
+		handler := http.HandlerFunc(productHandler.GetProduct)
 		handler.ServeHTTP(rr, req)
 	})
 
@@ -67,14 +67,14 @@ func TestUserHandler_GetProduct(t *testing.T) {
 
 		productUCase := mock.NewMockUseCase(ctrl)
 
-		userHandler := NewHandler(productUCase)
+		productHandler := NewHandler(productUCase)
 
 		ctx := context.WithValue(context.Background(), models.RequireIdKey, shortuuid.New())
-		req, _ := http.NewRequestWithContext(ctx, "GET", "/api/v1/product",
+		req, _ := http.NewRequestWithContext(ctx, "GET", "/api/v1/product/{id:[0-9]+}",
 			bytes.NewBuffer(nil))
 
 		rr := httptest.NewRecorder()
-		handler := http.HandlerFunc(userHandler.GetProduct)
+		handler := http.HandlerFunc(productHandler.GetProduct)
 		handler.ServeHTTP(rr, req)
 		assert.Equal(t, rr.Code, http.StatusBadRequest, "incorrect http code")
 	})
@@ -89,10 +89,10 @@ func TestUserHandler_GetProduct(t *testing.T) {
 			GetProductById(productId).
 			Return(nil, errors.ErrDBInternalError)
 
-		userHandler := NewHandler(productUCase)
+		productHandler := NewHandler(productUCase)
 
 		ctx := context.WithValue(context.Background(), models.RequireIdKey, shortuuid.New())
-		req, _ := http.NewRequestWithContext(ctx, "GET", "/api/v1/product",
+		req, _ := http.NewRequestWithContext(ctx, "GET", "/api/v1/product/{id:[0-9]+}",
 			bytes.NewBuffer(nil))
 
 		vars := map[string]string{
@@ -101,13 +101,13 @@ func TestUserHandler_GetProduct(t *testing.T) {
 		req = mux.SetURLVars(req, vars)
 
 		rr := httptest.NewRecorder()
-		handler := http.HandlerFunc(userHandler.GetProduct)
+		handler := http.HandlerFunc(productHandler.GetProduct)
 		handler.ServeHTTP(rr, req)
 		assert.Equal(t, rr.Code, http.StatusInternalServerError, "incorrect http code")
 	})
 }
 
-func TestUserHandler_GetListPreviewProducts(t *testing.T) {
+func TestProductHandler_GetListPreviewProducts(t *testing.T) {
 	paginator := models.PaginatorProducts{
 		PageNum:       2,
 		Count:         10,
@@ -148,7 +148,7 @@ func TestUserHandler_GetListPreviewProducts(t *testing.T) {
 			GetRangeProducts(&paginator).
 			Return(&rangeProduct, nil)
 
-		userHandler := NewHandler(productUCase)
+		productHandler := NewHandler(productUCase)
 
 		bytesPaginator, _ := json.Marshal(paginator)
 		ctx := context.WithValue(context.Background(), models.RequireIdKey, shortuuid.New())
@@ -156,7 +156,7 @@ func TestUserHandler_GetListPreviewProducts(t *testing.T) {
 			bytes.NewBuffer(bytesPaginator))
 
 		rr := httptest.NewRecorder()
-		handler := http.HandlerFunc(userHandler.GetListPreviewProducts)
+		handler := http.HandlerFunc(productHandler.GetListPreviewProducts)
 		handler.ServeHTTP(rr, req)
 	})
 
@@ -166,14 +166,14 @@ func TestUserHandler_GetListPreviewProducts(t *testing.T) {
 
 		productUCase := mock.NewMockUseCase(ctrl)
 
-		userHandler := NewHandler(productUCase)
+		productHandler := NewHandler(productUCase)
 
 		ctx := context.WithValue(context.Background(), models.RequireIdKey, shortuuid.New())
 		req, _ := http.NewRequestWithContext(ctx, "POST", "/api/v1/product",
 			bytes.NewBuffer(nil))
 
 		rr := httptest.NewRecorder()
-		handler := http.HandlerFunc(userHandler.GetListPreviewProducts)
+		handler := http.HandlerFunc(productHandler.GetListPreviewProducts)
 		handler.ServeHTTP(rr, req)
 		assert.Equal(t, rr.Code, http.StatusBadRequest, "incorrect http code")
 	})
@@ -184,7 +184,7 @@ func TestUserHandler_GetListPreviewProducts(t *testing.T) {
 
 		productUCase := mock.NewMockUseCase(ctrl)
 
-		userHandler := NewHandler(productUCase)
+		productHandler := NewHandler(productUCase)
 
 		bytesPaginator, _ := json.Marshal(invalidPaginator)
 		ctx := context.WithValue(context.Background(), models.RequireIdKey, shortuuid.New())
@@ -192,7 +192,7 @@ func TestUserHandler_GetListPreviewProducts(t *testing.T) {
 			bytes.NewBuffer(bytesPaginator))
 
 		rr := httptest.NewRecorder()
-		handler := http.HandlerFunc(userHandler.GetListPreviewProducts)
+		handler := http.HandlerFunc(productHandler.GetListPreviewProducts)
 		handler.ServeHTTP(rr, req)
 		assert.Equal(t, rr.Code, http.StatusBadRequest, "incorrect http code")
 	})
@@ -207,7 +207,7 @@ func TestUserHandler_GetListPreviewProducts(t *testing.T) {
 			GetRangeProducts(&paginator).
 			Return(nil, errors.ErrInternalError)
 
-		userHandler := NewHandler(productUCase)
+		productHandler := NewHandler(productUCase)
 
 		bytesPaginator, _ := json.Marshal(paginator)
 		ctx := context.WithValue(context.Background(), models.RequireIdKey, shortuuid.New())
@@ -215,7 +215,7 @@ func TestUserHandler_GetListPreviewProducts(t *testing.T) {
 			bytes.NewBuffer(bytesPaginator))
 
 		rr := httptest.NewRecorder()
-		handler := http.HandlerFunc(userHandler.GetListPreviewProducts)
+		handler := http.HandlerFunc(productHandler.GetListPreviewProducts)
 		handler.ServeHTTP(rr, req)
 		assert.Equal(t, rr.Code, http.StatusInternalServerError, "incorrect http code")
 	})
