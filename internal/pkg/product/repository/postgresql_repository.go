@@ -54,8 +54,10 @@ func (r *PostgresqlRepository) SelectProductById(productId uint64) (*models.Prod
 func (r *PostgresqlRepository) SelectRangeProducts(paginator *models.PaginatorProducts,
 	categories *[]uint64) (*models.RangeProducts, error) {
 	row := r.db.QueryRow(
-		"SELECT ceil(count(*) / $1) FROM products",
+		"SELECT ceil(count(*) / $1) FROM products "+
+			"WHERE id_category = ANY($2)",
 		paginator.Count,
+		pq.Array(*categories),
 	)
 
 	var countPages int
