@@ -64,6 +64,9 @@ func (r *PostgresqlRepository) SelectRangeProducts(paginator *models.PaginatorPr
 	if err := row.Scan(&countPages); err != nil {
 		return nil, errors.ErrDBInternalError
 	}
+	if countPages == 0 {
+		countPages = 1
+	}
 
 	var sortString string
 	switch paginator.SortKey {
