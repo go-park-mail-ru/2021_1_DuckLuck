@@ -1,6 +1,8 @@
 package configs
 
-import "os"
+import (
+	"os"
+)
 
 var (
 	PathProject, _ = os.Getwd()

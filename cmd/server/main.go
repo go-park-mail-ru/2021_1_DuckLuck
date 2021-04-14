@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
+	_ "github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
 	cart_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/cart/handler"
 	cart_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/cart/repository"
 	cart_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/cart/usecase"
@@ -22,6 +23,7 @@ import (
 	product_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/handler"
 	product_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/repository"
 	product_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/usecase"
+	session_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/session/handler"
 	session_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/session/repository"
 	session_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/session/usecase"
 	user_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user/handler"
@@ -30,6 +32,7 @@ import (
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/middleware"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/logger"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/s3_utils"
 	_ "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/s3_utils"
 
 	"github.com/go-redis/redis/v8"
@@ -38,7 +41,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func init() {
+func InitApiServer() {
 	// Load server api environment
 	err := godotenv.Load(configs.PathToApiServerEnv)
 	if err != nil {
@@ -66,6 +69,9 @@ func init() {
 }
 
 func main() {
+	InitApiServer()
+	s3_utils.InitS3()
+
 	// Connect to postgreSql db
 	postgreSqlConn, err := sql.Open(
 		"postgres",
@@ -106,6 +112,7 @@ func main() {
 
 	sessionRepo := session_repo.NewSessionRedisRepository(redisConn)
 	sessionUCase := session_usecase.NewUseCase(sessionRepo)
+	sessionHandler := session_delivery.NewHandler(sessionUCase)
 
 	categoryRepo := category_repo.NewSessionPostgresqlRepository(postgreSqlConn)
 	categoryUCase := category_usecase.NewUseCase(categoryRepo)
@@ -148,7 +155,9 @@ func main() {
 	authMux := mainMux.PathPrefix("/").Subrouter()
 	middlewareAuth := middleware.Auth(sessionUCase)
 	authMux.Use(middlewareAuth)
+	authMux.HandleFunc("/api/v1/session", sessionHandler.CheckSession).Methods("GET", "OPTIONS")
 	authMux.HandleFunc("/api/v1/user/profile", userHandler.GetProfile).Methods("GET", "OPTIONS")
+	authMux.HandleFunc("/api/v1/user/order", orderHandler.GetUserOrders).Methods("GET", "OPTIONS")
 	authMux.HandleFunc("/api/v1/user/logout", userHandler.Logout).Methods("DELETE", "OPTIONS")
 	authMux.HandleFunc("/api/v1/user/profile", userHandler.UpdateProfile).Methods("PUT", "OPTIONS")
 	authMux.HandleFunc("/api/v1/user/profile/avatar", userHandler.GetProfileAvatar).Methods("GET", "OPTIONS")

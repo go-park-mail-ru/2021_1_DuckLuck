@@ -34,46 +34,46 @@ func (m *MockUseCase) EXPECT() *MockUseCaseMockRecorder {
 	return m.recorder
 }
 
-// Check mocks base method.
-func (m *MockUseCase) Check(arg0 string) (*models.Session, error) {
+// CreateNewSession mocks base method.
+func (m *MockUseCase) CreateNewSession(arg0 uint64) (*models.Session, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Check", arg0)
+	ret := m.ctrl.Call(m, "CreateNewSession", arg0)
 	ret0, _ := ret[0].(*models.Session)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// Check indicates an expected call of Check.
-func (mr *MockUseCaseMockRecorder) Check(arg0 interface{}) *gomock.Call {
+// CreateNewSession indicates an expected call of CreateNewSession.
+func (mr *MockUseCaseMockRecorder) CreateNewSession(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Check", reflect.TypeOf((*MockUseCase)(nil).Check), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateNewSession", reflect.TypeOf((*MockUseCase)(nil).CreateNewSession), arg0)
 }
 
-// Create mocks base method.
-func (m *MockUseCase) Create(arg0 uint64) (*models.Session, error) {
+// DestroySession mocks base method.
+func (m *MockUseCase) DestroySession(arg0 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", arg0)
-	ret0, _ := ret[0].(*models.Session)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Create indicates an expected call of Create.
-func (mr *MockUseCaseMockRecorder) Create(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockUseCase)(nil).Create), arg0)
-}
-
-// DestroyCurrent mocks base method.
-func (m *MockUseCase) DestroyCurrent(arg0 string) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DestroyCurrent", arg0)
+	ret := m.ctrl.Call(m, "DestroySession", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// DestroyCurrent indicates an expected call of DestroyCurrent.
-func (mr *MockUseCaseMockRecorder) DestroyCurrent(arg0 interface{}) *gomock.Call {
+// DestroySession indicates an expected call of DestroySession.
+func (mr *MockUseCaseMockRecorder) DestroySession(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DestroyCurrent", reflect.TypeOf((*MockUseCase)(nil).DestroyCurrent), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DestroySession", reflect.TypeOf((*MockUseCase)(nil).DestroySession), arg0)
+}
+
+// GetUserIdBySession mocks base method.
+func (m *MockUseCase) GetUserIdBySession(arg0 string) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserIdBySession", arg0)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserIdBySession indicates an expected call of GetUserIdBySession.
+func (mr *MockUseCaseMockRecorder) GetUserIdBySession(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserIdBySession", reflect.TypeOf((*MockUseCase)(nil).GetUserIdBySession), arg0)
 }

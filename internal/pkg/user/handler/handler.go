@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"database/sql"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -61,7 +60,7 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	profileUser, err := h.UserUCase.Authorize(&authUser)
 	if err != nil {
-		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusBadRequest)
+		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusUnauthorized)
 		return
 	}
 
@@ -144,7 +143,7 @@ func (h *UserHandler) UpdateProfileAvatar(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	http_utils.SetJSONResponse(w, models.Avatar{Url: sql.NullString{String: fileUrl}}, http.StatusOK)
+	http_utils.SetJSONResponse(w, models.Avatar{Url: fileUrl}, http.StatusOK)
 }
 
 // Handle get user avatar
@@ -160,12 +159,12 @@ func (h *UserHandler) GetProfileAvatar(w http.ResponseWriter, r *http.Request) {
 	currentSession := http_utils.MustGetSessionFromContext(r.Context())
 
 	fileUrl, err := h.UserUCase.GetAvatar(currentSession.UserData.Id)
-	if err == errors.ErrUserNotFound {
+	if err != nil {
 		http_utils.SetJSONResponse(w, errors.ErrUserNotFound, http.StatusInternalServerError)
 		return
 	}
 
-	http_utils.SetJSONResponse(w, models.Avatar{Url: sql.NullString{String: fileUrl}}, http.StatusOK)
+	http_utils.SetJSONResponse(w, models.Avatar{Url: fileUrl}, http.StatusOK)
 }
 
 // Handle get profile of current user
@@ -182,7 +181,7 @@ func (h *UserHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 
 	profileUser, err := h.UserUCase.GetUserById(currentSession.UserData.Id)
 	if err != nil {
-		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusBadRequest)
+		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
 		return
 	}
 
@@ -251,7 +250,7 @@ func (h *UserHandler) Logout(w http.ResponseWriter, r *http.Request) {
 
 	err = h.SessionUCase.DestroySession(currentSession.Value)
 	if err != nil {
-		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusUnauthorized)
+		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
 		return
 	}
 

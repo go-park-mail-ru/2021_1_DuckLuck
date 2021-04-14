@@ -33,12 +33,6 @@ var (
 	ErrSessionNotFound error = Error{
 		Message: "session not found",
 	}
-	ErrIncorrectUserEmail error = Error{
-		Message: "incorrect user email",
-	}
-	ErrIncorrectUserPassword error = Error{
-		Message: "incorrect user password",
-	}
 	ErrEmailAlreadyExist error = Error{
 		Message: "user email already exist",
 	}
@@ -53,6 +47,9 @@ var (
 	}
 	ErrProductNotFound error = Error{
 		Message: "product not found",
+	}
+	ErrCategoryNotFound error = Error{
+		Message: "category not found",
 	}
 	ErrProductsIsEmpty error = Error{
 		Message: "list of products is empty",
@@ -104,5 +101,8 @@ var (
 	}
 	ErrS3InternalError error = Error{
 		Message: "can't upload file to S3",
+	}
+	ErrIncorrectAuthData error = Error{
+		Message: "incorrect auth user data",
 	}
 )

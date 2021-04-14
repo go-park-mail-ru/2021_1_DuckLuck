@@ -50,16 +50,16 @@ func (mr *MockRepositoryMockRecorder) SelectProductById(arg0 interface{}) *gomoc
 }
 
 // SelectRangeProducts mocks base method.
-func (m *MockRepository) SelectRangeProducts(arg0 *models.PaginatorProducts) (*models.RangeProducts, error) {
+func (m *MockRepository) SelectRangeProducts(arg0 *models.PaginatorProducts, arg1 *[]uint64) (*models.RangeProducts, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SelectRangeProducts", arg0)
+	ret := m.ctrl.Call(m, "SelectRangeProducts", arg0, arg1)
 	ret0, _ := ret[0].(*models.RangeProducts)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // SelectRangeProducts indicates an expected call of SelectRangeProducts.
-func (mr *MockRepositoryMockRecorder) SelectRangeProducts(arg0 interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) SelectRangeProducts(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectRangeProducts", reflect.TypeOf((*MockRepository)(nil).SelectRangeProducts), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectRangeProducts", reflect.TypeOf((*MockRepository)(nil).SelectRangeProducts), arg0, arg1)
 }

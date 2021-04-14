@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"fmt"
+	"math"
 
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product"
@@ -24,71 +25,54 @@ func NewSessionPostgresqlRepository(db *sql.DB) product.Repository {
 // Select one product by id
 func (r *PostgresqlRepository) SelectProductById(productId uint64) (*models.Product, error) {
 	row := r.db.QueryRow(
-		"SELECT id, title, rating, description, baseCost, discount, images, idCategory "+
+		"SELECT id, title, rating, description, base_cost, discount, images, id_category "+
 			"FROM products WHERE id = $1",
 		productId,
 	)
 
-	var idCategory int
+	description := sql.NullString{}
 	productById := models.Product{}
 	err := row.Scan(
 		&productById.Id,
 		&productById.Title,
 		&productById.Rating,
-		&productById.Description,
+		&description,
 		&productById.Price.BaseCost,
 		&productById.Price.Discount,
 		pq.Array(&productById.Images),
-		&idCategory,
+		&productById.Category,
 	)
-
-	rows, err := r.db.Query(
-		"SELECT c.id, c.name FROM  subsetCategory s "+
-			"LEFT JOIN category c ON c.id = s.idSubset "+
-			"WHERE s.idCategory = $1 "+
-			"ORDER BY s.level",
-		idCategory,
-	)
-	defer rows.Close()
+	productById.Description = description.String
 
 	if err != nil {
 		return nil, errors.ErrDBInternalError
-	}
-
-	for rows.Next() {
-		nextLevelCategory := &models.CategoriesCatalog{}
-		err = rows.Scan(
-			&nextLevelCategory.Id,
-			&nextLevelCategory.Name,
-		)
-		if err != nil {
-			return nil, err
-		}
-		productById.Category = append(productById.Category, nextLevelCategory)
 	}
 
 	return &productById, nil
 }
 
 // Select range of products by paginate settings
-func (r *PostgresqlRepository) SelectRangeProducts(paginator *models.PaginatorProducts, categories []uint64) (*models.RangeProducts, error) {
+func (r *PostgresqlRepository) SelectRangeProducts(paginator *models.PaginatorProducts,
+	categories *[]uint64) (*models.RangeProducts, error) {
 	row := r.db.QueryRow(
-		"SELECT ceil(count(*) / $1) FROM products",
-		paginator.Count,
+		"SELECT count(*) FROM products "+
+			"WHERE id_category = ANY($1)",
+		pq.Array(*categories),
 	)
 
 	var countPages int
 	if err := row.Scan(&countPages); err != nil {
 		return nil, errors.ErrDBInternalError
 	}
+	countPages = int(math.Ceil(float64(countPages) / float64(paginator.Count)))
 
 	var sortString string
 	switch paginator.SortKey {
 	case models.ProductsCostSort:
 		if paginator.SortDirection == models.PaginatorASC {
-			sortString = fmt.Sprintf("ORDER BY baseCost ASC ")
+			sortString = fmt.Sprintf("ORDER BY base_cost ASC ")
 		} else if paginator.SortDirection == models.PaginatorDESC {
-			sortString = fmt.Sprintf("ORDER BY baseCost DESC ")
+			sortString = fmt.Sprintf("ORDER BY base_cost DESC ")
 		}
 	case models.ProductsRatingSort:
 		if paginator.SortDirection == models.PaginatorASC {
@@ -99,12 +83,12 @@ func (r *PostgresqlRepository) SelectRangeProducts(paginator *models.PaginatorPr
 	}
 
 	rows, err := r.db.Query(
-		"SELECT id, title, baseCost, discount, rating, images[1] "+
+		"SELECT id, title, base_cost, discount, rating, images[1] "+
 			"FROM products "+
-			"WHERE idCategory = ANY($1) "+
+			"WHERE id_category = ANY($1) "+
 			sortString+
 			"LIMIT $2 OFFSET $3",
-		pq.Array(categories),
+		pq.Array(*categories),
 		paginator.Count,
 		paginator.Count*(paginator.PageNum-1),
 	)

@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
+	_ "github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -26,7 +27,7 @@ var (
 	svc      *s3.S3
 )
 
-func init() {
+func InitS3() {
 	// Load s3 environment
 	err := godotenv.Load(configs.PathToS3Env)
 	if err != nil {
@@ -56,7 +57,7 @@ func init() {
 	}
 }
 
-func UploadMultipartFile(file *multipart.File, header *multipart.FileHeader) (string, error) {
+func UploadMultipartFile(path string, file *multipart.File, header *multipart.FileHeader) (string, error) {
 	var fileType string
 	switch header.Header.Get("Content-Type") {
 	case "image/png":
@@ -69,7 +70,7 @@ func UploadMultipartFile(file *multipart.File, header *multipart.FileHeader) (st
 		return "", errors.ErrIncorrectFileType
 	}
 
-	newName := uuid.NewV4().String() + fileType
+	newName := path + "/" + uuid.NewV4().String() + fileType
 	uploader := s3manager.NewUploader(sess)
 	_, err := uploader.Upload(&s3manager.UploadInput{
 		Bucket: aws.String(bucket),

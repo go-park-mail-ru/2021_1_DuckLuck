@@ -29,16 +29,10 @@ func (r *RedisRepository) getNewKey(value string) string {
 
 // Add user session in repository
 func (r *RedisRepository) AddSession(session *models.Session) error {
-	var err error
-	defer func() {
-		if err != nil {
-			fmt.Println(err)
-		}
-	}()
 	data := fmt.Sprintf("%d", session.UserData.Id)
 	key := r.getNewKey(session.Value)
 
-	err = r.conn.Set(context.Background(), key, data, models.ExpireSessionCookie*time.Second).Err()
+	err := r.conn.Set(context.Background(), key, data, models.ExpireSessionCookie*time.Second).Err()
 	if err != nil {
 		return errors.ErrDBInternalError
 	}

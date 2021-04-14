@@ -5,6 +5,7 @@
 package mock
 
 import (
+	multipart "mime/multipart"
 	reflect "reflect"
 
 	models "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
@@ -35,10 +36,10 @@ func (m *MockUseCase) EXPECT() *MockUseCaseMockRecorder {
 }
 
 // AddUser mocks base method.
-func (m *MockUseCase) AddUser(arg0 *models.SignupUser) (*models.ProfileUser, error) {
+func (m *MockUseCase) AddUser(arg0 *models.SignupUser) (uint64, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddUser", arg0)
-	ret0, _ := ret[0].(*models.ProfileUser)
+	ret0, _ := ret[0].(uint64)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -95,18 +96,18 @@ func (mr *MockUseCaseMockRecorder) GetUserById(arg0 interface{}) *gomock.Call {
 }
 
 // SetAvatar mocks base method.
-func (m *MockUseCase) SetAvatar(arg0 uint64, arg1 string) (string, error) {
+func (m *MockUseCase) SetAvatar(arg0 uint64, arg1 *multipart.File, arg2 *multipart.FileHeader) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SetAvatar", arg0, arg1)
+	ret := m.ctrl.Call(m, "SetAvatar", arg0, arg1, arg2)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // SetAvatar indicates an expected call of SetAvatar.
-func (mr *MockUseCaseMockRecorder) SetAvatar(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockUseCaseMockRecorder) SetAvatar(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetAvatar", reflect.TypeOf((*MockUseCase)(nil).SetAvatar), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetAvatar", reflect.TypeOf((*MockUseCase)(nil).SetAvatar), arg0, arg1, arg2)
 }
 
 // UpdateProfile mocks base method.

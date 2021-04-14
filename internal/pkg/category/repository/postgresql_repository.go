@@ -22,20 +22,19 @@ func NewSessionPostgresqlRepository(db *sql.DB) category.Repository {
 func (r *PostgresqlRepository) GetNextLevelCategories(categoryId uint64) ([]*models.CategoriesCatalog, error) {
 	rows, err := r.db.Query(
 		"SELECT c.id, c.name "+
-			"FROM category c "+
-			"JOIN subsetCategory s1 ON c.id = s1.idCategory "+
-			"JOIN subsetCategory s2 on s1.idCategory = s2.idCategory "+
-			"WHERE (s1.idSubSet = $1) and (s2.idCategory = s2.idSubset) "+
+			"FROM categories c "+
+			"JOIN subsets_category s1 ON c.id = s1.id_category "+
+			"JOIN subsets_category s2 on s1.id_category = s2.id_category "+
+			"WHERE (s1.id_subset = $1) and (s2.id_category = s2.id_subset) "+
 			"and (s2.level = s1.level + 1)"+
 			"GROUP BY c.id, c.name "+
 			"ORDER BY c.name",
 		categoryId,
 	)
-	defer rows.Close()
-
 	if err != nil {
 		return nil, errors.ErrIncorrectPaginator
 	}
+	defer rows.Close()
 
 	categories := make([]*models.CategoriesCatalog, 0)
 	for rows.Next() {
@@ -45,7 +44,7 @@ func (r *PostgresqlRepository) GetNextLevelCategories(categoryId uint64) ([]*mod
 			&nextLevelCategory.Name,
 		)
 		if err != nil {
-			return nil, err
+			return nil, errors.ErrDBInternalError
 		}
 		categories = append(categories, nextLevelCategory)
 	}
@@ -57,17 +56,16 @@ func (r *PostgresqlRepository) GetNextLevelCategories(categoryId uint64) ([]*mod
 func (r *PostgresqlRepository) GetCategoriesByLevel(level uint64) ([]*models.CategoriesCatalog, error) {
 	rows, err := r.db.Query(
 		"SELECT c.id, c.name "+
-			"FROM category c "+
-			"JOIN subsetCategory s1 ON c.id = s1.idCategory "+
+			"FROM categories c "+
+			"JOIN subsets_category s1 ON c.id = s1.id_category "+
 			"GROUP BY c.id, c.name "+
 			"HAVING count(*) = $1",
 		level,
 	)
-	defer rows.Close()
-
 	if err != nil {
 		return nil, errors.ErrDBInternalError
 	}
+	defer rows.Close()
 
 	categories := make([]*models.CategoriesCatalog, 0)
 	for rows.Next() {
@@ -77,7 +75,7 @@ func (r *PostgresqlRepository) GetCategoriesByLevel(level uint64) ([]*models.Cat
 			&nextLevelCategory.Name,
 		)
 		if err != nil {
-			return nil, err
+			return nil, errors.ErrDBInternalError
 		}
 		categories = append(categories, nextLevelCategory)
 	}
@@ -88,16 +86,15 @@ func (r *PostgresqlRepository) GetCategoriesByLevel(level uint64) ([]*models.Cat
 // Get id of all subcategories
 func (r *PostgresqlRepository) GetAllSubCategoriesId(categoryId uint64) ([]uint64, error) {
 	rows, err := r.db.Query(
-		"SELECT idCategory "+
-			"FROM SubSetCategory "+
-			"WHERE idSubSet = $1",
+		"SELECT id_category "+
+			"FROM subsets_category "+
+			"WHERE id_subset = $1",
 		categoryId,
 	)
-	defer rows.Close()
-
 	if err != nil {
 		return nil, errors.ErrDBInternalError
 	}
+	defer rows.Close()
 
 	categoriesId := make([]uint64, 0)
 	for rows.Next() {
@@ -106,10 +103,40 @@ func (r *PostgresqlRepository) GetAllSubCategoriesId(categoryId uint64) ([]uint6
 			&id,
 		)
 		if err != nil {
-			return nil, err
+			return nil, errors.ErrDBInternalError
 		}
 		categoriesId = append(categoriesId, id)
 	}
 
 	return categoriesId, nil
+}
+
+// Get path from root to category
+func (r *PostgresqlRepository) GetPathToCategory(categoryId uint64) ([]*models.CategoriesCatalog, error) {
+	rows, err := r.db.Query(
+		"SELECT c.id, c.name FROM  subsets_category s "+
+			"LEFT JOIN categories c ON c.id = s.id_subset "+
+			"WHERE s.id_category = $1 "+
+			"ORDER BY s.level",
+		categoryId,
+	)
+	if err != nil {
+		return nil, errors.ErrDBInternalError
+	}
+	defer rows.Close()
+
+	categories := make([]*models.CategoriesCatalog, 0)
+	for rows.Next() {
+		nextLevelCategory := &models.CategoriesCatalog{}
+		err = rows.Scan(
+			&nextLevelCategory.Id,
+			&nextLevelCategory.Name,
+		)
+		if err != nil {
+			return nil, errors.ErrDBInternalError
+		}
+		categories = append(categories, nextLevelCategory)
+	}
+
+	return categories, nil
 }

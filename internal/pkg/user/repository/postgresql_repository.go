@@ -37,21 +37,27 @@ func (r *PostgresqlRepository) AddProfile(user *models.ProfileUser) (uint64, err
 // Select one profile by email
 func (r *PostgresqlRepository) SelectProfileByEmail(email string) (*models.ProfileUser, error) {
 	row := r.db.QueryRow(
-		"SELECT id, firstName, lastName, email, password, avatar "+
+		"SELECT id, first_name, last_name, email, password, avatar "+
 			"FROM users WHERE email = $1",
 		email,
 	)
 
 	userByEmail := models.ProfileUser{}
 
+	firstName := sql.NullString{}
+	lastName := sql.NullString{}
+	avatarUrl := sql.NullString{}
 	err := row.Scan(
 		&userByEmail.Id,
-		&userByEmail.FirstName,
-		&userByEmail.LastName,
+		&firstName,
+		&lastName,
 		&userByEmail.Email,
 		&userByEmail.Password,
-		&userByEmail.Avatar.Url,
+		&avatarUrl,
 	)
+	userByEmail.FirstName = firstName.String
+	userByEmail.LastName = lastName.String
+	userByEmail.Avatar.Url = avatarUrl.String
 
 	switch err {
 	case sql.ErrNoRows:
@@ -66,21 +72,27 @@ func (r *PostgresqlRepository) SelectProfileByEmail(email string) (*models.Profi
 // Select one profile by id
 func (r *PostgresqlRepository) SelectProfileById(userId uint64) (*models.ProfileUser, error) {
 	row := r.db.QueryRow(
-		"SELECT id, firstName, lastName, email, password, avatar "+
+		"SELECT id, first_name, last_name, email, password, avatar "+
 			"FROM users WHERE id = $1",
 		userId,
 	)
 
 	userByEmail := models.ProfileUser{}
 
+	firstName := sql.NullString{}
+	lastName := sql.NullString{}
+	avatarUrl := sql.NullString{}
 	err := row.Scan(
 		&userByEmail.Id,
-		&userByEmail.FirstName,
-		&userByEmail.LastName,
+		&firstName,
+		&lastName,
 		&userByEmail.Email,
 		&userByEmail.Password,
-		&userByEmail.Avatar.Url,
+		&avatarUrl,
 	)
+	userByEmail.FirstName = firstName.String
+	userByEmail.LastName = lastName.String
+	userByEmail.Avatar.Url = avatarUrl.String
 
 	switch err {
 	case sql.ErrNoRows:
@@ -96,8 +108,8 @@ func (r *PostgresqlRepository) SelectProfileById(userId uint64) (*models.Profile
 func (r *PostgresqlRepository) UpdateProfile(userId uint64, user *models.UpdateUser) error {
 	_, err := r.db.Exec(
 		"UPDATE users SET "+
-			"firstName = $1, "+
-			"lastName = $2 "+
+			"first_name = $1, "+
+			"last_name = $2 "+
 			"WHERE id = $3",
 		user.FirstName,
 		user.LastName,
