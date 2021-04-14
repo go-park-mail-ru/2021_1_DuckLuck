@@ -99,13 +99,14 @@ GRANT ALL PRIVILEGES ON TABLE user_orders TO ozon_root;
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO ozon_root;
 
 
--- Data for testing
-INSERT INTO categories(name)VALUES ('Base');
-INSERT INTO categories(name)VALUES ('Home');
-INSERT INTO categories(name)VALUES ('Kitchen');
-INSERT INTO categories(name)VALUES ('Dishes');
-INSERT INTO categories(name)VALUES ('Electronics');
-INSERT INTO categories(name)VALUES ('Mixer');
+INSERT INTO categories(id, name) VALUES (1, 'Base');
+INSERT INTO categories(id, name) VALUES (2, 'Электроника');
+INSERT INTO categories(id, name) VALUES (3, 'Мобильные телефоны');
+INSERT INTO categories(id, name) VALUES (4, 'Чехлы');
+INSERT INTO categories(id, name) VALUES (7, 'Наушники');
+INSERT INTO categories(id, name) VALUES (5, 'Для дома');
+INSERT INTO categories(id, name) VALUES (6, 'Для уюта');
+
 
 INSERT INTO subsets_category(id_category, id_subset, level) VALUES (1, 1, 1);
 
@@ -116,83 +117,33 @@ INSERT INTO subsets_category(id_category, id_subset, level) VALUES (3, 1, 1);
 INSERT INTO subsets_category(id_category, id_subset, level) VALUES (3, 2, 2);
 INSERT INTO subsets_category(id_category, id_subset, level) VALUES (3, 3, 3);
 
+INSERT INTO subsets_category(id_category, id_subset, level) VALUES (7, 1, 1);
+INSERT INTO subsets_category(id_category, id_subset, level) VALUES (7, 2, 2);
+INSERT INTO subsets_category(id_category, id_subset, level) VALUES (7, 7, 3);
+
 INSERT INTO subsets_category(id_category, id_subset, level) VALUES (4, 1, 1);
 INSERT INTO subsets_category(id_category, id_subset, level) VALUES (4, 2, 2);
-INSERT INTO subsets_category(id_category, id_subset, level) VALUES (4, 4, 3);
+INSERT INTO subsets_category(id_category, id_subset, level) VALUES (4, 3, 3);
+INSERT INTO subsets_category(id_category, id_subset, level) VALUES (4, 4, 4);
 
 INSERT INTO subsets_category(id_category, id_subset, level) VALUES (5, 1, 1);
-INSERT INTO subsets_category(id_category, id_subset, level) VALUES (5, 2, 2);
-INSERT INTO subsets_category(id_category, id_subset, level) VALUES (5, 5, 3);
+INSERT INTO subsets_category(id_category, id_subset, level) VALUES (5, 5, 2);
 
 INSERT INTO subsets_category(id_category, id_subset, level) VALUES (6, 1, 1);
-INSERT INTO subsets_category(id_category, id_subset, level) VALUES (6, 2, 2);
-INSERT INTO subsets_category(id_category, id_subset, level) VALUES (6, 5, 3);
-INSERT INTO subsets_category(id_category, id_subset, level) VALUES (6, 6, 4);
+INSERT INTO subsets_category(id_category, id_subset, level) VALUES (6, 5, 2);
+INSERT INTO subsets_category(id_category, id_subset, level) VALUES (6, 6, 3);
 
-INSERT INTO products(title, rating, description, base_cost, discount, images, id_category)
-VALUES (
-           'Hair dryer brush Rowenta',
-           4,
-           'The rotating Brush Activ airstyler provides ' ||
-           'unsurpassed drying results. Power of 1000 ' ||
-           'W guarantees fast drying effortlessly, two ' ||
-           'rotating brushes with a diameter of 50 or 40 mm provide ' ||
-           'professional styling. Ion generator and ' ||
-           'ceramic coating smoothes hair, leaving it soft ' ||
-           'and more brilliant.',
-           20,
-           20,
-           '{"/product/1021166584.jpg", "/product/1021166585.jpg",
-           "/product/1021166586.jpg", "/product/6043447767.jpg"}',
-           6
-       );
+INSERT INTO products(title, rating, description, base_cost, discount, images, id_category) VALUES ('Чехол противоударный Armor Case для Samsung Galaxy A31, черный', 5, 'Насос предназначен для использования на гибридных велосипедах. Также он подходит для подкачивания колес городских, горных, BMX и детских велосипедов. Встроенный шлаг, который точно не потеряется! Ручка : 100.0% Полиамид 6.6', 570, 21, '{"/product/6023600636.jpg", "/product/6023600623.jpg", "/product/6023600635.jpg", "/product/6023600630.jpg", "/product/6023600633.jpg", "/product/6023600625.jpg"}', 4);
+INSERT INTO products(title, rating, description, base_cost, discount, images, id_category) VALUES ('Защитное стекло TORUS для Huawei Honor 10X Lite, закруглённные края, полное покрытие', 0, 'Насос предназначен для использования на гибридных велосипедах. Также он подходит для подкачивания колес городских, горных, BMX и детских велосипедов. Встроенный шлаг, который точно не потеряется! Ручка : 100.0% Полиамид 6.6', 799, 75, '{"/product/6045097510.jpg", "/product/6045097505.jpg", "/product/6036662865.jpg", "/product/6036669672.jpg"}', 4);
+INSERT INTO products(title, rating, description, base_cost, discount, images, id_category) VALUES ('Силиконовый чехол-накладка для iPhone 11/ Apple Silicone Case светло-голубой', 5, 'Насос предназначен для использования на гибридных велосипедах. Также он подходит для подкачивания колес городских, горных, BMX и детских велосипедов. Встроенный шлаг, который точно не потеряется! Ручка : 100.0% Полиамид 6.6', 849, 50, '{"/product/6032890130.jpg", "/product/6032860336.jpg"}', 4);
+INSERT INTO products(title, rating, description, base_cost, discount, images, id_category) VALUES ('Чехол-книжка MyPads для Meizu M5 Note прошитый по контуру с необычным геометрическим швом синий', 5, 'Насос предназначен для использования на гибридных велосипедах. Также он подходит для подкачивания колес городских, горных, BMX и детских велосипедов. Встроенный шлаг, который точно не потеряется! Ручка : 100.0% Полиамид 6.6', 1600, 56, '{"/product/1037359526.jpg", "/product/1037359514.jpg", "/product/1037359516.jpg", "/product/1037359518.jpg", "/product/1037359520.jpg", "/product/1037359523.jpg"}', 4);
+INSERT INTO products(title, rating, description, base_cost, discount, images, id_category) VALUES ('Аккумулятор для Apple iPhone 7 Plus', 0, 'Насос предназначен для использования на гибридных велосипедах. Также он подходит для подкачивания колес городских, горных, BMX и детских велосипедов. Встроенный шлаг, который точно не потеряется! Ручка : 100.0% Полиамид 6.6', 1150, 36, '{"/product/6048563870.jpg"}', 4);
+INSERT INTO products(title, rating, description, base_cost, discount, images, id_category) VALUES ('Защитное стекло для OPPO A5s', 3, 'Насос предназначен для использования на гибридных велосипедах. Также он подходит для подкачивания колес городских, горных, BMX и детских велосипедов. Встроенный шлаг, который точно не потеряется! Ручка : 100.0% Полиамид 6.6', 280, 35, '{"/product/6036067021.jpg"}', 4);
 
-INSERT INTO products(title, rating, description, base_cost, discount, images, id_category)
-VALUES (
-           'Chupa Chups assorted caramel',
-           3,
-           'Chupa Chups Mini is Chupa Chups'' favorite candy on a stick ' ||
-           'in mini format. In the showbox there are 100 Chupa. ' ||
-           'Chups with the best flavors: strawberry, cola, orange, apple.',
-           6,
-           0,
-           '{"/product/6024670802.jpg", "/product/6024670803.jpg",
-           "/product/6024670804.jpg", "/product/6024670805.jpg"}',
-           5
-       );
+INSERT INTO products(title, rating, description, base_cost, discount, images, id_category) VALUES ('Наушники для IPhone ligtning в футляре проводные для 7 8 X Xr Xs 11 (seria 81) , белые', 0, 'Насос предназначен для использования на гибридных велосипедах. Также он подходит для подкачивания колес городских, горных, BMX и детских велосипедов. Встроенный шлаг, который точно не потеряется! Ручка : 100.0% Полиамид 6.6', 1990, 70, '{"/product/6046394320.jpg", "/product/6046394303.jpg", "/product/6046394306.jpg"}', 7);
+INSERT INTO products(title, rating, description, base_cost, discount, images, id_category) VALUES ('Наушники беспроводные внутриканальные Defender OutFit B725, красный', 4, 'Насос предназначен для использования на гибридных велосипедах. Также он подходит для подкачивания колес городских, горных, BMX и детских велосипедов. Встроенный шлаг, который точно не потеряется! Ручка : 100.0% Полиамид 6.6', 289, 42, '{"/product/1034408244.jpg", "/product/1034408253.jpg", "/product/6014331709.jpg"}', 7);
+INSERT INTO products(title, rating, description, base_cost, discount, images, id_category) VALUES ('Наушники Sony MDR-EX15LP, белый', 5, 'Насос предназначен для использования на гибридных велосипедах. Также он подходит для подкачивания колес городских, горных, BMX и детских велосипедов. Встроенный шлаг, который точно не потеряется! Ручка : 100.0% Полиамид 6.6', 699, 32, '{"/product/6011283025.jpg", "/product/6011283027.jpg", "/product/6011283026.jpg"}', 7);
+INSERT INTO products(title, rating, description, base_cost, discount, images, id_category) VALUES ('Наушники Sony MDR-XD150, белый', 4, 'Насос предназначен для использования на гибридных велосипедах. Также он подходит для подкачивания колес городских, горных, BMX и детских велосипедов. Встроенный шлаг, который точно не потеряется! Ручка : 100.0% Полиамид 6.6', 1236, 0, '{"/product/1007465889.jpg", "/product/1007465888.jpg", "/product/1007465887.jpg", "/product/1007465886.jpg"}', 7);
 
-INSERT INTO products(title, rating, description, base_cost, discount, images, id_category)
-VALUES (
-           'Electric Toothbrush Oral-B PRO 6000',
-           4,
-           'Oral-B is the # 1 brand of toothbrushes recommended ' ||
-           'by most dentists in the world! Discover the Oral-B PRO 6000. ' ||
-           'Smart Series Triumph! The Oral-B PRO 6000 Smart Series Triumph Toothbrush ' ||
-           'features Bluetooth 4.0 to sync with the free Oral-B App. ' ||
-           'Take your brushing to the next level in 2 minutes as ' ||
-           'recommended by your dentist for superior cleansing and gum health.',
-           50,
-           5,
-           '{"/product/6023124975.jpg", "/product/6023125065.jpg",
-           "/product/6023125066.jpg"}',
-           4
-       );
-
-INSERT INTO products(title, rating, description, base_cost, discount, images, id_category)
-VALUES (
-           'Bosch VitaPower Serie 4 jug blender',
-           5,
-           'Pro-Performance System: Optimal texture for smoothies, ' ||
-           'even with frozen fruits and hard ingredients. Reliable Bosch motor: ' ||
-           '1200 W power with engine speeds up to 30,000 rpm. Easy assembly and ' ||
-           'cleaning: knife, bowl, lid are dishwasher safe, easy to install bowl ' ||
-           'and store cable. High-quality assembly in our own Bosch factory: ' ||
-           'durability, reliable construction and high-quality materials. ' ||
-           'ProEdge Blades: Brilliant mixing results thanks to efficient ' ||
-           'and durable stainless steel blades. Made in Germany.",',
-           30,
-           0,
-           '{"/product/6026466446.jpg", "/product/6043224204.jpg",
-           "/product/6043224631.jpg"}',
-           4
-       );
+INSERT INTO products(title, rating, description, base_cost, discount, images, id_category) VALUES ('Фоторамка Veld Co "10*15", 1 фото', 4, 'Насос предназначен для использования на гибридных велосипедах. Также он подходит для подкачивания колес городских, горных, BMX и детских велосипедов. Встроенный шлаг, который точно не потеряется! Ручка : 100.0% Полиамид 6.6', 210, 23, '{"/product/6026860610.jpg", "/product/6026825797.jpg"}', 6);
+INSERT INTO products(title, rating, description, base_cost, discount, images, id_category) VALUES ('Фотоальбом Fotografia, 200 фото, 10 x 15 см (4 x 6")', 5, 'Насос предназначен для использования на гибридных велосипедах. Также он подходит для подкачивания колес городских, горных, BMX и детских велосипедов. Встроенный шлаг, который точно не потеряется! Ручка : 100.0% Полиамид 6.6', 639, 0, '{"/product/1036393602.jpg"}', 6);
