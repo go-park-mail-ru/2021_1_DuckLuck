@@ -43,11 +43,11 @@ func (r *RedisRepository) SelectCartById(userId uint64) (*models.Cart, error) {
 	key := r.getNewKey(userId)
 
 	data, err := r.conn.Get(context.Background(), key).Bytes()
-	if err != nil {
+	if err != nil || data == nil {
 		return nil, errors.ErrCartNotFound
 	}
 
-	if err = json.Unmarshal(data, &userCart); err != nil {
+	if err = json.Unmarshal(data, userCart); err != nil {
 		return nil, errors.ErrCanNotUnmarshal
 	}
 

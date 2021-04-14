@@ -64,3 +64,7 @@ func (u *OrderUseCase) AddCompletedOrder(order *models.Order, userId uint64,
 
 	return orderId, nil
 }
+
+func (u *OrderUseCase) GetOrders(userId uint64) ([]*models.Order, error) {
+	return u.OrderRepo.GetOrders(userId)
+}

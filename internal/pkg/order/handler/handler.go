@@ -91,3 +91,23 @@ func (h *OrderHandler) AddCompletedOrder(w http.ResponseWriter, r *http.Request)
 
 	http_utils.SetJSONResponseSuccess(w, http.StatusOK)
 }
+
+func (h *OrderHandler) GetUserOrders(w http.ResponseWriter, r *http.Request) {
+	var err error
+	defer func() {
+		requireId := http_utils.MustGetRequireId(r.Context())
+		if err != nil {
+			logger.LogError(r.URL.Path, "order_handler", "GetUserOrders", requireId, err)
+		}
+	}()
+
+	currentSession := http_utils.MustGetSessionFromContext(r.Context())
+
+	orders, err := h.OrderUCase.GetOrders(currentSession.UserData.Id)
+	if err != nil {
+		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
+		return
+	}
+
+	http_utils.SetJSONResponse(w, orders, http.StatusOK)
+}

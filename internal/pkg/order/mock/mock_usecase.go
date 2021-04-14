@@ -49,6 +49,21 @@ func (mr *MockUseCaseMockRecorder) AddCompletedOrder(arg0, arg1, arg2 interface{
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddCompletedOrder", reflect.TypeOf((*MockUseCase)(nil).AddCompletedOrder), arg0, arg1, arg2)
 }
 
+// GetOrders mocks base method.
+func (m *MockUseCase) GetOrders(arg0 uint64) ([]*models.Order, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetOrders", arg0)
+	ret0, _ := ret[0].([]*models.Order)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetOrders indicates an expected call of GetOrders.
+func (mr *MockUseCaseMockRecorder) GetOrders(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOrders", reflect.TypeOf((*MockUseCase)(nil).GetOrders), arg0)
+}
+
 // GetPreviewOrder mocks base method.
 func (m *MockUseCase) GetPreviewOrder(arg0 uint64, arg1 *models.PreviewCart) (*models.PreviewOrder, error) {
 	m.ctrl.T.Helper()

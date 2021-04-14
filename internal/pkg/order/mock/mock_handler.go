@@ -57,3 +57,15 @@ func (mr *MockHandlerMockRecorder) GetOrderFromCart(arg0, arg1 interface{}) *gom
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOrderFromCart", reflect.TypeOf((*MockHandler)(nil).GetOrderFromCart), arg0, arg1)
 }
+
+// GetUserOrders mocks base method.
+func (m *MockHandler) GetUserOrders(arg0 http.ResponseWriter, arg1 *http.Request) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "GetUserOrders", arg0, arg1)
+}
+
+// GetUserOrders indicates an expected call of GetUserOrders.
+func (mr *MockHandlerMockRecorder) GetUserOrders(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserOrders", reflect.TypeOf((*MockHandler)(nil).GetUserOrders), arg0, arg1)
+}

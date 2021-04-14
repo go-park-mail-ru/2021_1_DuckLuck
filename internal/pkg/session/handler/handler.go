@@ -8,7 +8,7 @@ import (
 )
 
 type SessionHandler struct {
-	SessionUCase	session.UseCase
+	SessionUCase session.UseCase
 }
 
 func NewHandler(sessionUCase session.UseCase) session.Handler {

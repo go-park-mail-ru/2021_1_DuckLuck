@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/order"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
@@ -16,6 +15,36 @@ func NewSessionPostgresqlRepository(db *sql.DB) order.Repository {
 	return &PostgresqlRepository{
 		db: db,
 	}
+}
+
+func (r *PostgresqlRepository) GetOrders(userId uint64) ([]*models.Order, error) {
+	rows, err := r.db.Query(
+		"SELECT first_name, last_name, email, address "+
+			"FROM user_orders "+
+			"WHERE user_id = $1",
+		userId,
+	)
+	if err != nil {
+		return nil, errors.ErrDBInternalError
+	}
+	defer rows.Close()
+
+	orders := make([]*models.Order, 0)
+	for rows.Next() {
+		order := &models.Order{}
+		err = rows.Scan(
+			&order.Recipient.FirstName,
+			&order.Recipient.LastName,
+			&order.Recipient.Email,
+			&order.Address.Address,
+		)
+		if err != nil {
+			return nil, err
+		}
+		orders = append(orders, order)
+	}
+
+	return orders, nil
 }
 
 // Add order in db
