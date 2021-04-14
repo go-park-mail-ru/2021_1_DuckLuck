@@ -57,7 +57,7 @@ func InitS3() {
 	}
 }
 
-func UploadMultipartFile(file *multipart.File, header *multipart.FileHeader) (string, error) {
+func UploadMultipartFile(path string, file *multipart.File, header *multipart.FileHeader) (string, error) {
 	var fileType string
 	switch header.Header.Get("Content-Type") {
 	case "image/png":
@@ -70,7 +70,7 @@ func UploadMultipartFile(file *multipart.File, header *multipart.FileHeader) (st
 		return "", errors.ErrIncorrectFileType
 	}
 
-	newName := uuid.NewV4().String() + fileType
+	newName := path + "/" + uuid.NewV4().String() + fileType
 	uploader := s3manager.NewUploader(sess)
 	_, err := uploader.Upload(&s3manager.UploadInput{
 		Bucket: aws.String(bucket),

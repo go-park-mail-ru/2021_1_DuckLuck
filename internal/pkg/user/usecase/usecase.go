@@ -37,7 +37,7 @@ func (u *UserUseCase) Authorize(authUser *models.LoginUser) (*models.ProfileUser
 // Set new avatar
 func (u *UserUseCase) SetAvatar(userId uint64, file *multipart.File, header *multipart.FileHeader) (string, error) {
 	// Upload new user avatar to S3
-	fileName, err := s3_utils.UploadMultipartFile(file, header)
+	fileName, err := s3_utils.UploadMultipartFile("avatar", file, header)
 	if err != nil {
 		return "", err
 	}
