@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"fmt"
+	"math"
 
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product"
@@ -54,9 +55,8 @@ func (r *PostgresqlRepository) SelectProductById(productId uint64) (*models.Prod
 func (r *PostgresqlRepository) SelectRangeProducts(paginator *models.PaginatorProducts,
 	categories *[]uint64) (*models.RangeProducts, error) {
 	row := r.db.QueryRow(
-		"SELECT ceil(count(*) / $1) FROM products "+
-			"WHERE id_category = ANY($2)",
-		paginator.Count,
+		"SELECT count(*) FROM products "+
+			"WHERE id_category = ANY($1)",
 		pq.Array(*categories),
 	)
 
@@ -64,9 +64,7 @@ func (r *PostgresqlRepository) SelectRangeProducts(paginator *models.PaginatorPr
 	if err := row.Scan(&countPages); err != nil {
 		return nil, errors.ErrDBInternalError
 	}
-	if countPages == 0 {
-		countPages = 1
-	}
+	countPages = int(math.Ceil(float64(countPages) / float64(paginator.Count)))
 
 	var sortString string
 	switch paginator.SortKey {
