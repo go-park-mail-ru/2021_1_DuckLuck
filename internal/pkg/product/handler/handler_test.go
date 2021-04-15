@@ -59,6 +59,7 @@ func TestProductHandler_GetProduct(t *testing.T) {
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(productHandler.GetProduct)
 		handler.ServeHTTP(rr, req)
+		assert.Equal(t, rr.Code, http.StatusOK, "incorrect http code")
 	})
 
 	t.Run("GetProduct_without_args", func(t *testing.T) {
@@ -158,6 +159,7 @@ func TestProductHandler_GetListPreviewProducts(t *testing.T) {
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(productHandler.GetListPreviewProducts)
 		handler.ServeHTTP(rr, req)
+		assert.Equal(t, rr.Code, http.StatusOK, "incorrect http code")
 	})
 
 	t.Run("GetListPreviewProducts_bad_body", func(t *testing.T) {

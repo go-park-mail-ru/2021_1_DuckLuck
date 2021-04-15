@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -38,5 +39,6 @@ func TestCartHandler_GetCsrfToken(t *testing.T) {
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(csrfHandler.GetCsrfToken)
 		handler.ServeHTTP(rr, req)
+		assert.Equal(t, rr.Code, http.StatusOK, "incorrect http code")
 	})
 }

@@ -71,6 +71,7 @@ func TestUserHandler_Login(t *testing.T) {
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(userHandler.Login)
 		handler.ServeHTTP(rr, req)
+		assert.Equal(t, rr.Code, http.StatusOK, "incorrect http code")
 	})
 
 	t.Run("Login_incorrect_data", func(t *testing.T) {
@@ -226,6 +227,7 @@ func TestUserHandler_UpdateProfile(t *testing.T) {
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(userHandler.UpdateProfile)
 		handler.ServeHTTP(rr, req)
+		assert.Equal(t, rr.Code, http.StatusOK, "incorrect http code")
 	})
 
 	t.Run("UpdateProfile_bad_body", func(t *testing.T) {
@@ -330,6 +332,7 @@ func TestUserHandler_GetProfileAvatar(t *testing.T) {
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(userHandler.GetProfileAvatar)
 		handler.ServeHTTP(rr, req)
+		assert.Equal(t, rr.Code, http.StatusOK, "incorrect http code")
 	})
 
 	t.Run("GetProfileAvatar_user_not_found", func(t *testing.T) {
@@ -399,6 +402,7 @@ func TestUserHandler_GetProfile(t *testing.T) {
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(userHandler.GetProfile)
 		handler.ServeHTTP(rr, req)
+		assert.Equal(t, rr.Code, http.StatusOK, "incorrect http code")
 	})
 
 	t.Run("GetProfile_user_not_found", func(t *testing.T) {
@@ -470,6 +474,7 @@ func TestUserHandler_Signup(t *testing.T) {
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(userHandler.Signup)
 		handler.ServeHTTP(rr, req)
+		assert.Equal(t, rr.Code, http.StatusCreated, "incorrect http code")
 	})
 
 	t.Run("Signup_bad_body", func(t *testing.T) {
@@ -602,6 +607,7 @@ func TestUserHandler_Logout(t *testing.T) {
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(userHandler.Logout)
 		handler.ServeHTTP(rr, req)
+		assert.Equal(t, rr.Code, http.StatusOK, "incorrect http code")
 	})
 
 	t.Run("Logout_user_not_found", func(t *testing.T) {
