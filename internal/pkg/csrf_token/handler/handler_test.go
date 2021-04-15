@@ -12,6 +12,7 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/lithammer/shortuuid"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCartHandler_GetCsrfToken(t *testing.T) {
@@ -38,5 +39,6 @@ func TestCartHandler_GetCsrfToken(t *testing.T) {
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(csrfHandler.GetCsrfToken)
 		handler.ServeHTTP(rr, req)
+		assert.Equal(t, rr.Code, http.StatusOK, "incorrect http code")
 	})
 }

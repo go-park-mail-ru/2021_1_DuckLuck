@@ -55,6 +55,7 @@ func TestCartHandler_GetProduct(t *testing.T) {
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(cartHandler.AddProductInCart)
 		handler.ServeHTTP(rr, req)
+		assert.Equal(t, rr.Code, http.StatusOK, "incorrect http code")
 	})
 
 	t.Run("AddProductInCart_bad_body", func(t *testing.T) {
@@ -134,6 +135,7 @@ func TestCartHandler_DeleteProductInCart(t *testing.T) {
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(cartHandler.DeleteProductInCart)
 		handler.ServeHTTP(rr, req)
+		assert.Equal(t, rr.Code, http.StatusOK, "incorrect http code")
 	})
 
 	t.Run("DeleteProductInCart_bad_body", func(t *testing.T) {
@@ -218,6 +220,7 @@ func TestCartHandler_ChangeProductInCart(t *testing.T) {
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(cartHandler.ChangeProductInCart)
 		handler.ServeHTTP(rr, req)
+		assert.Equal(t, rr.Code, http.StatusOK, "incorrect http code")
 	})
 
 	t.Run("ChangeProductInCart_bad_body", func(t *testing.T) {
@@ -301,6 +304,7 @@ func TestCartHandler_GetProductsFromCart(t *testing.T) {
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(cartHandler.GetProductsFromCart)
 		handler.ServeHTTP(rr, req)
+		assert.Equal(t, rr.Code, http.StatusOK, "incorrect http code")
 	})
 
 	t.Run("GetProductsFromCart_can't_found_cart", func(t *testing.T) {
@@ -356,6 +360,7 @@ func TestCartHandler_DeleteProductsFromCart(t *testing.T) {
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(cartHandler.DeleteProductsFromCart)
 		handler.ServeHTTP(rr, req)
+		assert.Equal(t, rr.Code, http.StatusOK, "incorrect http code")
 	})
 
 	t.Run("DeleteProductsFromCart_success", func(t *testing.T) {

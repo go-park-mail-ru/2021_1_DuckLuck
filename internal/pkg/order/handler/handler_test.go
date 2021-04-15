@@ -76,6 +76,7 @@ func TestOrderHandler_GetOrderFromCart(t *testing.T) {
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(orderHandler.GetOrderFromCart)
 		handler.ServeHTTP(rr, req)
+		assert.Equal(t, rr.Code, http.StatusOK, "incorrect http code")
 	})
 
 	t.Run("GetOrderFromCart_not_found_preview_cart", func(t *testing.T) {
@@ -187,6 +188,7 @@ func TestOrderHandler_AddCompletedOrder(t *testing.T) {
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(orderHandler.AddCompletedOrder)
 		handler.ServeHTTP(rr, req)
+		assert.Equal(t, rr.Code, http.StatusOK, "incorrect http code")
 	})
 
 	t.Run("AddCompletedOrder_bad_body", func(t *testing.T) {

@@ -46,6 +46,7 @@ func TestCategoryHandler_GetCatalogCategories(t *testing.T) {
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(categoryHandler.GetCatalogCategories)
 		handler.ServeHTTP(rr, req)
+		assert.Equal(t, rr.Code, http.StatusOK, "incorrect http code")
 	})
 
 	t.Run("GetCatalogCategories_internal_error", func(t *testing.T) {
@@ -105,6 +106,7 @@ func TestCategoryHandler_GetSubCategories(t *testing.T) {
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(categoryHandler.GetSubCategories)
 		handler.ServeHTTP(rr, req)
+		assert.Equal(t, rr.Code, http.StatusOK, "incorrect http code")
 	})
 
 	t.Run("GetSubCategories_without_args", func(t *testing.T) {
