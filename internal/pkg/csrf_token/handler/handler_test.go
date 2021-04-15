@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -13,6 +12,7 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/lithammer/shortuuid"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCartHandler_GetCsrfToken(t *testing.T) {
