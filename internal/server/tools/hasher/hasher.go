@@ -25,13 +25,6 @@ var (
 		keyLen:  64,
 		saltLen: 8,
 	}
-	csrfTokenSettings = &Settings{
-		times:   1,
-		memory:  1024,
-		threads: 4,
-		keyLen:  32,
-		saltLen: 4,
-	}
 )
 
 func GenerateHashFromPassword(password string) ([]byte, error) {
@@ -40,14 +33,6 @@ func GenerateHashFromPassword(password string) ([]byte, error) {
 
 func CompareHashAndPassword(hash []byte, password string) bool {
 	return compareHashAndSecret(hash, password, passwordSettings)
-}
-
-func GenerateHashFromCsrfToken(password string) ([]byte, error) {
-	return generateHashFromSecret(password, csrfTokenSettings)
-}
-
-func CompareHashAndCsrfToken(hash []byte, password string) bool {
-	return compareHashAndSecret(hash, password, csrfTokenSettings)
 }
 
 func generateHashFromSecret(secret string, settings *Settings) ([]byte, error) {
