@@ -45,6 +45,7 @@ CREATE TABLE products (
     discount INTEGER NOT NULL,
     images TEXT[] NOT NULL,
     id_category INTEGER NOT NULL,
+    date_added TIMESTAMP NOT NULL DEFAULT NOW(),
 
     FOREIGN KEY (id_category) REFERENCES categories(id),
 

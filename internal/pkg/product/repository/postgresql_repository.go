@@ -85,6 +85,8 @@ func (r *PostgresqlRepository) CreateSortString(paginator *models.PaginatorProdu
 		orderTarget = "base_cost"
 	case models.ProductsRatingSort:
 		orderTarget = "rating"
+	case models.ProductsDateAdded:
+		orderTarget = "date_added"
 	default:
 		return "", errors.ErrIncorrectPaginator
 	}
