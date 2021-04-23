@@ -6,7 +6,6 @@ import (
 
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/hasher"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/http_utils"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/jwt_token"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/logger"
@@ -30,14 +29,8 @@ func CsrfCheck(next http.Handler) http.Handler {
 				return
 			}
 
-			cookie, err := r.Cookie(models.CsrfTokenCookieName)
-			if err != nil {
-				http_utils.SetJSONResponse(w, errors.ErrNotFoundCsrfToken, http.StatusBadRequest)
-				return
-			}
-
 			csrfTokenFromCookie := jwt_token.JwtToken{}
-			jwtToken, err := jwt_token.ParseJwtToken(cookie.Value, &csrfTokenFromCookie)
+			jwtToken, err := jwt_token.ParseJwtToken(csrfTokenFromHeader, &csrfTokenFromCookie)
 			if err != nil || !jwtToken.Valid {
 				http_utils.SetJSONResponse(w, errors.ErrIncorrectJwtToken, http.StatusBadRequest)
 				return
@@ -46,11 +39,6 @@ func CsrfCheck(next http.Handler) http.Handler {
 			t := time.Now()
 			if t.After(csrfTokenFromCookie.Expires) {
 				http_utils.SetJSONResponse(w, errors.ErrIncorrectJwtToken, http.StatusBadRequest)
-				return
-			}
-
-			if !hasher.CompareHashAndCsrfToken(csrfTokenFromCookie.Value, csrfTokenFromHeader) {
-				http_utils.SetJSONResponse(w, errors.ErrIncorrectCsrfToken, http.StatusBadRequest)
 				return
 			}
 		}
