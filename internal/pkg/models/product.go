@@ -55,7 +55,7 @@ type RangeProducts struct {
 type PaginatorProducts struct {
 	PageNum       int    `json:"page_num"`
 	Count         int    `json:"count"`
-	SortKey       string `json:"sort_key" valid:"in(cost|rating|date)"`
+	SortKey       string `json:"sort_key" valid:"in(cost|rating|date|discount)"`
 	SortDirection string `json:"sort_direction" valid:"in(ASC|DESC)"`
 	Category      uint64 `json:"category"`
 }
