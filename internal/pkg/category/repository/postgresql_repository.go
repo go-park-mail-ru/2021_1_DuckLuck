@@ -83,38 +83,26 @@ func (r *PostgresqlRepository) GetCategoriesByLevel(level uint64) ([]*models.Cat
 	return categories, nil
 }
 
-// Get id of all subcategories
-func (r *PostgresqlRepository) GetAllSubCategoriesId(categoryId uint64) ([]uint64, error) {
-	rows, err := r.db.Query(
-		"WITH current_node AS ( "+
-			"SELECT c.left_node, c.right_node "+
+// Get left and right border of branch
+func (r *PostgresqlRepository) GetBordersOfBranch(categoryId uint64) (uint64, uint64, error) {
+	row := r.db.QueryRow(
+		"SELECT c.left_node, c.right_node "+
 			"FROM categories c "+
-			"WHERE c.id = $1 "+
-			") "+
-			"SELECT c.id "+
-			"FROM categories c, current_node "+
-			"WHERE (c.left_node > current_node.left_node "+
-			"AND c.right_node < current_node.right_node)",
+			"WHERE c.id = $1",
 		categoryId,
 	)
+
+	var left, right uint64
+	err := row.Scan(
+		&left,
+		&right,
+	)
+
 	if err != nil {
-		return nil, errors.ErrDBInternalError
-	}
-	defer rows.Close()
-
-	categoriesId := make([]uint64, 0)
-	for rows.Next() {
-		var id uint64
-		err = rows.Scan(
-			&id,
-		)
-		if err != nil {
-			return nil, errors.ErrDBInternalError
-		}
-		categoriesId = append(categoriesId, id)
+		return 0, 0, errors.ErrDBInternalError
 	}
 
-	return categoriesId, nil
+	return left, right, nil
 }
 
 // Get path from root to category
@@ -129,7 +117,7 @@ func (r *PostgresqlRepository) GetPathToCategory(categoryId uint64) ([]*models.C
 			"FROM categories c, current_node "+
 			"WHERE (c.left_node <= current_node.left_node "+
 			"AND c.right_node >= current_node.right_node "+
-			"AND c.level <= current_node.level)",
+			"AND c.level BETWEEN 1 AND current_node.level)",
 		categoryId,
 	)
 	if err != nil {
