@@ -25,7 +25,7 @@ func NewSessionPostgresqlRepository(db *sql.DB) product.Repository {
 // Select one product by id
 func (r *PostgresqlRepository) SelectProductById(productId uint64) (*models.Product, error) {
 	row := r.db.QueryRow(
-		"SELECT id, title, rating, description, base_cost, discount, images, id_category "+
+		"SELECT id, title, rating, description, base_cost, total_cost, discount, images, id_category "+
 			"FROM products WHERE id = $1",
 		productId,
 	)
@@ -38,6 +38,7 @@ func (r *PostgresqlRepository) SelectProductById(productId uint64) (*models.Prod
 		&productById.Rating,
 		&description,
 		&productById.Price.BaseCost,
+		&productById.Price.TotalPrice,
 		&productById.Price.Discount,
 		pq.Array(&productById.Images),
 		&productById.Category,
@@ -82,11 +83,13 @@ func (r *PostgresqlRepository) CreateSortString(paginator *models.PaginatorProdu
 	var orderTarget string
 	switch paginator.SortKey {
 	case models.ProductsCostSort:
-		orderTarget = "base_cost"
+		orderTarget = "total_cost"
 	case models.ProductsRatingSort:
 		orderTarget = "rating"
-	case models.ProductsDateAdded:
+	case models.ProductsDateAddedSort:
 		orderTarget = "date_added"
+	case models.ProductsDiscountSort:
+		orderTarget = "discount"
 	default:
 		return "", errors.ErrIncorrectPaginator
 	}
@@ -114,7 +117,7 @@ func (r *PostgresqlRepository) SelectRangeProducts(paginator *models.PaginatorPr
 			"FROM categories c "+
 			"WHERE c.id = $1 "+
 			") "+
-			"SELECT p.id, p.title, p.base_cost, p.discount, p.rating, p.images[1] "+
+			"SELECT p.id, p.title, p.base_cost, p.total_cost, p.discount, p.rating, p.images[1] "+
 			"FROM current_node, products p "+
 			"JOIN categories c ON c.id = p.id_category "+
 			"WHERE (c.left_node >= current_node.left_node "+
@@ -137,6 +140,7 @@ func (r *PostgresqlRepository) SelectRangeProducts(paginator *models.PaginatorPr
 			&product.Id,
 			&product.Title,
 			&product.Price.BaseCost,
+			&product.Price.TotalPrice,
 			&product.Price.Discount,
 			&product.Rating,
 			&product.PreviewImage,

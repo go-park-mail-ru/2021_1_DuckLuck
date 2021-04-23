@@ -100,10 +100,9 @@ func (u *CartUseCase) GetPreviewCart(userId uint64) (*models.PreviewCart, error)
 			})
 
 		previewUserCart.Price.TotalBaseCost += productById.Price.BaseCost * int(productPosition.Count)
-		previewUserCart.Price.TotalDiscount += int(float64(productById.Price.BaseCost) *
-			(float64(productById.Price.Discount)) / 100.0 * float64(productPosition.Count))
+		previewUserCart.Price.TotalCost += productById.Price.TotalPrice * int(productPosition.Count)
 	}
-	previewUserCart.Price.TotalCost = previewUserCart.Price.TotalBaseCost - previewUserCart.Price.TotalDiscount
+	previewUserCart.Price.TotalDiscount = previewUserCart.Price.TotalBaseCost - previewUserCart.Price.TotalCost
 
 	return previewUserCart, nil
 }
