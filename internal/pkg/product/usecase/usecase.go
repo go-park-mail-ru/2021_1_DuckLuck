@@ -42,10 +42,26 @@ func (u *ProductUseCase) GetRangeProducts(paginator *models.PaginatorProducts) (
 		return nil, errors.ErrIncorrectPaginator
 	}
 
-	categoriesId, err := u.CategoryRepo.GetAllSubCategoriesId(paginator.Category)
+	// Max count pages in catalog
+	countPages, err := u.ProductRepo.GetCountPages(paginator)
 	if err != nil {
-		return nil, errors.ErrCategoryNotFound
+		return nil, errors.ErrIncorrectPaginator
 	}
 
-	return u.ProductRepo.SelectRangeProducts(paginator, &categoriesId)
+	// Keys for sort items in catalog
+	sortString, err := u.ProductRepo.CreateSortString(paginator)
+	if err != nil {
+		return nil, errors.ErrIncorrectPaginator
+	}
+
+	// Get range of products
+	products, err := u.ProductRepo.SelectRangeProducts(paginator, sortString)
+	if err != nil {
+		return nil, errors.ErrIncorrectPaginator
+	}
+
+	return &models.RangeProducts{
+		ListPreviewProducts: products,
+		MaxCountPages:       countPages,
+	}, nil
 }
