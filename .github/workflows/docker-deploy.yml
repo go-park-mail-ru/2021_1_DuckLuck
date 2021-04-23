@@ -64,4 +64,6 @@ jobs:
           script: |
             cd /home/ubuntu/duckluckmarket/Backend
             echo TAG=${{ env.TAG }} > .env
+            sudo docker-compose rm -fsv postgres
+            sudo docker-compose rm -fsv server
             sudo docker-compose up -d
