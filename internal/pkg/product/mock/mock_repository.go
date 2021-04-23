@@ -34,6 +34,36 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
 }
 
+// CreateSortString mocks base method.
+func (m *MockRepository) CreateSortString(arg0 *models.PaginatorProducts) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateSortString", arg0)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateSortString indicates an expected call of CreateSortString.
+func (mr *MockRepositoryMockRecorder) CreateSortString(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSortString", reflect.TypeOf((*MockRepository)(nil).CreateSortString), arg0)
+}
+
+// GetCountPages mocks base method.
+func (m *MockRepository) GetCountPages(arg0 *models.PaginatorProducts) (int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCountPages", arg0)
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCountPages indicates an expected call of GetCountPages.
+func (mr *MockRepositoryMockRecorder) GetCountPages(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCountPages", reflect.TypeOf((*MockRepository)(nil).GetCountPages), arg0)
+}
+
 // SelectProductById mocks base method.
 func (m *MockRepository) SelectProductById(arg0 uint64) (*models.Product, error) {
 	m.ctrl.T.Helper()
@@ -50,10 +80,10 @@ func (mr *MockRepositoryMockRecorder) SelectProductById(arg0 interface{}) *gomoc
 }
 
 // SelectRangeProducts mocks base method.
-func (m *MockRepository) SelectRangeProducts(arg0 *models.PaginatorProducts, arg1 *[]uint64) (*models.RangeProducts, error) {
+func (m *MockRepository) SelectRangeProducts(arg0 *models.PaginatorProducts, arg1 string) ([]*models.ViewProduct, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SelectRangeProducts", arg0, arg1)
-	ret0, _ := ret[0].(*models.RangeProducts)
+	ret0, _ := ret[0].([]*models.ViewProduct)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
