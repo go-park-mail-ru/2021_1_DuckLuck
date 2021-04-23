@@ -18,6 +18,7 @@ func TestPostgresqlRepository_SelectProductById(t *testing.T) {
 		Title: "test",
 		Price: models.ProductPrice{
 			Discount: 10,
+			TotalCost: 18,
 			BaseCost: 20,
 		},
 		Rating:       4,
@@ -37,10 +38,10 @@ func TestPostgresqlRepository_SelectProductById(t *testing.T) {
 		repository := NewSessionPostgresqlRepository(db)
 
 		productRows := sqlmock.
-			NewRows([]string{"id", "title", "rating", "description", "base_cost", "discount",
+			NewRows([]string{"id", "title", "rating", "description", "base_cost", "total_cost", "discount",
 				"images", "id_category"}).
 			AddRow(testProduct.Id, testProduct.Title, testProduct.Rating, testProduct.Description,
-				testProduct.Price.BaseCost, testProduct.Price.Discount,
+				testProduct.Price.BaseCost, testProduct.Price.TotalCost, testProduct.Price.Discount,
 				pq.Array(testProduct.Images), testProduct.Category)
 		sqlMock.ExpectQuery("SELECT").WithArgs(productId).WillReturnRows(productRows)
 

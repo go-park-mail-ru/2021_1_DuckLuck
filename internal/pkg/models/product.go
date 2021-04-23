@@ -40,9 +40,9 @@ type ViewProduct struct {
 // Price product kept in integer nums
 // and contains base price and discount
 type ProductPrice struct {
-	Discount   int `json:"discount"`
-	BaseCost   int `json:"base_cost"`
-	TotalPrice int `json:"total_cost"`
+	Discount  int `json:"discount"`
+	BaseCost  int `json:"base_cost"`
+	TotalCost int `json:"total_cost"`
 }
 
 // Set of product with count uniq sets of this size
