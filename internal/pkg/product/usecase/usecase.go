@@ -72,13 +72,14 @@ func (u *ProductUseCase) SearchRangeProducts(searchQuery *models.SearchQuery) (*
 		return nil, errors.ErrIncorrectSearchQuery
 	}
 
-	// Max count pages in catalog
-	countPages, err := u.ProductRepo.GetCountPages(searchQuery.Category, searchQuery.Count)
+	// Max count pages for this search
+	countPages, err := u.ProductRepo.GetCountSearchPages(searchQuery.Category,
+		searchQuery.Count, searchQuery.QueryString)
 	if err != nil {
 		return nil, errors.ErrIncorrectSearchQuery
 	}
 
-	// Keys for sort items in catalog
+	// Keys for sort items in result of search
 	sortString, err := u.ProductRepo.CreateSortString(searchQuery.SortKey, searchQuery.SortDirection)
 	if err != nil {
 		return nil, errors.ErrIncorrectSearchQuery

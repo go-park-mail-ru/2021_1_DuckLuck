@@ -77,6 +77,33 @@ func (r *PostgresqlRepository) GetCountPages(category uint64, count int) (int, e
 	return countPages, nil
 }
 
+// Get count of all pages for this search
+func (r *PostgresqlRepository) GetCountSearchPages(category uint64, count int, searchString string) (int, error) {
+	row := r.db.QueryRow(
+		"WITH current_node AS ( "+
+			"SELECT c.left_node, c.right_node "+
+			"FROM categories c "+
+			"WHERE c.id = $1 "+
+			") "+
+			"SELECT count(p.id) "+
+			"FROM current_node, products p "+
+			"JOIN categories c ON c.id = p.id_category "+
+			"WHERE (c.left_node >= current_node.left_node "+
+			"AND c.right_node <= current_node.right_node "+
+			"AND p.fts @@ plainto_tsquery('ru', $2))",
+		category,
+		searchString,
+	)
+
+	var countPages int
+	if err := row.Scan(&countPages); err != nil {
+		return 0, errors.ErrDBInternalError
+	}
+	countPages = int(math.Ceil(float64(countPages) / float64(count)))
+
+	return countPages, nil
+}
+
 // Create sort string from paginator options
 func (r *PostgresqlRepository) CreateSortString(sortKey, sortDirection string) (string, error) {
 	// Select order target
