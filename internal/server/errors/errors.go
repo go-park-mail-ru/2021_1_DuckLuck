@@ -105,4 +105,7 @@ var (
 	ErrIncorrectAuthData error = Error{
 		Message: "incorrect auth user data",
 	}
+	ErrIncorrectSearchQuery error = Error{
+		Message: "incorrect search query",
+	}
 )

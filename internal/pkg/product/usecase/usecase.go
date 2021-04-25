@@ -69,19 +69,19 @@ func (u *ProductUseCase) GetRangeProducts(paginator *models.PaginatorProducts) (
 // Find range products by search settings from repo
 func (u *ProductUseCase) SearchRangeProducts(searchQuery *models.SearchQuery) (*models.RangeProducts, error) {
 	if searchQuery.PageNum < 1 || searchQuery.Count < 1 {
-		return nil, errors.ErrIncorrectPaginator
+		return nil, errors.ErrIncorrectSearchQuery
 	}
 
 	// Max count pages in catalog
 	countPages, err := u.ProductRepo.GetCountPages(searchQuery.Category, searchQuery.Count)
 	if err != nil {
-		return nil, errors.ErrIncorrectPaginator
+		return nil, errors.ErrIncorrectSearchQuery
 	}
 
 	// Keys for sort items in catalog
 	sortString, err := u.ProductRepo.CreateSortString(searchQuery.SortKey, searchQuery.SortDirection)
 	if err != nil {
-		return nil, errors.ErrIncorrectPaginator
+		return nil, errors.ErrIncorrectSearchQuery
 	}
 
 	// Get range of products

@@ -168,7 +168,7 @@ func (r *PostgresqlRepository) SearchRangeProducts(searchQuery *models.SearchQue
 			"JOIN categories c ON c.id = p.id_category "+
 			"WHERE (c.left_node >= current_node.left_node "+
 			"AND c.right_node <= current_node.right_node "+
-			"AND products.fts @@ plainto_tsquery('ru', $2)) "+
+			"AND p.fts @@ plainto_tsquery('ru', $2)) "+
 			sortString+
 			"LIMIT $3 OFFSET $4",
 		searchQuery.Category,
@@ -177,7 +177,7 @@ func (r *PostgresqlRepository) SearchRangeProducts(searchQuery *models.SearchQue
 		searchQuery.Count*(searchQuery.PageNum-1),
 	)
 	if err != nil {
-		return nil, errors.ErrIncorrectPaginator
+		return nil, errors.ErrIncorrectSearchQuery
 	}
 	defer rows.Close()
 
