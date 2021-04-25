@@ -84,6 +84,25 @@ CREATE TABLE ordered_products (
     CONSTRAINT num_value CHECK (num >= 0)
 );
 
+DROP TABLE IF EXISTS reviews CASCADE;
+CREATE TABLE reviews (
+    id SERIAL NOT NULL PRIMARY KEY,
+    product_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    rating INTEGER NOT NULL,
+    advantages TEXT,
+    disadvantages TEXT,
+    comment TEXT,
+    images TEXT[],
+    is_public BOOLEAN,
+    date_added TIMESTAMP NOT NULL DEFAULT NOW(),
+
+    FOREIGN KEY (product_id) REFERENCES products(id),
+    FOREIGN KEY (user_id) REFERENCES users(id),
+
+    CONSTRAINT rating_value CHECK (rating >= 0 AND rating <= 5)
+);
+
 
 GRANT ALL PRIVILEGES ON TABLE users TO ozon_root;
 GRANT ALL PRIVILEGES ON TABLE ordered_products TO ozon_root;
