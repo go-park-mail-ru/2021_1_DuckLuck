@@ -10,3 +10,12 @@ FROM ubuntu:latest
 COPY --from=build /project/bin/ /
 RUN apt update && apt install ca-certificates -y && rm -rf /var/cache/apt/*
 CMD ["./server"]
+
+FROM postgres:13 as postgres
+RUN apt update && \
+    apt install myspell-ru -y
+WORKDIR /usr/share/postgresql/13/tsearch_data
+ENV DICT=/usr/share/hunspell/ru_RU
+RUN iconv -f koi8-r -t utf-8 -o russian.affix $DICT.aff && \
+    iconv -f koi8-r -t utf-8 -o russian.dict $DICT.dic
+
