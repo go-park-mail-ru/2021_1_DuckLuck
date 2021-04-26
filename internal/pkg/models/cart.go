@@ -31,9 +31,9 @@ type PreviewCart struct {
 // This model contains field for showing product in user cart
 type PreviewCartArticle struct {
 	Id           uint64       `json:"id"`
-	Title        string       `json:"title" valid:"minstringlength(3)"`
+	Title        string       `json:"title" valid:"minstringlength(1)"`
 	Price        ProductPrice `json:"price" valid:"notnull"`
-	PreviewImage string       `json:"preview_image" valid:"minstringlength(3)"`
+	PreviewImage string       `json:"preview_image" valid:"minstringlength(1)"`
 	Count        uint64       `json:"count"`
 }
 

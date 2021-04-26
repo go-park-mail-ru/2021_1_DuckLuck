@@ -70,6 +70,7 @@ CREATE TABLE products (
     CONSTRAINT discount_value CHECK (rating >= 0 AND rating <= 100)
 );
 
+
 DROP INDEX IF EXISTS products_fts CASCADE;
 CREATE INDEX products_fts ON products USING GIN (fts);
 
@@ -88,9 +89,23 @@ CREATE TRIGGER t_create_fts
     FOR EACH ROW
     EXECUTE PROCEDURE create_fts();
 
+DROP SEQUENCE IF EXISTS order_num CASCADE;
+CREATE SEQUENCE order_num
+    INCREMENT 1
+    CACHE 20;
+
+DROP SEQUENCE IF EXISTS order_serial CASCADE;
+CREATE SEQUENCE order_serial
+    START WITH 17
+    INCREMENT 3
+    CACHE 20;
+
 DROP TABLE IF EXISTS user_orders CASCADE;
 CREATE TABLE user_orders (
     id SERIAL NOT NULL PRIMARY KEY,
+    order_num TEXT UNIQUE NOT NULL
+        DEFAULT lpad(text(nextval('order_num')), 8, '0')
+        || '-' || lpad(text(nextval('order_serial')), 4, '0'),
     user_id INTEGER NOT NULL,
     first_name TEXT NOT NULL,
     last_name TEXT NOT NULL,
@@ -99,6 +114,10 @@ CREATE TABLE user_orders (
     base_cost INTEGER NOT NULL,
     total_cost INTEGER NOT NULL,
     discount INTEGER NOT NULL,
+    date_added TIMESTAMP NOT NULL DEFAULT NOW(),
+    date_delivery TIMESTAMP NOT NULL DEFAULT NOW(),
+    status_pay TEXT NOT NULL DEFAULT 'оплачено',
+    status_delivery TEXT NOT NULL DEFAULT 'получено',
 
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
@@ -116,6 +135,25 @@ CREATE TABLE ordered_products (
     FOREIGN KEY (order_id) REFERENCES user_orders(id),
 
     CONSTRAINT num_value CHECK (num >= 0)
+);
+
+DROP TABLE IF EXISTS reviews CASCADE;
+CREATE TABLE reviews (
+    id SERIAL NOT NULL PRIMARY KEY,
+    product_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    rating INTEGER NOT NULL,
+    advantages TEXT,
+    disadvantages TEXT,
+    comment TEXT,
+    images TEXT[],
+    is_public BOOLEAN,
+    date_added TIMESTAMP NOT NULL DEFAULT NOW(),
+
+    FOREIGN KEY (product_id) REFERENCES products(id),
+    FOREIGN KEY (user_id) REFERENCES users(id),
+
+    CONSTRAINT rating_value CHECK (rating >= 0 AND rating <= 5)
 );
 
 
