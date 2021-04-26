@@ -50,7 +50,7 @@ jobs:
           source: "Backend"
           target: "/home/ubuntu/duckluckmarket"
 
-      - name: pull docker image
+      - name: pull server docker image
         uses: appleboy/ssh-action@master
         with:
           envs: GITHUB_SHA
@@ -58,6 +58,14 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.PRIVATE_KEY }}
           script: sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/godeploy:${{ env.TAG }}
+      - name: pull postgres docker image
+        uses: appleboy/ssh-action@master
+        with:
+          envs: GITHUB_SHA
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          script: sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/postgres:${{ env.TAG }}
       - name: deploy docker image
         uses: appleboy/ssh-action@master
         with:
