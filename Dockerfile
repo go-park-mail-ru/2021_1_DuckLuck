@@ -6,7 +6,7 @@ RUN go test -coverprofile=coverage1.out -coverpkg=./... -cover ./...
 RUN cat coverage1.out | grep -v mock > ./bin/cover.out
 RUN go tool cover -func ./bin/cover.out
 
-FROM ubuntu:latest
+FROM ubuntu:latest as server
 COPY --from=build /project/bin/ /
 RUN apt update && apt install ca-certificates -y && rm -rf /var/cache/apt/*
 CMD ["./server"]

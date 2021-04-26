@@ -17,7 +17,7 @@ jobs:
       - name: Login to DockerHub Registry
         run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
       - name: Build Docker server image
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/godeploy:${{ env.TAG }} .
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/godeploy:${{ env.TAG }} --target server .
       - name: Push the server image
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/godeploy:${{ env.TAG }}
       - name: Build Docker postgres image
