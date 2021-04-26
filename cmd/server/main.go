@@ -157,7 +157,7 @@ func main() {
 	authMux.Use(middlewareAuth)
 	authMux.HandleFunc("/api/v1/session", sessionHandler.CheckSession).Methods("GET", "OPTIONS")
 	authMux.HandleFunc("/api/v1/user/profile", userHandler.GetProfile).Methods("GET", "OPTIONS")
-	authMux.HandleFunc("/api/v1/user/order", orderHandler.GetUserOrders).Methods("GET", "OPTIONS")
+	authMux.HandleFunc("/api/v1/user/order", orderHandler.GetUserOrders).Methods("POST", "OPTIONS")
 	authMux.HandleFunc("/api/v1/user/logout", userHandler.Logout).Methods("DELETE", "OPTIONS")
 	authMux.HandleFunc("/api/v1/user/profile", userHandler.UpdateProfile).Methods("PUT", "OPTIONS")
 	authMux.HandleFunc("/api/v1/user/profile/avatar", userHandler.GetProfileAvatar).Methods("GET", "OPTIONS")

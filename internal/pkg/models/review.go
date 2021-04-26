@@ -7,8 +7,8 @@ import (
 
 // Paginator for showing page of reviews
 type PaginatorReviews struct {
-	PageNum       int    `json:"page_num"`
-	Count         int    `json:"count"`
+	PageNum int `json:"page_num"`
+	Count   int `json:"count"`
 	SortReviewsOptions
 }
 
@@ -24,12 +24,29 @@ func (pr *PaginatorReviews) Sanitize() {
 }
 
 type ViewReview struct {
-	UserName        string      `json:"user_name" valid:"minstringlength(3)"`
-	UserAvatar		string 		`json:"user_avatar" valid:"minstringlength(3)"`
-	DateAdded		time.Time	`json:"date_added" valid:"notnull"`
-	Images       	[]string    `json:"images"`
-	Rating			int			`json:"rating" valid:"int"`
-
+	UserName      string    `json:"user_name" valid:"minstringlength(1)"`
+	UserAvatar    string    `json:"user_avatar" valid:"minstringlength(1)"`
+	DateAdded     time.Time `json:"date_added" valid:"notnull"`
+	Images        []string  `json:"images"`
+	Rating        int       `json:"rating" valid:"int"`
+	Advantages    string    `json:"advantages"`
+	Disadvantages string    `json:"disadvantages"`
+	Comment       string    `json:"comment"`
 }
 
+type Review struct {
+	ProductId     int      `json:"product_id" valid:"int"`
+	Images        []string `json:"images"`
+	Rating        int      `json:"rating" valid:"int"`
+	Advantages    string   `json:"advantages"`
+	Disadvantages string   `json:"disadvantages"`
+	Comment       string   `json:"comment"`
+	IsPublic      bool     `json:"is_public"`
+}
 
+func (r *Review) Sanitize() {
+	sanitizer := sanitizer.NewSanitizer()
+	r.Advantages = sanitizer.Sanitize(r.Advantages)
+	r.Disadvantages = sanitizer.Sanitize(r.Disadvantages)
+	r.Comment = sanitizer.Sanitize(r.Comment)
+}

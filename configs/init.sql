@@ -54,9 +54,23 @@ CREATE TABLE products (
     CONSTRAINT discount_value CHECK (rating >= 0 AND rating <= 100)
 );
 
+DROP SEQUENCE IF EXISTS order_num CASCADE;
+CREATE SEQUENCE order_num
+    INCREMENT 1
+    CACHE 20;
+
+DROP SEQUENCE IF EXISTS order_serial CASCADE;
+CREATE SEQUENCE order_serial
+    START WITH 17
+    INCREMENT 3
+    CACHE 20;
+
 DROP TABLE IF EXISTS user_orders CASCADE;
 CREATE TABLE user_orders (
     id SERIAL NOT NULL PRIMARY KEY,
+    order_num TEXT UNIQUE NOT NULL
+        DEFAULT lpad(text(nextval('order_num')), 8, '0')
+        || '-' || lpad(text(nextval('order_serial')), 4, '0'),
     user_id INTEGER NOT NULL,
     first_name TEXT NOT NULL,
     last_name TEXT NOT NULL,
@@ -65,6 +79,10 @@ CREATE TABLE user_orders (
     base_cost INTEGER NOT NULL,
     total_cost INTEGER NOT NULL,
     discount INTEGER NOT NULL,
+    date_added TIMESTAMP NOT NULL DEFAULT NOW(),
+    date_delivery TIMESTAMP NOT NULL DEFAULT NOW(),
+    status_pay TEXT NOT NULL DEFAULT 'оплачено',
+    status_delivery TEXT NOT NULL DEFAULT 'получено',
 
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
