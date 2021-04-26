@@ -1,8 +1,6 @@
 package models
 
-import (
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/sanitizer"
-)
+import "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/sanitizer"
 
 var (
 	ProductsCostSort      = "cost"
@@ -53,15 +51,35 @@ type RangeProducts struct {
 
 // Paginator for showing page of product
 type PaginatorProducts struct {
-	PageNum       int    `json:"page_num"`
-	Count         int    `json:"count"`
-	SortKey       string `json:"sort_key" valid:"in(cost|rating|date|discount)"`
-	SortDirection string `json:"sort_direction" valid:"in(ASC|DESC)"`
-	Category      uint64 `json:"category"`
+	PageNum int `json:"page_num"`
+	Count   int `json:"count"`
+	SortOptions
+	Category uint64 `json:"category"`
 }
 
 func (pp *PaginatorProducts) Sanitize() {
 	sanitizer := sanitizer.NewSanitizer()
 	pp.SortKey = sanitizer.Sanitize(pp.SortKey)
 	pp.SortDirection = sanitizer.Sanitize(pp.SortDirection)
+}
+
+// Search query with options
+type SearchQuery struct {
+	QueryString string `json:"query_string" valid:"minstringlength(2)"`
+	PageNum     int    `json:"page_num"`
+	Count       int    `json:"count"`
+	SortOptions
+	Category uint64 `json:"category"`
+}
+
+func (sq *SearchQuery) Sanitize() {
+	sanitizer := sanitizer.NewSanitizer()
+	sq.QueryString = sanitizer.Sanitize(sq.QueryString)
+	sq.SortKey = sanitizer.Sanitize(sq.SortKey)
+	sq.SortDirection = sanitizer.Sanitize(sq.SortDirection)
+}
+
+type SortOptions struct {
+	SortKey       string `json:"sort_key" valid:"in(cost|rating|date|discount)"`
+	SortDirection string `json:"sort_direction" valid:"in(ASC|DESC)"`
 }

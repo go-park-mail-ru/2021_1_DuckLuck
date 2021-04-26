@@ -89,3 +89,42 @@ func (h *ProductHandler) GetListPreviewProducts(w http.ResponseWriter, r *http.R
 
 	http_utils.SetJSONResponse(w, listPreviewProducts, http.StatusOK)
 }
+
+// Search range of preview products
+func (h *ProductHandler) SearchListPreviewProducts(w http.ResponseWriter, r *http.Request) {
+	var err error
+	defer func() {
+		requireId := http_utils.MustGetRequireId(r.Context())
+		if err != nil {
+			logger.LogError(r.URL.Path, "product_handler", "SearchListPreviewProducts", requireId, err)
+		}
+	}()
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		http_utils.SetJSONResponse(w, errors.ErrBadRequest, http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	var searchQuery models.SearchQuery
+	err = json.Unmarshal(body, &searchQuery)
+	if err != nil {
+		http_utils.SetJSONResponse(w, errors.ErrCanNotUnmarshal, http.StatusBadRequest)
+		return
+	}
+
+	err = validator.ValidateStruct(searchQuery)
+	if err != nil {
+		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusBadRequest)
+		return
+	}
+
+	listPreviewProducts, err := h.ProductUCase.SearchRangeProducts(&searchQuery)
+	if err != nil {
+		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
+		return
+	}
+
+	http_utils.SetJSONResponse(w, listPreviewProducts, http.StatusOK)
+}
