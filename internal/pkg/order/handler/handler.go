@@ -84,13 +84,13 @@ func (h *OrderHandler) AddCompletedOrder(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	_, err = h.OrderUCase.AddCompletedOrder(&userOrder, currentSession.UserData.Id, previewCart)
+	orderNumber, err := h.OrderUCase.AddCompletedOrder(&userOrder, currentSession.UserData.Id, previewCart)
 	if err != nil {
 		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
 		return
 	}
 
-	http_utils.SetJSONResponseSuccess(w, http.StatusOK)
+	http_utils.SetJSONResponse(w, orderNumber, http.StatusOK)
 }
 
 func (h *OrderHandler) GetUserOrders(w http.ResponseWriter, r *http.Request) {
