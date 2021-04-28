@@ -53,12 +53,12 @@ type RangeProducts struct {
 
 // Paginator for showing page of product
 type PaginatorProducts struct {
-	PageNum       int    `json:"page_num"`
-	Count         int    `json:"count"`
-	SortKey       string `json:"sort_key" valid:"in(cost|rating|date|discount)"`
-	SortDirection string `json:"sort_direction" valid:"in(ASC|DESC)"`
-	Category      uint64 `json:"category"`
-	Filter *ProductFilter `json:"filter"`
+	PageNum       int            `json:"page_num"`
+	Count         int            `json:"count"`
+	SortKey       string         `json:"sort_key" valid:"in(cost|rating|date|discount)"`
+	SortDirection string         `json:"sort_direction" valid:"in(ASC|DESC)"`
+	Category      uint64         `json:"category"`
+	Filter        *ProductFilter `json:"filter"`
 }
 
 func (pp *PaginatorProducts) Sanitize() {
@@ -68,9 +68,9 @@ func (pp *PaginatorProducts) Sanitize() {
 }
 
 type ProductFilter struct {
-	MinPrice     uint64 `json:"min_price"`
-	MaxPrice     uint64 `json:"max_price"`
-	IsNew        bool   `json:"is_new"`
-	IsRating     bool   `json:"is_rating"`
-	IsDiscount   bool   `json:"is_discount"`
+	MinPrice   uint64 `json:"min_price"`
+	MaxPrice   uint64 `json:"max_price"`
+	IsNew      bool   `json:"is_new"`
+	IsRating   bool   `json:"is_rating"`
+	IsDiscount bool   `json:"is_discount"`
 }

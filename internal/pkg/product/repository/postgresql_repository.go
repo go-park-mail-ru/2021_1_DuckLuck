@@ -64,7 +64,7 @@ func (r *PostgresqlRepository) GetCountPages(paginator *models.PaginatorProducts
 			"FROM current_node, products p "+
 			"JOIN categories c ON c.id = p.id_category "+
 			"WHERE (c.left_node >= current_node.left_node "+
-			"AND c.right_node <= current_node.right_node " +
+			"AND c.right_node <= current_node.right_node "+
 			filterString+
 			" ) ",
 		paginator.Category,
@@ -143,7 +143,7 @@ func (r *PostgresqlRepository) SelectRangeProducts(paginator *models.PaginatorPr
 			"FROM current_node, products p "+
 			"JOIN categories c ON c.id = p.id_category "+
 			"WHERE (c.left_node >= current_node.left_node "+
-			"AND c.right_node <= current_node.right_node " +
+			"AND c.right_node <= current_node.right_node "+
 			filterString+
 			" ) "+
 			sortString+
