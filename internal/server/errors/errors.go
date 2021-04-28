@@ -105,4 +105,10 @@ var (
 	ErrIncorrectAuthData error = Error{
 		Message: "incorrect auth user data",
 	}
+	ErrNoWriteRights error = Error{
+		Message: "no write rights",
+	}
+	ErrCanNotAddReview error = Error{
+		Message: "user can not add review",
+	}
 )
