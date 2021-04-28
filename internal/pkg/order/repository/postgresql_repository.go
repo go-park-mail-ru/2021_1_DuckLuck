@@ -47,7 +47,7 @@ func (r *PostgresqlRepository) SelectRangeOrders(userId uint64, sortString strin
 			&placedOrder.TotalCost,
 			&placedOrder.DateAdded,
 			&placedOrder.DateDelivery,
-			&placedOrder.OrderNumber,
+			&placedOrder.OrderNumber.Number,
 			&placedOrder.StatusPay,
 			&placedOrder.StatusDelivery,
 		)
@@ -133,11 +133,11 @@ func (r *PostgresqlRepository) GetProductsInOrder(orderId uint64) ([]*models.Pre
 
 // Add order in db
 func (r *PostgresqlRepository) AddOrder(order *models.Order, userId uint64,
-	products []*models.PreviewCartArticle, price *models.TotalPrice) (uint64, error) {
+	products []*models.PreviewCartArticle, price *models.TotalPrice) (*models.OrderNumber, error) {
 	row := r.db.QueryRow(
 		"INSERT INTO user_orders(user_id, first_name, last_name, email, "+
 			"address, base_cost, total_cost, discount) "+
-			"VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id",
+			"VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id, order_num",
 		userId,
 		order.Recipient.FirstName,
 		order.Recipient.LastName,
@@ -147,9 +147,10 @@ func (r *PostgresqlRepository) AddOrder(order *models.Order, userId uint64,
 		price.TotalCost,
 		price.TotalDiscount,
 	)
-	var orderId uint64
-	if err := row.Scan(&orderId); err != nil {
-		return 0, errors.ErrDBInternalError
+	var orderNumber models.OrderNumber
+	var orderId int
+	if err := row.Scan(&orderId, &orderNumber.Number); err != nil {
+		return nil, errors.ErrDBInternalError
 	}
 
 	for _, item := range products {
@@ -163,9 +164,9 @@ func (r *PostgresqlRepository) AddOrder(order *models.Order, userId uint64,
 			item.Price.Discount,
 		)
 		if res.Err() != nil {
-			return 0, errors.ErrDBInternalError
+			return nil, errors.ErrDBInternalError
 		}
 	}
 
-	return orderId, nil
+	return &orderNumber, nil
 }

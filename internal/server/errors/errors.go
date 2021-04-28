@@ -108,4 +108,10 @@ var (
 	ErrIncorrectSearchQuery error = Error{
 		Message: "incorrect search query",
 	}
+	ErrNoWriteRights error = Error{
+		Message: "no write rights",
+	}
+	ErrCanNotAddReview error = Error{
+		Message: "user can not add review",
+	}
 )

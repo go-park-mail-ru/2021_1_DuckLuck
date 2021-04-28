@@ -146,7 +146,6 @@ CREATE TABLE reviews (
     advantages TEXT,
     disadvantages TEXT,
     comment TEXT,
-    images TEXT[],
     is_public BOOLEAN,
     date_added TIMESTAMP NOT NULL DEFAULT NOW(),
 
@@ -162,6 +161,7 @@ GRANT ALL PRIVILEGES ON TABLE ordered_products TO ozon_root;
 GRANT ALL PRIVILEGES ON TABLE categories TO ozon_root;
 GRANT ALL PRIVILEGES ON TABLE products TO ozon_root;
 GRANT ALL PRIVILEGES ON TABLE user_orders TO ozon_root;
+GRANT ALL PRIVILEGES ON TABLE reviews TO ozon_root;
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO ozon_root;
 
 

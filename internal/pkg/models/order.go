@@ -1,8 +1,9 @@
 package models
 
 import (
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/sanitizer"
 	"time"
+
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/sanitizer"
 )
 
 var (
@@ -79,7 +80,7 @@ type PlacedOrder struct {
 	Products       []*PreviewOrderedProducts `json:"product_images" valid:"notnull"`
 	DateAdded      time.Time                 `json:"date_added"`
 	DateDelivery   time.Time                 `json:"date_delivery"`
-	OrderNumber    string                    `json:"order_number"`
+	OrderNumber    OrderNumber               `json:"order_number"`
 	StatusPay      string                    `json:"pay_status"`
 	StatusDelivery string                    `json:"delivery_status"`
 }
@@ -87,4 +88,8 @@ type PlacedOrder struct {
 type PreviewOrderedProducts struct {
 	Id           uint64 `json:"id"`
 	PreviewImage string `json:"preview_image" valid:"minstringlength(1)"`
+}
+
+type OrderNumber struct {
+	Number string `json:"number"`
 }

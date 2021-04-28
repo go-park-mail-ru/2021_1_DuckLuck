@@ -54,21 +54,21 @@ func (u *OrderUseCase) GetPreviewOrder(userId uint64,
 }
 
 func (u *OrderUseCase) AddCompletedOrder(order *models.Order, userId uint64,
-	previewCart *models.PreviewCart) (uint64, error) {
+	previewCart *models.PreviewCart) (*models.OrderNumber, error) {
 	// Get all info about product in cart
 	products := previewCart.Products
 	price := previewCart.Price
 
-	orderId, err := u.OrderRepo.AddOrder(order, userId, products, &price)
+	orderNumber, err := u.OrderRepo.AddOrder(order, userId, products, &price)
 	if err != nil {
-		return 0, errors.ErrInternalError
+		return nil, errors.ErrInternalError
 	}
 
 	if err = u.CartRepo.DeleteCart(userId); err != nil {
-		return 0, errors.ErrCartNotFound
+		return nil, errors.ErrCartNotFound
 	}
 
-	return orderId, nil
+	return orderNumber, nil
 }
 
 func (u *OrderUseCase) GetRangeOrders(userId uint64, paginator *models.PaginatorOrders) (*models.RangeOrders, error) {
