@@ -110,22 +110,22 @@ func TestProductHandler_GetProduct(t *testing.T) {
 
 func TestProductHandler_GetListPreviewProducts(t *testing.T) {
 	paginator := models.PaginatorProducts{
-		PageNum:       2,
-		Count:         10,
+		PageNum: 2,
+		Count:   10,
 		SortOptions: models.SortOptions{
 			SortKey:       "cost",
 			SortDirection: "ASC",
 		},
-		Category:      1,
+		Category: 1,
 	}
 	invalidPaginator := models.PaginatorProducts{
-		PageNum:       2,
-		Count:         10,
+		PageNum: 2,
+		Count:   10,
 		SortOptions: models.SortOptions{
 			SortKey:       "fdf",
 			SortDirection: "df",
 		},
-		Category:      1,
+		Category: 1,
 	}
 	rangeProduct := models.RangeProducts{
 		ListPreviewProducts: []*models.ViewProduct{

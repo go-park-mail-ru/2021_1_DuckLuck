@@ -35,10 +35,10 @@ func (m *MockUseCase) EXPECT() *MockUseCaseMockRecorder {
 }
 
 // AddCompletedOrder mocks base method.
-func (m *MockUseCase) AddCompletedOrder(arg0 *models.Order, arg1 uint64, arg2 *models.PreviewCart) (uint64, error) {
+func (m *MockUseCase) AddCompletedOrder(arg0 *models.Order, arg1 uint64, arg2 *models.PreviewCart) (*models.OrderNumber, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddCompletedOrder", arg0, arg1, arg2)
-	ret0, _ := ret[0].(uint64)
+	ret0, _ := ret[0].(*models.OrderNumber)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -47,21 +47,6 @@ func (m *MockUseCase) AddCompletedOrder(arg0 *models.Order, arg1 uint64, arg2 *m
 func (mr *MockUseCaseMockRecorder) AddCompletedOrder(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddCompletedOrder", reflect.TypeOf((*MockUseCase)(nil).AddCompletedOrder), arg0, arg1, arg2)
-}
-
-// GetOrders mocks base method.
-func (m *MockUseCase) GetOrders(arg0 uint64) ([]*models.Order, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetOrders", arg0)
-	ret0, _ := ret[0].([]*models.Order)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetOrders indicates an expected call of GetOrders.
-func (mr *MockUseCaseMockRecorder) GetOrders(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOrders", reflect.TypeOf((*MockUseCase)(nil).GetOrders), arg0)
 }
 
 // GetPreviewOrder mocks base method.
@@ -77,4 +62,19 @@ func (m *MockUseCase) GetPreviewOrder(arg0 uint64, arg1 *models.PreviewCart) (*m
 func (mr *MockUseCaseMockRecorder) GetPreviewOrder(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPreviewOrder", reflect.TypeOf((*MockUseCase)(nil).GetPreviewOrder), arg0, arg1)
+}
+
+// GetRangeOrders mocks base method.
+func (m *MockUseCase) GetRangeOrders(arg0 uint64, arg1 *models.PaginatorOrders) (*models.RangeOrders, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetRangeOrders", arg0, arg1)
+	ret0, _ := ret[0].(*models.RangeOrders)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetRangeOrders indicates an expected call of GetRangeOrders.
+func (mr *MockUseCaseMockRecorder) GetRangeOrders(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRangeOrders", reflect.TypeOf((*MockUseCase)(nil).GetRangeOrders), arg0, arg1)
 }

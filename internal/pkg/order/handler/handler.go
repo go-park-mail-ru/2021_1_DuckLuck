@@ -11,6 +11,7 @@ import (
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/http_utils"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/logger"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/validator"
 )
 
 type OrderHandler struct {
@@ -83,13 +84,13 @@ func (h *OrderHandler) AddCompletedOrder(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	_, err = h.OrderUCase.AddCompletedOrder(&userOrder, currentSession.UserData.Id, previewCart)
+	orderNumber, err := h.OrderUCase.AddCompletedOrder(&userOrder, currentSession.UserData.Id, previewCart)
 	if err != nil {
 		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
 		return
 	}
 
-	http_utils.SetJSONResponseSuccess(w, http.StatusOK)
+	http_utils.SetJSONResponse(w, orderNumber, http.StatusOK)
 }
 
 func (h *OrderHandler) GetUserOrders(w http.ResponseWriter, r *http.Request) {
@@ -103,7 +104,27 @@ func (h *OrderHandler) GetUserOrders(w http.ResponseWriter, r *http.Request) {
 
 	currentSession := http_utils.MustGetSessionFromContext(r.Context())
 
-	orders, err := h.OrderUCase.GetOrders(currentSession.UserData.Id)
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		http_utils.SetJSONResponse(w, errors.ErrBadRequest, http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	var paginator models.PaginatorOrders
+	err = json.Unmarshal(body, &paginator)
+	if err != nil {
+		http_utils.SetJSONResponse(w, errors.ErrCanNotUnmarshal, http.StatusBadRequest)
+		return
+	}
+
+	err = validator.ValidateStruct(paginator)
+	if err != nil {
+		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusBadRequest)
+		return
+	}
+
+	orders, err := h.OrderUCase.GetRangeOrders(currentSession.UserData.Id, &paginator)
 	if err != nil {
 		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
 		return

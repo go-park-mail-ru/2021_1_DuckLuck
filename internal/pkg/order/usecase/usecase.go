@@ -30,7 +30,13 @@ func (u *OrderUseCase) GetPreviewOrder(userId uint64,
 	previewCart *models.PreviewCart) (*models.PreviewOrder, error) {
 	// Get all info about product in cart
 	previewOrder := &models.PreviewOrder{}
-	previewOrder.Products = previewCart.Products
+	for _, item := range previewCart.Products {
+		previewOrder.Products = append(previewOrder.Products,
+			&models.PreviewOrderedProducts{
+				Id:           item.Id,
+				PreviewImage: item.PreviewImage,
+			})
+	}
 	previewOrder.Price = previewCart.Price
 
 	// Get info about user account for order
@@ -48,23 +54,58 @@ func (u *OrderUseCase) GetPreviewOrder(userId uint64,
 }
 
 func (u *OrderUseCase) AddCompletedOrder(order *models.Order, userId uint64,
-	previewCart *models.PreviewCart) (uint64, error) {
+	previewCart *models.PreviewCart) (*models.OrderNumber, error) {
 	// Get all info about product in cart
 	products := previewCart.Products
 	price := previewCart.Price
 
-	orderId, err := u.OrderRepo.AddOrder(order, userId, products, &price)
+	orderNumber, err := u.OrderRepo.AddOrder(order, userId, products, &price)
 	if err != nil {
-		return 0, errors.ErrInternalError
+		return nil, errors.ErrInternalError
 	}
 
 	if err = u.CartRepo.DeleteCart(userId); err != nil {
-		return 0, errors.ErrCartNotFound
+		return nil, errors.ErrCartNotFound
 	}
 
-	return orderId, nil
+	return orderNumber, nil
 }
 
-func (u *OrderUseCase) GetOrders(userId uint64) ([]*models.Order, error) {
-	return u.OrderRepo.GetOrders(userId)
+func (u *OrderUseCase) GetRangeOrders(userId uint64, paginator *models.PaginatorOrders) (*models.RangeOrders, error) {
+	if paginator.PageNum < 1 || paginator.Count < 1 {
+		return nil, errors.ErrIncorrectPaginator
+	}
+
+	// Max count pages in catalog
+	countPages, err := u.OrderRepo.GetCountPages(userId, paginator.Count)
+	if err != nil {
+		return nil, errors.ErrIncorrectPaginator
+	}
+
+	// Keys for sort items in catalog
+	sortString, err := u.OrderRepo.CreateSortString(paginator.SortKey, paginator.SortDirection)
+	if err != nil {
+		return nil, errors.ErrIncorrectPaginator
+	}
+
+	// Get range of products
+	orders, err := u.OrderRepo.SelectRangeOrders(userId, sortString, paginator)
+	if err != nil {
+		return nil, errors.ErrIncorrectPaginator
+	}
+
+	// Get product for this order
+	for _, item := range orders {
+		products, err := u.OrderRepo.GetProductsInOrder(item.Id)
+		if err != nil {
+			return nil, errors.ErrInternalError
+		}
+
+		item.Products = products
+	}
+
+	return &models.RangeOrders{
+		ListPreviewOrders: orders,
+		MaxCountPages:     countPages,
+	}, nil
 }

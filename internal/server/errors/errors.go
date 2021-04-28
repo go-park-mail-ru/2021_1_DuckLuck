@@ -57,6 +57,9 @@ var (
 	ErrIncorrectPaginator error = Error{
 		Message: "incorrect params of pagination",
 	}
+	ErrIncorrectFilter error = Error{
+		Message: "incorrect params of filter",
+	}
 	ErrBadRequest error = Error{
 		Message: "incorrect request",
 	}
@@ -104,6 +107,12 @@ var (
 	}
 	ErrIncorrectAuthData error = Error{
 		Message: "incorrect auth user data",
+	}
+	ErrNoWriteRights error = Error{
+		Message: "no write rights",
+	}
+	ErrCanNotAddReview error = Error{
+		Message: "user can not add review",
 	}
 	ErrIncorrectSearchQuery error = Error{
 		Message: "incorrect search query",

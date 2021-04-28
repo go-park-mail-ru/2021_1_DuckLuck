@@ -23,6 +23,9 @@ import (
 	product_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/handler"
 	product_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/repository"
 	product_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/usecase"
+	review_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/review/handler"
+	review_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/review/repository"
+	review_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/review/usecase"
 	session_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/session/handler"
 	session_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/session/repository"
 	session_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/session/usecase"
@@ -134,6 +137,10 @@ func main() {
 	orderUCase := order_usecase.NewUseCase(orderRepo, cartRepo, productRepo, userRepo)
 	orderHandler := order_delivery.NewHandler(orderUCase, cartUCase)
 
+	reviewRepo := review_repo.NewSessionPostgresqlRepository(postgreSqlConn)
+	reviewUCase := review_usecase.NewUseCase(reviewRepo, userRepo)
+	reviewHandler := review_delivery.NewHandler(reviewUCase)
+
 	csrfTokenHandler := csrf_token_delivery.NewHandler()
 
 	mainMux := mux.NewRouter()
@@ -151,6 +158,7 @@ func main() {
 	mainMux.HandleFunc("/api/v1/product/search", productHandler.SearchListPreviewProducts).Methods("POST", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/category", categoryHandler.GetCatalogCategories).Methods("GET", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/category/{id:[0-9]+}", categoryHandler.GetSubCategories).Methods("GET", "OPTIONS")
+	mainMux.HandleFunc("/api/v1/review/product/{id:[0-9]+}", reviewHandler.GetReviewsForProduct).Methods("POST", "OPTIONS")
 
 	// Handlers with Auth middleware
 	authMux := mainMux.PathPrefix("/").Subrouter()
@@ -158,7 +166,7 @@ func main() {
 	authMux.Use(middlewareAuth)
 	authMux.HandleFunc("/api/v1/session", sessionHandler.CheckSession).Methods("GET", "OPTIONS")
 	authMux.HandleFunc("/api/v1/user/profile", userHandler.GetProfile).Methods("GET", "OPTIONS")
-	authMux.HandleFunc("/api/v1/user/order", orderHandler.GetUserOrders).Methods("GET", "OPTIONS")
+	authMux.HandleFunc("/api/v1/user/order", orderHandler.GetUserOrders).Methods("POST", "OPTIONS")
 	authMux.HandleFunc("/api/v1/user/logout", userHandler.Logout).Methods("DELETE", "OPTIONS")
 	authMux.HandleFunc("/api/v1/user/profile", userHandler.UpdateProfile).Methods("PUT", "OPTIONS")
 	authMux.HandleFunc("/api/v1/user/profile/avatar", userHandler.GetProfileAvatar).Methods("GET", "OPTIONS")
@@ -170,6 +178,9 @@ func main() {
 	authMux.HandleFunc("/api/v1/cart/product", cartHandler.DeleteProductInCart).Methods("DELETE", "OPTIONS")
 	authMux.HandleFunc("/api/v1/order", orderHandler.GetOrderFromCart).Methods("GET", "OPTIONS")
 	authMux.HandleFunc("/api/v1/order", orderHandler.AddCompletedOrder).Methods("POST", "OPTIONS")
+	authMux.HandleFunc("/api/v1/review/product", reviewHandler.AddNewReview).Methods("POST", "OPTIONS")
+	authMux.HandleFunc("/api/v1/review/rights/product/{id:[0-9]+}", reviewHandler.CheckReviewRights).Methods("GET", "OPTIONS")
+	authMux.HandleFunc("/api/v1/review/statistics/product/{id:[0-9]+}", reviewHandler.GetReviewStatistics).Methods("GET", "OPTIONS")
 
 	server := &http.Server{
 		Addr: fmt.Sprintf("%s:%s",

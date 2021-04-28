@@ -42,8 +42,13 @@ func (u *ProductUseCase) GetRangeProducts(paginator *models.PaginatorProducts) (
 		return nil, errors.ErrIncorrectPaginator
 	}
 
+	var filterString string
+	if paginator.Filter != nil {
+		filterString = u.ProductRepo.CreateFilterString(paginator.Filter)
+	}
+
 	// Max count pages in catalog
-	countPages, err := u.ProductRepo.GetCountPages(paginator.Category, paginator.Count)
+	countPages, err := u.ProductRepo.GetCountPages(paginator.Category, paginator.Count, filterString)
 	if err != nil {
 		return nil, errors.ErrIncorrectPaginator
 	}
@@ -55,7 +60,7 @@ func (u *ProductUseCase) GetRangeProducts(paginator *models.PaginatorProducts) (
 	}
 
 	// Get range of products
-	products, err := u.ProductRepo.SelectRangeProducts(paginator, sortString)
+	products, err := u.ProductRepo.SelectRangeProducts(paginator, sortString, filterString)
 	if err != nil {
 		return nil, errors.ErrIncorrectPaginator
 	}

@@ -8,8 +8,8 @@ import (
 // This models saved in database
 type ProfileUser struct {
 	Id        uint64 `json:"-"`
-	FirstName string `json:"first_name" valid:"utfletter, stringlength(3|30)"`
-	LastName  string `json:"last_name" valid:"utfletter, stringlength(3|30)"`
+	FirstName string `json:"first_name" valid:"utfletter, stringlength(1|30)"`
+	LastName  string `json:"last_name" valid:"utfletter, stringlength(1|30)"`
 	Email     string `json:"email" valid:"email"`
 	Password  []byte `json:"-"`
 	Avatar    Avatar `json:"avatar" valid:"notnull, json"`
@@ -17,13 +17,13 @@ type ProfileUser struct {
 
 // User avatar
 type Avatar struct {
-	Url string `json:"url" valid:"minstringlength(3)"`
+	Url string `json:"url" valid:"minstringlength(1)"`
 }
 
 // Model contains fields for updating user information
 type UpdateUser struct {
-	FirstName string `json:"first_name" valid:"utfletter, stringlength(3|30)"`
-	LastName  string `json:"last_name" valid:"utfletter, stringlength(3|30)"`
+	FirstName string `json:"first_name" valid:"utfletter, stringlength(1|30)"`
+	LastName  string `json:"last_name" valid:"utfletter, stringlength(1|30)"`
 }
 
 func (uu *UpdateUser) Sanitize() {
