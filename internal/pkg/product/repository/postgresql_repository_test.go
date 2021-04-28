@@ -17,9 +17,9 @@ func TestPostgresqlRepository_SelectProductById(t *testing.T) {
 		Id:    productId,
 		Title: "test",
 		Price: models.ProductPrice{
-			Discount: 10,
+			Discount:  10,
 			TotalCost: 18,
-			BaseCost: 20,
+			BaseCost:  20,
 		},
 		Rating:       4,
 		Description:  "description",

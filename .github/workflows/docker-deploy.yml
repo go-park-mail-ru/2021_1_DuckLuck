@@ -1,7 +1,7 @@
 name: Build and deploy
 
 env:
-  TAG: v1.6
+  TAG: v1.7
 
 on:
   push:

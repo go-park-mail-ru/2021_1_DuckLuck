@@ -43,19 +43,50 @@ func (u *ProductUseCase) GetRangeProducts(paginator *models.PaginatorProducts) (
 	}
 
 	// Max count pages in catalog
-	countPages, err := u.ProductRepo.GetCountPages(paginator)
+	countPages, err := u.ProductRepo.GetCountPages(paginator.Category, paginator.Count)
 	if err != nil {
 		return nil, errors.ErrIncorrectPaginator
 	}
 
 	// Keys for sort items in catalog
-	sortString, err := u.ProductRepo.CreateSortString(paginator)
+	sortString, err := u.ProductRepo.CreateSortString(paginator.SortKey, paginator.SortDirection)
 	if err != nil {
 		return nil, errors.ErrIncorrectPaginator
 	}
 
 	// Get range of products
 	products, err := u.ProductRepo.SelectRangeProducts(paginator, sortString)
+	if err != nil {
+		return nil, errors.ErrIncorrectPaginator
+	}
+
+	return &models.RangeProducts{
+		ListPreviewProducts: products,
+		MaxCountPages:       countPages,
+	}, nil
+}
+
+// Find range products by search settings from repo
+func (u *ProductUseCase) SearchRangeProducts(searchQuery *models.SearchQuery) (*models.RangeProducts, error) {
+	if searchQuery.PageNum < 1 || searchQuery.Count < 1 {
+		return nil, errors.ErrIncorrectSearchQuery
+	}
+
+	// Max count pages for this search
+	countPages, err := u.ProductRepo.GetCountSearchPages(searchQuery.Category,
+		searchQuery.Count, searchQuery.QueryString)
+	if err != nil {
+		return nil, errors.ErrIncorrectSearchQuery
+	}
+
+	// Keys for sort items in result of search
+	sortString, err := u.ProductRepo.CreateSortString(searchQuery.SortKey, searchQuery.SortDirection)
+	if err != nil {
+		return nil, errors.ErrIncorrectSearchQuery
+	}
+
+	// Get range of products
+	products, err := u.ProductRepo.SearchRangeProducts(searchQuery, sortString)
 	if err != nil {
 		return nil, errors.ErrIncorrectPaginator
 	}
