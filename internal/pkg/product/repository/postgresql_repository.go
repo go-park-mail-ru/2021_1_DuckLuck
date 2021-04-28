@@ -67,7 +67,7 @@ func (r *PostgresqlRepository) GetCountPages(category uint64, count int, filterS
 			"AND c.right_node <= current_node.right_node "+
 			filterString+
 			" ) ",
-      category,
+		category,
 	)
 
 	var countPages int

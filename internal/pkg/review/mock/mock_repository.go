@@ -49,33 +49,63 @@ func (mr *MockRepositoryMockRecorder) CreateFilterString(arg0 interface{}) *gomo
 }
 
 // CreateSortString mocks base method.
-func (m *MockRepository) CreateSortString(arg0 *models.PaginatorProducts) (string, error) {
+func (m *MockRepository) CreateSortString(arg0, arg1 string) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateSortString", arg0)
+	ret := m.ctrl.Call(m, "CreateSortString", arg0, arg1)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreateSortString indicates an expected call of CreateSortString.
-func (mr *MockRepositoryMockRecorder) CreateSortString(arg0 interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) CreateSortString(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSortString", reflect.TypeOf((*MockRepository)(nil).CreateSortString), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSortString", reflect.TypeOf((*MockRepository)(nil).CreateSortString), arg0, arg1)
 }
 
 // GetCountPages mocks base method.
-func (m *MockRepository) GetCountPages(arg0 *models.PaginatorProducts, arg1 string) (int, error) {
+func (m *MockRepository) GetCountPages(arg0 uint64, arg1 int, arg2 string) (int, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetCountPages", arg0, arg1)
+	ret := m.ctrl.Call(m, "GetCountPages", arg0, arg1, arg2)
 	ret0, _ := ret[0].(int)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetCountPages indicates an expected call of GetCountPages.
-func (mr *MockRepositoryMockRecorder) GetCountPages(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) GetCountPages(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCountPages", reflect.TypeOf((*MockRepository)(nil).GetCountPages), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCountPages", reflect.TypeOf((*MockRepository)(nil).GetCountPages), arg0, arg1, arg2)
+}
+
+// GetCountSearchPages mocks base method.
+func (m *MockRepository) GetCountSearchPages(arg0 uint64, arg1 int, arg2 string) (int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCountSearchPages", arg0, arg1, arg2)
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCountSearchPages indicates an expected call of GetCountSearchPages.
+func (mr *MockRepositoryMockRecorder) GetCountSearchPages(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCountSearchPages", reflect.TypeOf((*MockRepository)(nil).GetCountSearchPages), arg0, arg1, arg2)
+}
+
+// SearchRangeProducts mocks base method.
+func (m *MockRepository) SearchRangeProducts(arg0 *models.SearchQuery, arg1 string) ([]*models.ViewProduct, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SearchRangeProducts", arg0, arg1)
+	ret0, _ := ret[0].([]*models.ViewProduct)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SearchRangeProducts indicates an expected call of SearchRangeProducts.
+func (mr *MockRepositoryMockRecorder) SearchRangeProducts(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SearchRangeProducts", reflect.TypeOf((*MockRepository)(nil).SearchRangeProducts), arg0, arg1)
 }
 
 // SelectProductById mocks base method.

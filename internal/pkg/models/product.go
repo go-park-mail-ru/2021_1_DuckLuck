@@ -49,13 +49,18 @@ type RangeProducts struct {
 	MaxCountPages       int            `json:"max_count_pages"`
 }
 
+type SortOptions struct {
+	SortKey       string `json:"sort_key" valid:"in(cost|rating|date|discount)"`
+	SortDirection string `json:"sort_direction" valid:"in(ASC|DESC)"`
+}
+
 // Paginator for showing page of product
 type PaginatorProducts struct {
 	PageNum       int            `json:"page_num"`
 	Count         int            `json:"count"`
 	Category      uint64         `json:"category"`
 	Filter        *ProductFilter `json:"filter"`
-  SortOptions
+	SortOptions
 }
 
 func (pp *PaginatorProducts) Sanitize() {
@@ -70,6 +75,7 @@ type ProductFilter struct {
 	IsNew      bool   `json:"is_new"`
 	IsRating   bool   `json:"is_rating"`
 	IsDiscount bool   `json:"is_discount"`
+}
 
 // Search query with options
 type SearchQuery struct {
@@ -85,9 +91,4 @@ func (sq *SearchQuery) Sanitize() {
 	sq.QueryString = sanitizer.Sanitize(sq.QueryString)
 	sq.SortKey = sanitizer.Sanitize(sq.SortKey)
 	sq.SortDirection = sanitizer.Sanitize(sq.SortDirection)
-}
-
-type SortOptions struct {
-	SortKey       string `json:"sort_key" valid:"in(cost|rating|date|discount)"`
-	SortDirection string `json:"sort_direction" valid:"in(ASC|DESC)"`
 }

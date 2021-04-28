@@ -64,18 +64,18 @@ func (mr *MockRepositoryMockRecorder) CreateSortString(arg0, arg1 interface{}) *
 }
 
 // GetCountPages mocks base method.
-func (m *MockRepository) GetCountPages(arg0 uint64, arg1 int) (int, error) {
+func (m *MockRepository) GetCountPages(arg0 uint64, arg1 int, arg2 string) (int, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetCountPages", arg0, arg1)
+	ret := m.ctrl.Call(m, "GetCountPages", arg0, arg1, arg2)
 	ret0, _ := ret[0].(int)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetCountPages indicates an expected call of GetCountPages.
-func (mr *MockRepositoryMockRecorder) GetCountPages(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) GetCountPages(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCountPages", reflect.TypeOf((*MockRepository)(nil).GetCountPages), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCountPages", reflect.TypeOf((*MockRepository)(nil).GetCountPages), arg0, arg1, arg2)
 }
 
 // GetCountSearchPages mocks base method.

@@ -63,3 +63,18 @@ func (mr *MockUseCaseMockRecorder) GetRangeProducts(arg0 interface{}) *gomock.Ca
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRangeProducts", reflect.TypeOf((*MockUseCase)(nil).GetRangeProducts), arg0)
 }
+
+// SearchRangeProducts mocks base method.
+func (m *MockUseCase) SearchRangeProducts(arg0 *models.SearchQuery) (*models.RangeProducts, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SearchRangeProducts", arg0)
+	ret0, _ := ret[0].(*models.RangeProducts)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SearchRangeProducts indicates an expected call of SearchRangeProducts.
+func (mr *MockUseCaseMockRecorder) SearchRangeProducts(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SearchRangeProducts", reflect.TypeOf((*MockUseCase)(nil).SearchRangeProducts), arg0)
+}
