@@ -34,19 +34,20 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
 }
 
-// GetAllSubCategoriesId mocks base method.
-func (m *MockRepository) GetAllSubCategoriesId(arg0 uint64) ([]uint64, error) {
+// GetBordersOfBranch mocks base method.
+func (m *MockRepository) GetBordersOfBranch(arg0 uint64) (uint64, uint64, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAllSubCategoriesId", arg0)
-	ret0, _ := ret[0].([]uint64)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret := m.ctrl.Call(m, "GetBordersOfBranch", arg0)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(uint64)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
 }
 
-// GetAllSubCategoriesId indicates an expected call of GetAllSubCategoriesId.
-func (mr *MockRepositoryMockRecorder) GetAllSubCategoriesId(arg0 interface{}) *gomock.Call {
+// GetBordersOfBranch indicates an expected call of GetBordersOfBranch.
+func (mr *MockRepositoryMockRecorder) GetBordersOfBranch(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllSubCategoriesId", reflect.TypeOf((*MockRepository)(nil).GetAllSubCategoriesId), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBordersOfBranch", reflect.TypeOf((*MockRepository)(nil).GetBordersOfBranch), arg0)
 }
 
 // GetCategoriesByLevel mocks base method.

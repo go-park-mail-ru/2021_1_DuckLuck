@@ -5,8 +5,10 @@ import (
 )
 
 var (
-	ProductsCostSort   = "cost"
-	ProductsRatingSort = "rating"
+	ProductsCostSort      = "cost"
+	ProductsRatingSort    = "rating"
+	ProductsDateAddedSort = "date"
+	ProductsDiscountSort  = "discount"
 
 	PaginatorASC  = "ASC"
 	PaginatorDESC = "DESC"
@@ -38,8 +40,9 @@ type ViewProduct struct {
 // Price product kept in integer nums
 // and contains base price and discount
 type ProductPrice struct {
-	Discount int `json:"discount"`
-	BaseCost int `json:"base_cost"`
+	Discount  int `json:"discount"`
+	BaseCost  int `json:"base_cost"`
+	TotalCost int `json:"total_cost"`
 }
 
 // Set of product with count uniq sets of this size
@@ -52,8 +55,8 @@ type RangeProducts struct {
 type PaginatorProducts struct {
 	PageNum       int    `json:"page_num"`
 	Count         int    `json:"count"`
-	SortKey       string `json:"sort_key" valid:"in(cost|rating)"`
-	SortDirection string `json:"sort_direction" valid:"in(ASC|DECS)"`
+	SortKey       string `json:"sort_key" valid:"in(cost|rating|date|discount)"`
+	SortDirection string `json:"sort_direction" valid:"in(ASC|DESC)"`
 	Category      uint64 `json:"category"`
 }
 

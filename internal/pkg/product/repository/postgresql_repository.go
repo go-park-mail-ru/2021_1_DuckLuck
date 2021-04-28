@@ -25,7 +25,7 @@ func NewSessionPostgresqlRepository(db *sql.DB) product.Repository {
 // Select one product by id
 func (r *PostgresqlRepository) SelectProductById(productId uint64) (*models.Product, error) {
 	row := r.db.QueryRow(
-		"SELECT id, title, rating, description, base_cost, discount, images, id_category "+
+		"SELECT id, title, rating, description, base_cost, total_cost, discount, images, id_category "+
 			"FROM products WHERE id = $1",
 		productId,
 	)
@@ -38,6 +38,7 @@ func (r *PostgresqlRepository) SelectProductById(productId uint64) (*models.Prod
 		&productById.Rating,
 		&description,
 		&productById.Price.BaseCost,
+		&productById.Price.TotalCost,
 		&productById.Price.Discount,
 		pq.Array(&productById.Images),
 		&productById.Category,
@@ -51,44 +52,79 @@ func (r *PostgresqlRepository) SelectProductById(productId uint64) (*models.Prod
 	return &productById, nil
 }
 
-// Select range of products by paginate settings
-func (r *PostgresqlRepository) SelectRangeProducts(paginator *models.PaginatorProducts,
-	categories *[]uint64) (*models.RangeProducts, error) {
+// Get count of all pages for this category
+func (r *PostgresqlRepository) GetCountPages(paginator *models.PaginatorProducts) (int, error) {
 	row := r.db.QueryRow(
-		"SELECT count(*) FROM products "+
-			"WHERE id_category = ANY($1)",
-		pq.Array(*categories),
+		"WITH current_node AS ( "+
+			"SELECT c.left_node, c.right_node "+
+			"FROM categories c "+
+			"WHERE c.id = $1 "+
+			") "+
+			"SELECT count(p.id) "+
+			"FROM current_node, products p "+
+			"JOIN categories c ON c.id = p.id_category "+
+			"WHERE (c.left_node >= current_node.left_node "+
+			"AND c.right_node <= current_node.right_node)",
+		paginator.Category,
 	)
 
 	var countPages int
 	if err := row.Scan(&countPages); err != nil {
-		return nil, errors.ErrDBInternalError
+		return 0, errors.ErrDBInternalError
 	}
 	countPages = int(math.Ceil(float64(countPages) / float64(paginator.Count)))
 
-	var sortString string
+	return countPages, nil
+}
+
+// Create sort string from paginator options
+func (r *PostgresqlRepository) CreateSortString(paginator *models.PaginatorProducts) (string, error) {
+	// Select order target
+	var orderTarget string
 	switch paginator.SortKey {
 	case models.ProductsCostSort:
-		if paginator.SortDirection == models.PaginatorASC {
-			sortString = fmt.Sprintf("ORDER BY base_cost ASC ")
-		} else if paginator.SortDirection == models.PaginatorDESC {
-			sortString = fmt.Sprintf("ORDER BY base_cost DESC ")
-		}
+		orderTarget = "total_cost"
 	case models.ProductsRatingSort:
-		if paginator.SortDirection == models.PaginatorASC {
-			sortString = fmt.Sprintf("ORDER BY rating ASC ")
-		} else if paginator.SortDirection == models.PaginatorDESC {
-			sortString = fmt.Sprintf("ORDER BY rating DESC ")
-		}
+		orderTarget = "rating"
+	case models.ProductsDateAddedSort:
+		orderTarget = "date_added"
+	case models.ProductsDiscountSort:
+		orderTarget = "discount"
+	default:
+		return "", errors.ErrIncorrectPaginator
 	}
 
+	// Select order direction
+	var orderDirection string
+	switch paginator.SortDirection {
+	case models.PaginatorASC:
+		orderDirection = "ASC"
+	case models.PaginatorDESC:
+		orderDirection = "DESC"
+	default:
+		return "", errors.ErrIncorrectPaginator
+	}
+
+	return fmt.Sprintf("ORDER BY %s %s ", orderTarget, orderDirection), nil
+}
+
+// Select range of products by paginate settings
+func (r *PostgresqlRepository) SelectRangeProducts(paginator *models.PaginatorProducts,
+	sortString string) ([]*models.ViewProduct, error) {
 	rows, err := r.db.Query(
-		"SELECT id, title, base_cost, discount, rating, images[1] "+
-			"FROM products "+
-			"WHERE id_category = ANY($1) "+
+		"WITH current_node AS ( "+
+			"SELECT c.left_node, c.right_node "+
+			"FROM categories c "+
+			"WHERE c.id = $1 "+
+			") "+
+			"SELECT p.id, p.title, p.base_cost, p.total_cost, p.discount, p.rating, p.images[1] "+
+			"FROM current_node, products p "+
+			"JOIN categories c ON c.id = p.id_category "+
+			"WHERE (c.left_node >= current_node.left_node "+
+			"AND c.right_node <= current_node.right_node) "+
 			sortString+
 			"LIMIT $2 OFFSET $3",
-		pq.Array(*categories),
+		paginator.Category,
 		paginator.Count,
 		paginator.Count*(paginator.PageNum-1),
 	)
@@ -104,6 +140,7 @@ func (r *PostgresqlRepository) SelectRangeProducts(paginator *models.PaginatorPr
 			&product.Id,
 			&product.Title,
 			&product.Price.BaseCost,
+			&product.Price.TotalCost,
 			&product.Price.Discount,
 			&product.Rating,
 			&product.PreviewImage,
@@ -114,8 +151,5 @@ func (r *PostgresqlRepository) SelectRangeProducts(paginator *models.PaginatorPr
 		products = append(products, product)
 	}
 
-	return &models.RangeProducts{
-		ListPreviewProducts: products,
-		MaxCountPages:       countPages,
-	}, nil
+	return products, nil
 }
