@@ -48,31 +48,31 @@ func (mr *MockRepositoryMockRecorder) AddSession(arg0 interface{}) *gomock.Call 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddSession", reflect.TypeOf((*MockRepository)(nil).AddSession), arg0)
 }
 
-// DeleteByValue mocks base method.
-func (m *MockRepository) DeleteByValue(arg0 string) error {
+// DeleteSessionByValue mocks base method.
+func (m *MockRepository) DeleteSessionByValue(arg0 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteByValue", arg0)
+	ret := m.ctrl.Call(m, "DeleteSessionByValue", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// DeleteByValue indicates an expected call of DeleteByValue.
-func (mr *MockRepositoryMockRecorder) DeleteByValue(arg0 interface{}) *gomock.Call {
+// DeleteSessionByValue indicates an expected call of DeleteSessionByValue.
+func (mr *MockRepositoryMockRecorder) DeleteSessionByValue(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteByValue", reflect.TypeOf((*MockRepository)(nil).DeleteByValue), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteSessionByValue", reflect.TypeOf((*MockRepository)(nil).DeleteSessionByValue), arg0)
 }
 
-// SelectSessionByValue mocks base method.
-func (m *MockRepository) SelectSessionByValue(arg0 string) (*models.Session, error) {
+// SelectUserIdBySession mocks base method.
+func (m *MockRepository) SelectUserIdBySession(arg0 string) (uint64, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SelectSessionByValue", arg0)
-	ret0, _ := ret[0].(*models.Session)
+	ret := m.ctrl.Call(m, "SelectUserIdBySession", arg0)
+	ret0, _ := ret[0].(uint64)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// SelectSessionByValue indicates an expected call of SelectSessionByValue.
-func (mr *MockRepositoryMockRecorder) SelectSessionByValue(arg0 interface{}) *gomock.Call {
+// SelectUserIdBySession indicates an expected call of SelectUserIdBySession.
+func (mr *MockRepositoryMockRecorder) SelectUserIdBySession(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectSessionByValue", reflect.TypeOf((*MockRepository)(nil).SelectSessionByValue), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectUserIdBySession", reflect.TypeOf((*MockRepository)(nil).SelectUserIdBySession), arg0)
 }

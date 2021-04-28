@@ -1,4 +1,5 @@
 # DuckLuck
+[![Build And Deploy Status](https://github.com/go-park-mail-ru/2021_1_DuckLuck/actions/workflows/docker-deploy.yml/badge.svg)](https://github.com/go-park-mail-ru/2021_1_DuckLuck/actions/workflows/docker-deploy.yml)
 
 Backend репозиторий команды DuckLuck
 

@@ -35,10 +35,10 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 }
 
 // AddProfile mocks base method.
-func (m *MockRepository) AddProfile(arg0 *models.SignupUser) (*models.ProfileUser, error) {
+func (m *MockRepository) AddProfile(arg0 *models.ProfileUser) (uint64, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddProfile", arg0)
-	ret0, _ := ret[0].(*models.ProfileUser)
+	ret0, _ := ret[0].(uint64)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

@@ -1,124 +1,232 @@
 package usecase
 
 import (
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
+	"testing"
+
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user/mock"
-	server_errors "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/hasher"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/s3_utils"
+
 	"github.com/golang/mock/gomock"
-	"github.com/stretchr/testify/require"
-	"testing"
+	"github.com/stretchr/testify/assert"
 )
 
-const goodId = uint64(1)
-const badId = uint64(999)
-const goodEmail = "goodEmail"
-const goodPassword = "goodPassword"
-const badEmail = "badEmail"
-const badPassword = "badPassword"
-const goodAvatar = "avatar"
-
-var retUser = &models.ProfileUser{
-	Id:       goodId,
-	Password: goodPassword,
-	Email:    goodEmail,
-	Avatar: models.Avatar{
-		Url: goodAvatar,
-	},
-}
-
-var err error
-
 func TestUserUseCase_Authorize(t *testing.T) {
-	authUser := &models.LoginUser{
-		Email:    goodEmail,
-		Password: goodPassword,
+	loginUser := models.LoginUser{
+		Email:    "test@test.ru",
+		Password: "qwerty",
 	}
 
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
+	incorrectLoginUser := models.LoginUser{
+		Email:    "test@test.ru",
+		Password: "qwer",
+	}
 
-	mockRepository := mock.NewMockRepository(ctrl)
-	mockRepository.EXPECT().SelectProfileByEmail(goodEmail).Times(2).Return(retUser, nil)
-	mockRepository.EXPECT().SelectProfileByEmail(badEmail).Times(1).Return(nil, server_errors.ErrIncorrectUserEmail)
+	hashedPassword, _ := hasher.GenerateHashFromPassword("qwerty")
+	profileUser := models.ProfileUser{
+		Id:        1,
+		FirstName: "test",
+		LastName:  "last",
+		Email:     "test@test.ru",
+		Password:  hashedPassword,
+		Avatar: models.Avatar{
+			Url: "httt://test.png",
+		},
+	}
 
-	useCase := NewUseCase(mockRepository)
+	t.Run("Authorize_success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
 
-	var res *models.ProfileUser
+		userRep := mock.NewMockRepository(ctrl)
 
-	res, err = useCase.Authorize(authUser)
-	require.NoError(t, err)
-	require.Equal(t, res, retUser)
+		userRep.
+			EXPECT().
+			SelectProfileByEmail(loginUser.Email).
+			Return(&profileUser, nil)
 
-	authUser.Password = badPassword
-	res, err = useCase.Authorize(authUser)
-	require.Error(t, err, server_errors.ErrIncorrectUserPassword)
-	require.Nil(t, res)
-	authUser.Password = goodPassword
+		userUCase := NewUseCase(userRep)
 
-	authUser.Email = badEmail
-	res, err = useCase.Authorize(authUser)
-	require.Error(t, err, server_errors.ErrIncorrectUserEmail)
-	require.Nil(t, res)
-}
+		userData, err := userUCase.Authorize(&loginUser)
+		assert.NoError(t, err, "unexpected error")
+		assert.Equal(t, *userData, profileUser, "not equal data")
+	})
 
-func TestUserUseCase_SetAvatar(t *testing.T) {
+	t.Run("Authorize_incorrect_password", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
 
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
+		userRep := mock.NewMockRepository(ctrl)
 
-	mockRepository := mock.NewMockRepository(ctrl)
-	mockRepository.EXPECT().SelectProfileById(goodId).Times(1).Return(retUser, nil)
-	mockRepository.EXPECT().UpdateAvatar(goodId, configs.UrlToAvatar+goodAvatar).Times(1).Return(nil)
+		userRep.
+			EXPECT().
+			SelectProfileByEmail(loginUser.Email).
+			Return(&profileUser, nil)
 
-	useCase := NewUseCase(mockRepository)
+		userUCase := NewUseCase(userRep)
 
-	var res string
+		_, err := userUCase.Authorize(&incorrectLoginUser)
+		assert.Equal(t, err, errors.ErrIncorrectAuthData, "expected error")
+	})
 
-	res, err = useCase.SetAvatar(goodId, goodAvatar)
-	require.NoError(t, err)
-	require.Equal(t, res, configs.UrlToAvatar+goodAvatar)
+	t.Run("Authorize_incorrect_email", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		userRep := mock.NewMockRepository(ctrl)
+
+		userRep.
+			EXPECT().
+			SelectProfileByEmail(loginUser.Email).
+			Return(nil, errors.ErrDBInternalError)
+
+		userUCase := NewUseCase(userRep)
+
+		_, err := userUCase.Authorize(&incorrectLoginUser)
+		assert.Equal(t, err, errors.ErrIncorrectAuthData, "expected error")
+	})
 }
 
 func TestUserUseCase_GetAvatar(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
+	profileUser := models.ProfileUser{
+		Id:        1,
+		FirstName: "test",
+		LastName:  "last",
+		Email:     "test@test.ru",
+		Password:  []byte{1, 2, 3, 43, 32},
+		Avatar: models.Avatar{
+			Url: "test.png",
+		},
+	}
+	fileUrl := s3_utils.PathToFile(profileUser.Avatar.Url)
 
-	mockRepository := mock.NewMockRepository(ctrl)
-	mockRepository.EXPECT().SelectProfileById(goodId).Times(1).Return(retUser, nil)
-	mockRepository.EXPECT().SelectProfileById(badId).Times(1).Return(nil, server_errors.ErrUserNotFound)
+	t.Run("GetAvatar_success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
 
-	useCase := NewUseCase(mockRepository)
+		userRep := mock.NewMockRepository(ctrl)
 
-	var res string
+		userRep.
+			EXPECT().
+			SelectProfileById(profileUser.Id).
+			Return(&profileUser, nil)
 
-	res, err = useCase.GetAvatar(goodId)
-	require.NoError(t, err)
-	require.Equal(t, res, goodAvatar)
+		userUCase := NewUseCase(userRep)
 
-	res, err = useCase.GetAvatar(badId)
-	require.Error(t, err, server_errors.ErrUserNotFound)
-	require.Equal(t, res, "")
+		url, err := userUCase.GetAvatar(profileUser.Id)
+		assert.NoError(t, err, "unexpected error")
+		assert.Equal(t, fileUrl, url, "not equal data")
+	})
+
+	t.Run("GetAvatar_user_not_found", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		userRep := mock.NewMockRepository(ctrl)
+
+		userRep.
+			EXPECT().
+			SelectProfileById(profileUser.Id).
+			Return(nil, errors.ErrDBInternalError)
+
+		userUCase := NewUseCase(userRep)
+
+		_, err := userUCase.GetAvatar(profileUser.Id)
+		assert.Equal(t, errors.ErrUserNotFound, err, "not equal errors")
+	})
 }
 
 func TestUserUseCase_UpdateProfile(t *testing.T) {
-	updateUser := &models.UpdateUser{
-		FirstName: "newFirstName",
-		LastName:  "newLastName",
+	updateUser := models.UpdateUser{
+		FirstName: "test",
+		LastName:  "last test",
+	}
+	userId := uint64(3)
+
+	t.Run("UpdateProfile_success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		userRep := mock.NewMockRepository(ctrl)
+
+		userRep.
+			EXPECT().
+			UpdateProfile(userId, &updateUser).
+			Return(nil)
+
+		userUCase := NewUseCase(userRep)
+
+		err := userUCase.UpdateProfile(userId, &updateUser)
+		assert.NoError(t, err, "unexpected error")
+	})
+}
+
+func TestUserUseCase_GetUserById(t *testing.T) {
+	profileUser := models.ProfileUser{
+		Id:        3,
+		FirstName: "test",
+		LastName:  "last",
+		Email:     "test@test.ru",
+		Password:  []byte{1, 2, 3, 43, 32},
+		Avatar: models.Avatar{
+			Url: "test.png",
+		},
+	}
+	userId := uint64(3)
+
+	t.Run("UpdateProfile_success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		userRep := mock.NewMockRepository(ctrl)
+
+		userRep.
+			EXPECT().
+			SelectProfileById(userId).
+			Return(&profileUser, nil)
+
+		userUCase := NewUseCase(userRep)
+
+		data, err := userUCase.GetUserById(userId)
+		assert.NoError(t, err, "unexpected error")
+		assert.Equal(t, *data, profileUser, "not equal data")
+	})
+}
+
+func TestUserUseCase_AddUser(t *testing.T) {
+	signupUser := models.SignupUser{
+		Email:    "test@test.ru",
+		Password: "qwerty",
 	}
 
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
+	hashedPassword, _ := hasher.GenerateHashFromPassword("qwerty")
+	profileUser := models.ProfileUser{
+		Id:        1,
+		FirstName: "test",
+		LastName:  "last",
+		Email:     "test@test.ru",
+		Password:  hashedPassword,
+		Avatar: models.Avatar{
+			Url: "httt://test.png",
+		},
+	}
 
-	mockRepository := mock.NewMockRepository(ctrl)
-	mockRepository.EXPECT().UpdateProfile(goodId, updateUser).Times(1).Return(nil)
-	mockRepository.EXPECT().UpdateProfile(badId, updateUser).Times(1).Return(server_errors.ErrUserNotFound)
+	t.Run("AddUser_success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
 
-	useCase := NewUseCase(mockRepository)
+		userRep := mock.NewMockRepository(ctrl)
 
-	err = useCase.UpdateProfile(goodId, updateUser)
-	require.NoError(t, err)
+		userRep.
+			EXPECT().
+			SelectProfileByEmail(profileUser.Email).
+			Return(&profileUser, nil)
 
-	err = useCase.UpdateProfile(badId, updateUser)
-	require.Error(t, err, server_errors.ErrUserNotFound)
+		userUCase := NewUseCase(userRep)
+
+		_, err := userUCase.AddUser(&signupUser)
+		assert.Equal(t, errors.ErrEmailAlreadyExist, err, "not equal errors")
+	})
 }

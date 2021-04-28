@@ -15,7 +15,7 @@ func Cors(next http.Handler) http.Handler {
 			w.Header().Add("Content-Type", "text/plain")
 			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS")
 			w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, "+
-				"Accept-Encoding, Authorization")
+				"Accept-Encoding, Authorization, X-CSRF-TOKEN")
 			w.WriteHeader(http.StatusNoContent)
 			return
 		}

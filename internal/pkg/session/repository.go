@@ -8,6 +8,6 @@ import (
 
 type Repository interface {
 	AddSession(session *models.Session) error
-	SelectSessionByValue(sessionValue string) (*models.Session, error)
-	DeleteByValue(sessionValue string) error
+	SelectUserIdBySession(sessionValue string) (uint64, error)
+	DeleteSessionByValue(sessionValue string) error
 }

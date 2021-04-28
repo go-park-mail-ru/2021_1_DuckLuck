@@ -8,5 +8,5 @@ import (
 
 type Repository interface {
 	SelectProductById(productId uint64) (*models.Product, error)
-	SelectRangeProducts(paginator *models.PaginatorProducts) (*models.RangeProducts, error)
+	SelectRangeProducts(paginator *models.PaginatorProducts, categories *[]uint64) (*models.RangeProducts, error)
 }

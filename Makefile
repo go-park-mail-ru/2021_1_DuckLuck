@@ -1,13 +1,19 @@
-.PHONY: run
-run_main_server:
-	go run cmd/server/main.go
-
-.PHONY: run
-run_file_server:
-	go run cmd/fileserver/main.go
+.PHONY: build
+build:
+	go build -o bin/server -v ./cmd/server
 
 .PHONY: test
 test:
+	go test ./...
+
+.PHONY: cover
+cover:
 	go test -coverprofile=coverage1.out -coverpkg=./... -cover ./...
 	cat coverage1.out | grep -v mock > cover.out
 	go tool cover -func cover.out && go tool cover -html cover.out
+
+.PHONY: init_db
+init_db:
+	sudo -u postgres psql -f configs/init.sql
+
+.DEFAULT_GOAL := build

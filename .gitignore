@@ -1,6 +1,9 @@
 # Project gitignore
+configs/envs
 .idea
+bin
 go.sum
+log/log.txt
 
 # Binaries for programs and plugins
 *.exe
