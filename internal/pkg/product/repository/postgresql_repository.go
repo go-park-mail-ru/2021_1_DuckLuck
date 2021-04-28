@@ -53,7 +53,7 @@ func (r *PostgresqlRepository) SelectProductById(productId uint64) (*models.Prod
 }
 
 // Get count of all pages for this category
-func (r *PostgresqlRepository) GetCountPages(paginator *models.PaginatorProducts, filterString string) (int, error) {
+func (r *PostgresqlRepository) GetCountPages(category uint64, count int, filterString string) (int, error) {
 	row := r.db.QueryRow(
 		"WITH current_node AS ( "+
 			"SELECT c.left_node, c.right_node "+
@@ -67,23 +67,50 @@ func (r *PostgresqlRepository) GetCountPages(paginator *models.PaginatorProducts
 			"AND c.right_node <= current_node.right_node "+
 			filterString+
 			" ) ",
-		paginator.Category,
+      category,
 	)
 
 	var countPages int
 	if err := row.Scan(&countPages); err != nil {
 		return 0, errors.ErrDBInternalError
 	}
-	countPages = int(math.Ceil(float64(countPages) / float64(paginator.Count)))
+	countPages = int(math.Ceil(float64(countPages) / float64(count)))
+
+	return countPages, nil
+}
+
+// Get count of all pages for this search
+func (r *PostgresqlRepository) GetCountSearchPages(category uint64, count int, searchString string) (int, error) {
+	row := r.db.QueryRow(
+		"WITH current_node AS ( "+
+			"SELECT c.left_node, c.right_node "+
+			"FROM categories c "+
+			"WHERE c.id = $1 "+
+			") "+
+			"SELECT count(p.id) "+
+			"FROM current_node, products p "+
+			"JOIN categories c ON c.id = p.id_category "+
+			"WHERE (c.left_node >= current_node.left_node "+
+			"AND c.right_node <= current_node.right_node "+
+			"AND p.fts @@ plainto_tsquery('ru', $2))",
+		category,
+		searchString,
+	)
+
+	var countPages int
+	if err := row.Scan(&countPages); err != nil {
+		return 0, errors.ErrDBInternalError
+	}
+	countPages = int(math.Ceil(float64(countPages) / float64(count)))
 
 	return countPages, nil
 }
 
 // Create sort string from paginator options
-func (r *PostgresqlRepository) CreateSortString(paginator *models.PaginatorProducts) (string, error) {
+func (r *PostgresqlRepository) CreateSortString(sortKey, sortDirection string) (string, error) {
 	// Select order target
 	var orderTarget string
-	switch paginator.SortKey {
+	switch sortKey {
 	case models.ProductsCostSort:
 		orderTarget = "total_cost"
 	case models.ProductsRatingSort:
@@ -98,7 +125,7 @@ func (r *PostgresqlRepository) CreateSortString(paginator *models.PaginatorProdu
 
 	// Select order direction
 	var orderDirection string
-	switch paginator.SortDirection {
+	switch sortDirection {
 	case models.PaginatorASC:
 		orderDirection = "ASC"
 	case models.PaginatorDESC:
@@ -154,6 +181,54 @@ func (r *PostgresqlRepository) SelectRangeProducts(paginator *models.PaginatorPr
 	)
 	if err != nil {
 		return nil, errors.ErrIncorrectPaginator
+	}
+	defer rows.Close()
+
+	products := make([]*models.ViewProduct, 0)
+	for rows.Next() {
+		product := &models.ViewProduct{}
+		err = rows.Scan(
+			&product.Id,
+			&product.Title,
+			&product.Price.BaseCost,
+			&product.Price.TotalCost,
+			&product.Price.Discount,
+			&product.Rating,
+			&product.PreviewImage,
+		)
+		if err != nil {
+			return nil, err
+		}
+		products = append(products, product)
+	}
+
+	return products, nil
+}
+
+// Find list of products by query string
+func (r *PostgresqlRepository) SearchRangeProducts(searchQuery *models.SearchQuery,
+	sortString string) ([]*models.ViewProduct, error) {
+	rows, err := r.db.Query(
+		"WITH current_node AS ( "+
+			"SELECT c.left_node, c.right_node "+
+			"FROM categories c "+
+			"WHERE c.id = $1 "+
+			") "+
+			"SELECT p.id, p.title, p.base_cost, p.total_cost, p.discount, p.rating, p.images[1] "+
+			"FROM current_node, products p "+
+			"JOIN categories c ON c.id = p.id_category "+
+			"WHERE (c.left_node >= current_node.left_node "+
+			"AND c.right_node <= current_node.right_node "+
+			"AND p.fts @@ plainto_tsquery('ru', $2)) "+
+			sortString+
+			"LIMIT $3 OFFSET $4",
+		searchQuery.Category,
+		searchQuery.QueryString,
+		searchQuery.Count,
+		searchQuery.Count*(searchQuery.PageNum-1),
+	)
+	if err != nil {
+		return nil, errors.ErrIncorrectSearchQuery
 	}
 	defer rows.Close()
 

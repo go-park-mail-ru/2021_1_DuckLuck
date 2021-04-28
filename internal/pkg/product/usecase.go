@@ -7,4 +7,5 @@ import "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 type UseCase interface {
 	GetProductById(productId uint64) (*models.Product, error)
 	GetRangeProducts(paginator *models.PaginatorProducts) (*models.RangeProducts, error)
+	SearchRangeProducts(searchQuery *models.SearchQuery) (*models.RangeProducts, error)
 }

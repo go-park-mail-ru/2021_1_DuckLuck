@@ -113,5 +113,8 @@ var (
 	}
 	ErrCanNotAddReview error = Error{
 		Message: "user can not add review",
+  }
+	ErrIncorrectSearchQuery error = Error{
+		Message: "incorrect search query",
 	}
 )

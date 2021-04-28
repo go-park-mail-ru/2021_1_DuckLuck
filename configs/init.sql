@@ -9,6 +9,21 @@ GRANT ALL PRIVILEGES ON database ozon_db TO ozon_root;
 \connect ozon_db;
 
 
+CREATE TEXT SEARCH DICTIONARY russian_ispell (
+    TEMPLATE = ispell,
+    DictFile = russian,
+    AffFile = russian,
+    StopWords = russian
+);
+
+CREATE TEXT SEARCH CONFIGURATION ru (COPY=russian);
+
+ALTER TEXT SEARCH CONFIGURATION ru
+    ALTER MAPPING FOR hword, hword_part, word
+    WITH russian_ispell, russian_stem;
+
+SET default_text_search_config = 'ru';
+
 DROP TABLE IF EXISTS users CASCADE;
 CREATE TABLE users (
     id SERIAL NOT NULL PRIMARY KEY,
@@ -34,7 +49,6 @@ CREATE TABLE categories (
 );
 
 
-
 DROP TABLE IF EXISTS products CASCADE;
 CREATE TABLE products (
     id SERIAL NOT NULL PRIMARY KEY,
@@ -47,6 +61,8 @@ CREATE TABLE products (
     images TEXT[] NOT NULL,
     id_category INTEGER NOT NULL,
     date_added TIMESTAMP NOT NULL DEFAULT NOW(),
+
+    fts TSVECTOR,
 
     FOREIGN KEY (id_category) REFERENCES categories(id),
 
@@ -64,6 +80,24 @@ CREATE SEQUENCE order_serial
     START WITH 17
     INCREMENT 3
     CACHE 20;
+    
+DROP INDEX IF EXISTS products_fts CASCADE;
+CREATE INDEX products_fts ON products USING GIN (fts);
+
+DROP FUNCTION IF EXISTS create_fts CASCADE;
+CREATE OR REPLACE FUNCTION create_fts() RETURNS TRIGGER AS $$
+BEGIN
+    NEW.fts = setweight(to_tsvector('ru', NEW.title), 'A')
+        || setweight(to_tsvector('ru', NEW.description), 'B');
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS t_create_fts on products CASCADE;
+CREATE TRIGGER t_create_fts
+    BEFORE INSERT ON products
+    FOR EACH ROW
+    EXECUTE PROCEDURE create_fts();
 
 DROP TABLE IF EXISTS user_orders CASCADE;
 CREATE TABLE user_orders (
