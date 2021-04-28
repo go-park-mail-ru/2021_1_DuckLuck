@@ -8,8 +8,9 @@ import (
 
 type Repository interface {
 	SelectProductById(productId uint64) (*models.Product, error)
-	GetCountPages(paginator *models.PaginatorProducts) (int, error)
+	GetCountPages(paginator *models.PaginatorProducts, filterString string) (int, error)
 	CreateSortString(paginator *models.PaginatorProducts) (string, error)
 	SelectRangeProducts(paginator *models.PaginatorProducts,
-		sortString string) ([]*models.ViewProduct, error)
+		sortString, filterString string) ([]*models.ViewProduct, error)
+	CreateFilterString(filter *models.ProductFilter) string
 }

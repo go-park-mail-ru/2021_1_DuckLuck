@@ -58,10 +58,19 @@ type PaginatorProducts struct {
 	SortKey       string `json:"sort_key" valid:"in(cost|rating|date|discount)"`
 	SortDirection string `json:"sort_direction" valid:"in(ASC|DESC)"`
 	Category      uint64 `json:"category"`
+	Filter *ProductFilter `json:"filter"`
 }
 
 func (pp *PaginatorProducts) Sanitize() {
 	sanitizer := sanitizer.NewSanitizer()
 	pp.SortKey = sanitizer.Sanitize(pp.SortKey)
 	pp.SortDirection = sanitizer.Sanitize(pp.SortDirection)
+}
+
+type ProductFilter struct {
+	MinPrice     uint64 `json:"min_price"`
+	MaxPrice     uint64 `json:"max_price"`
+	IsNew        bool   `json:"is_new"`
+	IsRating     bool   `json:"is_rating"`
+	IsDiscount   bool   `json:"is_discount"`
 }

@@ -53,7 +53,7 @@ func (r *PostgresqlRepository) SelectProductById(productId uint64) (*models.Prod
 }
 
 // Get count of all pages for this category
-func (r *PostgresqlRepository) GetCountPages(paginator *models.PaginatorProducts) (int, error) {
+func (r *PostgresqlRepository) GetCountPages(paginator *models.PaginatorProducts, filterString string) (int, error) {
 	row := r.db.QueryRow(
 		"WITH current_node AS ( "+
 			"SELECT c.left_node, c.right_node "+
@@ -64,7 +64,9 @@ func (r *PostgresqlRepository) GetCountPages(paginator *models.PaginatorProducts
 			"FROM current_node, products p "+
 			"JOIN categories c ON c.id = p.id_category "+
 			"WHERE (c.left_node >= current_node.left_node "+
-			"AND c.right_node <= current_node.right_node)",
+			"AND c.right_node <= current_node.right_node " +
+			filterString+
+			" ) ",
 		paginator.Category,
 	)
 
@@ -108,9 +110,29 @@ func (r *PostgresqlRepository) CreateSortString(paginator *models.PaginatorProdu
 	return fmt.Sprintf("ORDER BY %s %s ", orderTarget, orderDirection), nil
 }
 
+// Create filter string from filter options
+func (r *PostgresqlRepository) CreateFilterString(filter *models.ProductFilter) string {
+	// Check price
+	filterString := fmt.Sprintf("AND p.total_cost > %d AND p.total_cost < %d ", filter.MinPrice, filter.MaxPrice)
+
+	// Optional params
+	if filter.IsDiscount {
+		filterString += "AND p.discount > 0 "
+	}
+	if filter.IsNew {
+		filterString += "AND p.date_added >= date_trunc('month',current_timestamp - interval '1 month') " +
+			"AND p.date_added <  date_trunc('month',current_timestamp) "
+	}
+	if filter.IsRating {
+		filterString += "AND p.rating >= 4 "
+	}
+
+	return filterString
+}
+
 // Select range of products by paginate settings
 func (r *PostgresqlRepository) SelectRangeProducts(paginator *models.PaginatorProducts,
-	sortString string) ([]*models.ViewProduct, error) {
+	sortString, filterString string) ([]*models.ViewProduct, error) {
 	rows, err := r.db.Query(
 		"WITH current_node AS ( "+
 			"SELECT c.left_node, c.right_node "+
@@ -121,7 +143,9 @@ func (r *PostgresqlRepository) SelectRangeProducts(paginator *models.PaginatorPr
 			"FROM current_node, products p "+
 			"JOIN categories c ON c.id = p.id_category "+
 			"WHERE (c.left_node >= current_node.left_node "+
-			"AND c.right_node <= current_node.right_node) "+
+			"AND c.right_node <= current_node.right_node " +
+			filterString+
+			" ) "+
 			sortString+
 			"LIMIT $2 OFFSET $3",
 		paginator.Category,

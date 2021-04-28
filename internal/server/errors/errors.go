@@ -57,6 +57,9 @@ var (
 	ErrIncorrectPaginator error = Error{
 		Message: "incorrect params of pagination",
 	}
+	ErrIncorrectFilter error = Error{
+		Message: "incorrect params of filter",
+	}
 	ErrBadRequest error = Error{
 		Message: "incorrect request",
 	}
