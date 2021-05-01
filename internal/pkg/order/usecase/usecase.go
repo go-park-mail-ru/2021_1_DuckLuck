@@ -1,26 +1,29 @@
 package usecase
 
 import (
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/cart"
+	"context"
+
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/order"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
+	proto "github.com/go-park-mail-ru/2021_1_DuckLuck/services/cart/proto/cart"
+	"google.golang.org/grpc"
 )
 
 type OrderUseCase struct {
 	OrderRepo   order.Repository
-	CartRepo    cart.Repository
+	CartClient  proto.CartServiceClient
 	ProductRepo product.Repository
 	UserRepo    user.Repository
 }
 
-func NewUseCase(orderRepo order.Repository, cartRepo cart.Repository,
+func NewUseCase(orderRepo order.Repository, cartConn grpc.ClientConnInterface,
 	productRepo product.Repository, userRepo user.Repository) order.UseCase {
 	return &OrderUseCase{
 		OrderRepo:   orderRepo,
-		CartRepo:    cartRepo,
+		CartClient:  proto.NewCartServiceClient(cartConn),
 		ProductRepo: productRepo,
 		UserRepo:    userRepo,
 	}
@@ -64,7 +67,8 @@ func (u *OrderUseCase) AddCompletedOrder(order *models.Order, userId uint64,
 		return nil, errors.ErrInternalError
 	}
 
-	if err = u.CartRepo.DeleteCart(userId); err != nil {
+	if _, err = u.CartClient.DeleteCart(context.Background(),
+		&proto.ReqUserId{UserId: userId}); err != nil {
 		return nil, errors.ErrCartNotFound
 	}
 

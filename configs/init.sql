@@ -24,14 +24,19 @@ ALTER TEXT SEARCH CONFIGURATION ru
 
 SET default_text_search_config = 'ru';
 
-DROP TABLE IF EXISTS users CASCADE;
-CREATE TABLE users (
+DROP TABLE IF EXISTS data_users CASCADE;
+CREATE TABLE data_users (
     id SERIAL NOT NULL PRIMARY KEY,
     first_name TEXT,
     last_name TEXT,
+    avatar TEXT
+);
+
+DROP TABLE IF EXISTS auth_users CASCADE;
+CREATE TABLE auth_users (
+    id SERIAL NOT NULL PRIMARY KEY,
     email TEXT NOT NULL,
     password BYTEA NOT NULL,
-    avatar TEXT
 );
 
 
@@ -155,7 +160,8 @@ CREATE TABLE reviews (
 );
 
 
-GRANT ALL PRIVILEGES ON TABLE users TO ozon_root;
+GRANT ALL PRIVILEGES ON TABLE data_users TO ozon_root;
+GRANT ALL PRIVILEGES ON TABLE auth_users TO ozon_root;
 GRANT ALL PRIVILEGES ON TABLE ordered_products TO ozon_root;
 GRANT ALL PRIVILEGES ON TABLE categories TO ozon_root;
 GRANT ALL PRIVILEGES ON TABLE products TO ozon_root;

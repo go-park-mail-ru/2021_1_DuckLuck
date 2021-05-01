@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"google.golang.org/grpc"
 	"log"
 	"net/http"
 	"os"
@@ -11,7 +12,6 @@ import (
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
 	_ "github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
 	cart_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/cart/handler"
-	cart_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/cart/repository"
 	cart_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/cart/usecase"
 	category_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/category/handler"
 	category_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/category/repository"
@@ -27,7 +27,6 @@ import (
 	review_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/review/repository"
 	review_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/review/usecase"
 	session_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/session/handler"
-	session_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/session/repository"
 	session_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/session/usecase"
 	user_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user/handler"
 	user_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user/repository"
@@ -113,8 +112,27 @@ func main() {
 	}
 	defer redisConn.Close()
 
-	sessionRepo := session_repo.NewSessionRedisRepository(redisConn)
-	sessionUCase := session_usecase.NewUseCase(sessionRepo)
+	sessionService, err := grpc.Dial(
+		":8228",
+		grpc.WithInsecure(),
+	)
+
+	if err != nil {
+		log.Fatalf("cant connect to grpc")
+	}
+	defer sessionService.Close()
+
+	cartService, err := grpc.Dial(
+		":8448",
+		grpc.WithInsecure(),
+	)
+
+	if err != nil {
+		log.Fatalf("cant connect to grpc")
+	}
+	defer sessionService.Close()
+
+	sessionUCase := session_usecase.NewUseCase(sessionService)
 	sessionHandler := session_delivery.NewHandler(sessionUCase)
 
 	categoryRepo := category_repo.NewSessionPostgresqlRepository(postgreSqlConn)
@@ -125,8 +143,7 @@ func main() {
 	productUCase := product_usecase.NewUseCase(productRepo, categoryRepo)
 	productHandler := product_delivery.NewHandler(productUCase)
 
-	cartRepo := cart_repo.NewSessionRedisRepository(redisConn)
-	cartUCase := cart_usecase.NewUseCase(cartRepo, productRepo)
+	cartUCase := cart_usecase.NewUseCase(cartService, productRepo)
 	cartHandler := cart_delivery.NewHandler(cartUCase)
 
 	userRepo := user_repo.NewSessionPostgresqlRepository(postgreSqlConn)
@@ -134,7 +151,7 @@ func main() {
 	userHandler := user_delivery.NewHandler(userUCase, sessionUCase)
 
 	orderRepo := order_repo.NewSessionPostgresqlRepository(postgreSqlConn)
-	orderUCase := order_usecase.NewUseCase(orderRepo, cartRepo, productRepo, userRepo)
+	orderUCase := order_usecase.NewUseCase(orderRepo, cartService, productRepo, userRepo)
 	orderHandler := order_delivery.NewHandler(orderUCase, cartUCase)
 
 	reviewRepo := review_repo.NewSessionPostgresqlRepository(postgreSqlConn)

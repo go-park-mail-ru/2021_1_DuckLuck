@@ -56,10 +56,10 @@ type SortOptions struct {
 
 // Paginator for showing page of product
 type PaginatorProducts struct {
-	PageNum       int            `json:"page_num"`
-	Count         int            `json:"count"`
-	Category      uint64         `json:"category"`
-	Filter        *ProductFilter `json:"filter"`
+	PageNum  int            `json:"page_num"`
+	Count    int            `json:"count"`
+	Category uint64         `json:"category"`
+	Filter   *ProductFilter `json:"filter"`
 	SortOptions
 }
 

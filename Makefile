@@ -1,6 +1,7 @@
 .PHONY: build
 build:
 	go build -o bin/server -v ./cmd/server
+	go build -o bin/session_service -v ./cmd/session_service
 
 .PHONY: test
 test:
