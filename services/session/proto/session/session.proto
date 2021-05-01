@@ -1,0 +1,27 @@
+syntax="proto3";
+
+import "google/protobuf/empty.proto";
+
+option go_package = "./";
+
+package session;
+
+message UserId {
+	uint64 Id = 1;
+}
+
+message SessionValue {
+	string Value = 1;
+}
+
+message Session {
+	SessionValue Value = 1;
+	UserId Id = 2;
+}
+
+service SessionService {
+	rpc GetUserIdBySession(SessionValue) returns (UserId) {}
+	rpc CreateNewSession(UserId) returns (Session) {}
+	rpc DestroySession(SessionValue) returns (google.protobuf.Empty) {}
+}
+
