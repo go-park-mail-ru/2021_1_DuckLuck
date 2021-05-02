@@ -17,25 +17,25 @@ jobs:
       - name: Login to DockerHub Registry
         run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
       - name: Build Docker api-server image
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/godeploy/api-server:${{ env.TAG }} --target api-server .
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/api-server:${{ env.TAG }} --target api-server .
       - name: Push the api_server image
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/godeploy/api-server:${{ env.TAG }}
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/api-server:${{ env.TAG }}
       - name: Build Docker api-db image
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/godeploy/api-db:${{ env.TAG }} --target api-db .
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/api-db:${{ env.TAG }} --target api-db .
       - name: Push the api-db image
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/godeploy/api-db:${{ env.TAG }}
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/api-db:${{ env.TAG }}
       - name: Build Docker session-service image
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/godeploy/session-service:${{ env.TAG }} --target session-service .
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/session-service:${{ env.TAG }} --target session-service .
       - name: Push the session-service image
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/godeploy/session-service:${{ env.TAG }}
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/session-service:${{ env.TAG }}
       - name: Build Docker cart-service image
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/godeploy/cart-service:${{ env.TAG }} --target cart-service .
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/cart-service:${{ env.TAG }} --target cart-service .
       - name: Push the cart-service image
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/godeploy/cart-service:${{ env.TAG }}
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/cart-service:${{ env.TAG }}
       - name: Build Docker auth-service image
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/godeploy/auth-service:${{ env.TAG }} --target auth-service .
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/auth-service:${{ env.TAG }} --target auth-service .
       - name: Push the auth-service image
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/godeploy/auth-service:${{ env.TAG }}
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/auth-service:${{ env.TAG }}
       - name: Upload dependencies
         uses: actions/upload-artifact@v2
         with:
