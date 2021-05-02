@@ -26,7 +26,7 @@ COPY --from=build /project/bin/auth_service /
 RUN apt update && apt install ca-certificates -y && rm -rf /var/cache/apt/*
 CMD ["./auth_service"]
 
-FROM postgres:13 as postgres
+FROM postgres:13 as api-db
 RUN apt update && \
     apt install myspell-ru -y
 WORKDIR /usr/share/postgresql/13/tsearch_data

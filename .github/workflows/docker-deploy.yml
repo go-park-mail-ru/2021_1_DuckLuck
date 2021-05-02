@@ -16,14 +16,14 @@ jobs:
       - uses: actions/checkout@v1
       - name: Login to DockerHub Registry
         run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-      - name: Build Docker api_server image
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/godeploy:${{ env.TAG }} --target api_server .
+      - name: Build Docker api-server image
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/godeploy/api-server:${{ env.TAG }} --target api-server .
       - name: Push the api_server image
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/godeploy:${{ env.TAG }}
-      - name: Build Docker postgres image
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/postgres:${{ env.TAG }} --target postgres .
-      - name: Push the postgres image
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/postgres:${{ env.TAG }}
+      - name: Build Docker api-db image
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/api-db:${{ env.TAG }} --target api-db .
+      - name: Push the api-db image
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/api-db:${{ env.TAG }}
       - name: Upload dependencies
         uses: actions/upload-artifact@v2
         with:
