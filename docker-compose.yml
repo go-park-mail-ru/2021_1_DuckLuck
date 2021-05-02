@@ -19,7 +19,12 @@ services:
       - ./scripts/postgresql/init_auth_db.sql:/docker-entrypoint-initdb.d/init_auth_db.sql
     networks:
       - app-network
-  redis:
+  session-db:
+    image: redis
+    restart: unless-stopped
+    networks:
+      - app-network
+  cart-db:
     image: redis
     restart: unless-stopped
     networks:
