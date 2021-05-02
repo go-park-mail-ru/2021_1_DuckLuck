@@ -23,7 +23,7 @@ services:
     image: redis
     restart: unless-stopped
     networks:
-      - app-network
+      - session-network
   cart-db:
     image: redis
     restart: unless-stopped
@@ -54,7 +54,7 @@ services:
       - ./configs/envs/session_service:/configs/envs/session_service
       - ./configs/envs/network.env:/configs/envs/network.env
     networks:
-      - app-network
+      - session-network
   auth-service:
     depends_on:
       - api-db
@@ -85,4 +85,6 @@ networks:
   auth-network:
     driver: bridge
   cart-network:
+    driver: bridge
+  session-network:
     driver: bridge
