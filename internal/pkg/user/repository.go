@@ -9,7 +9,6 @@ import (
 type Repository interface {
 	AddProfile(user *models.ProfileUser) (uint64, error)
 	UpdateProfile(userId uint64, user *models.UpdateUser) error
-	SelectProfileByEmail(email string) (*models.ProfileUser, error)
 	SelectProfileById(userId uint64) (*models.ProfileUser, error)
 	UpdateAvatar(userId uint64, avatarUrl string) error
 }

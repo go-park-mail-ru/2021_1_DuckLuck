@@ -4,9 +4,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
-
 	nested "github.com/antonfisher/nested-logrus-formatter"
 	log "github.com/sirupsen/logrus"
 )
@@ -15,10 +12,10 @@ type Logger struct {
 	logFile *os.File
 }
 
-func (l *Logger) InitLogger() error {
-	file, err := os.OpenFile(configs.PathToLogFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+func (l *Logger) InitLogger(pathToLogFile, logLevel string) error {
+	file, err := os.OpenFile(pathToLogFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if err != nil {
-		return errors.ErrOpenFile
+		return err
 	}
 	defer l.logFile.Close()
 
@@ -31,7 +28,7 @@ func (l *Logger) InitLogger() error {
 		FieldsOrder: []string{"requireId", "urlPath"},
 	})
 
-	switch configs.LogLevel {
+	switch logLevel {
 	case "debug":
 		log.SetLevel(log.DebugLevel)
 	case "info":
@@ -47,7 +44,7 @@ func (l *Logger) InitLogger() error {
 	return nil
 }
 
-func AccessLogStart(urlPath, remoteAddr, method, requireId string) {
+func HttpAccessLogStart(urlPath, remoteAddr, method, requireId string) {
 	log.WithFields(log.Fields{
 		"urlPath":    urlPath,
 		"requireId":  requireId,
@@ -56,7 +53,7 @@ func AccessLogStart(urlPath, remoteAddr, method, requireId string) {
 	}).Info("Start of request processing")
 }
 
-func AccessLogEnd(urlPath, remoteAddr, method, requireId string, startTime time.Time) {
+func HttpAccessLogEnd(urlPath, remoteAddr, method, requireId string, startTime time.Time) {
 	log.WithFields(log.Fields{
 		"urlPath":     urlPath,
 		"requireId":   requireId,
@@ -66,18 +63,34 @@ func AccessLogEnd(urlPath, remoteAddr, method, requireId string, startTime time.
 	}).Info("End of request processing")
 }
 
-func LogInfo(urlPath, packageName, functionName, msg, requireId string) {
+func GrpcAccessLogStart(fullMethode, requireId, req, md string) {
 	log.WithFields(log.Fields{
-		"urlPath":   urlPath,
+		"call":      fullMethode,
+		"requireId": requireId,
+		"req":       req,
+		"md":        md,
+	}).Info("Start of request processing")
+}
+
+func GrpcAccessLogEnd(fullMethode, requireId, reply string, startTime time.Time) {
+	log.WithFields(log.Fields{
+		"call":        fullMethode,
+		"requireId":   requireId,
+		"reply":       reply,
+		"reqDuration": time.Since(startTime),
+	}).Info("End of request processing")
+}
+
+func LogInfo(packageName, functionName, msg, requireId string) {
+	log.WithFields(log.Fields{
 		"requireId": requireId,
 		"package":   packageName,
 		"function":  functionName,
 	}).Info(msg)
 }
 
-func LogError(urlPath, packageName, functionName, requireId string, err error) {
+func LogError(packageName, functionName, requireId string, err error) {
 	log.WithFields(log.Fields{
-		"urlPath":   urlPath,
 		"requireId": requireId,
 		"package":   packageName,
 		"function":  functionName,

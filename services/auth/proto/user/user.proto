@@ -1,0 +1,24 @@
+syntax="proto3";
+
+option go_package = "./";
+
+package auth;
+
+message LoginUser {
+  string Email = 1;
+  string Password = 2;
+}
+
+message SignupUser {
+  string Email = 1;
+  string Password = 2;
+}
+
+message UserId {
+  uint64 Id = 1;
+}
+
+service AuthService {
+  rpc Login(LoginUser) returns (UserId) {}
+  rpc Signup(SignupUser) returns (UserId) {}
+}

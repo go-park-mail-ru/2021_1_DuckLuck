@@ -542,7 +542,7 @@ func (c *cartServiceClient) DeleteCart(ctx context.Context, in *ReqUserId, opts 
 	return out, nil
 }
 
-// CartServiceServer is the server API for CartService service.
+// CartServiceServer is the api_server API for CartService service.
 type CartServiceServer interface {
 	AddProduct(context.Context, *ReqCartArticle) (*empty.Empty, error)
 	DeleteProduct(context.Context, *ReqProductIdentifier) (*empty.Empty, error)

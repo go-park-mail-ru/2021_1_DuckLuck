@@ -7,7 +7,7 @@ services:
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
     volumes:
-      - ./configs/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./configs/init_auth_db.sql:/docker-entrypoint-initdb.d/init_auth_db.sql
     networks:
       - app-network
   redis:
@@ -19,7 +19,7 @@ services:
     depends_on:
       - postgres
     image: duckluckmarket/godeploy:${TAG}
-    container_name: server
+    container_name: api_server
     restart: unless-stopped
     ports:
       - "8080:8080"

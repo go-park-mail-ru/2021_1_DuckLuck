@@ -356,7 +356,7 @@ func (c *sessionServiceClient) DestroySession(ctx context.Context, in *SessionVa
 	return out, nil
 }
 
-// SessionServiceServer is the server API for SessionService service.
+// SessionServiceServer is the api_server API for SessionService service.
 type SessionServiceServer interface {
 	GetUserIdBySession(context.Context, *SessionValue) (*UserId, error)
 	CreateNewSession(context.Context, *UserId) (*Session, error)

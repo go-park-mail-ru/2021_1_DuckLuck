@@ -8,7 +8,7 @@ import (
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/http_utils"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/jwt_token"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/logger"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/pkg/tools/logger"
 )
 
 func CsrfCheck(next http.Handler) http.Handler {
@@ -17,7 +17,7 @@ func CsrfCheck(next http.Handler) http.Handler {
 		defer func() {
 			requireId := http_utils.MustGetRequireId(r.Context())
 			if err != nil {
-				logger.LogError(r.URL.Path, "middleware", "CsrfCheck", requireId, err)
+				logger.LogError("middleware", "CsrfCheck", requireId, err)
 			}
 		}()
 

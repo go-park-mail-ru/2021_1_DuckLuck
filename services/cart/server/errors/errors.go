@@ -1,30 +1,18 @@
 package errors
 
 import (
-	"fmt"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/pkg/errors"
 )
 
-type Error struct {
-	Message string `json:"error"`
-}
-
-func (err Error) Error() string {
-	return fmt.Sprintf("error: happened %s", err.Message)
-}
-
 func CreateError(err error) error {
-	if _, ok := err.(Error); ok {
-		return err
-	}
-
-	return Error{Message: err.Error()}
+	return errors.CreateError(err)
 }
 
 var (
-	ErrInternalError error = Error{
+	ErrInternalError error = errors.Error{
 		Message: "something went wrong",
 	}
-	ErrDBInternalError error = Error{
+	ErrDBInternalError error = errors.Error{
 		Message: "internal db error",
 	}
 )

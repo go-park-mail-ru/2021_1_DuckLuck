@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"google.golang.org/grpc"
 	"log"
 	"net/http"
 	"os"
@@ -33,40 +32,47 @@ import (
 	user_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user/usecase"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/middleware"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/logger"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/s3_utils"
 	_ "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/s3_utils"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/pkg/tools/logger"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	"google.golang.org/grpc"
 )
 
 func InitApiServer() {
-	// Load server api environment
-	err := godotenv.Load(configs.PathToApiServerEnv)
+	// Load api_server api environment
+	err := godotenv.Load(configs.ApiServerMainEnv)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Load postgresql environment
-	err = godotenv.Load(configs.PathToPostgreSqlEnv)
+	err = godotenv.Load(configs.ApiServerPostgreSqlEnv)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Load redis environment
-	err = godotenv.Load(configs.PathToRedisEnv)
+	err = godotenv.Load(configs.ApiServerRedisEnv)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Load network environment
+	err = godotenv.Load(configs.NetworkEnv)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Init logger
 	mainLogger := logger.Logger{}
-	err = mainLogger.InitLogger()
+	err = mainLogger.InitLogger(configs.ApiServerLog, os.Getenv("LOG_LEVEL"))
 	if err != nil {
-		log.Fatal(errors.ErrOpenFile.Error())
+		log.Fatal(err)
 	}
 }
 
@@ -112,25 +118,41 @@ func main() {
 	}
 	defer redisConn.Close()
 
+	// Init conn Session service
 	sessionService, err := grpc.Dial(
-		":8228",
+		fmt.Sprintf("%s:%s",
+			os.Getenv("SESSION_SERVICE_HOST"),
+			os.Getenv("SESSION_SERVICE_PORT")),
 		grpc.WithInsecure(),
 	)
-
 	if err != nil {
 		log.Fatalf("cant connect to grpc")
 	}
 	defer sessionService.Close()
 
+	// Init conn Cart service
 	cartService, err := grpc.Dial(
-		":8448",
+		fmt.Sprintf("%s:%s",
+			os.Getenv("CART_SERVICE_HOST"),
+			os.Getenv("CART_SERVICE_PORT")),
 		grpc.WithInsecure(),
 	)
-
 	if err != nil {
 		log.Fatalf("cant connect to grpc")
 	}
-	defer sessionService.Close()
+	defer cartService.Close()
+
+	// Init conn Auth service
+	authService, err := grpc.Dial(
+		fmt.Sprintf("%s:%s",
+			os.Getenv("AUTH_SERVICE_HOST"),
+			os.Getenv("AUTH_SERVICE_PORT")),
+		grpc.WithInsecure(),
+	)
+	if err != nil {
+		log.Fatalf("cant connect to grpc")
+	}
+	defer authService.Close()
 
 	sessionUCase := session_usecase.NewUseCase(sessionService)
 	sessionHandler := session_delivery.NewHandler(sessionUCase)
@@ -147,7 +169,7 @@ func main() {
 	cartHandler := cart_delivery.NewHandler(cartUCase)
 
 	userRepo := user_repo.NewSessionPostgresqlRepository(postgreSqlConn)
-	userUCase := user_usecase.NewUseCase(userRepo)
+	userUCase := user_usecase.NewUseCase(authService, userRepo)
 	userHandler := user_delivery.NewHandler(userUCase, sessionUCase)
 
 	orderRepo := order_repo.NewSessionPostgresqlRepository(postgreSqlConn)

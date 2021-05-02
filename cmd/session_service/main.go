@@ -8,18 +8,40 @@ import (
 
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/pkg/tools/grpc_utils"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/pkg/tools/logger"
 	session_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/services/session/pkg/session/repository"
 	session_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/services/session/pkg/session/usecase"
 	proto "github.com/go-park-mail-ru/2021_1_DuckLuck/services/session/proto/session"
 	session_server "github.com/go-park-mail-ru/2021_1_DuckLuck/services/session/server"
+
 	"github.com/go-redis/redis/v8"
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
 )
 
 func InitSessionService() {
+	// Load session_service environment
+	err := godotenv.Load(configs.SessionServiceMainEnv)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// Load session service redis environment
-	err := godotenv.Load(configs.SessionServiceRedisEnv)
+	err = godotenv.Load(configs.SessionServiceRedisEnv)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Load network environment
+	err = godotenv.Load(configs.NetworkEnv)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Init logger
+	mainLogger := logger.Logger{}
+	err = mainLogger.InitLogger(configs.SessionServiceLog, os.Getenv("LOG_LEVEL"))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -45,12 +67,19 @@ func main() {
 	sessionUCase := session_usecase.NewUseCase(sessionRepo)
 	sessionServer := session_server.NewSessionServer(sessionUCase)
 
-	lis, err := net.Listen("tcp", ":8228")
+	lis, err := net.Listen(
+		os.Getenv("SESSION_SERVICE_PROTOCOL"),
+		fmt.Sprintf("%s:%s",
+			os.Getenv("SESSION_SERVICE_HOST"),
+			os.Getenv("SESSION_SERVICE_PORT")),
+	)
 	if err != nil {
 		log.Fatalf("error start session service %v", err)
 	}
 
-	server := grpc.NewServer()
+	server := grpc.NewServer(
+		grpc.UnaryInterceptor(grpc_utils.AuthInterceptor),
+	)
 	proto.RegisterSessionServiceServer(server, sessionServer)
 
 	if err := server.Serve(lis); err != nil {

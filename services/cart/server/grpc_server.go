@@ -2,12 +2,15 @@ package server
 
 import (
 	"context"
-	"github.com/golang/protobuf/ptypes/empty"
 
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/pkg/tools/grpc_utils"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/pkg/tools/logger"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/services/cart/pkg/cart"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/services/cart/pkg/models"
 	proto "github.com/go-park-mail-ru/2021_1_DuckLuck/services/cart/proto/cart"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/services/cart/server/errors"
+
+	"github.com/golang/protobuf/ptypes/empty"
 )
 
 type CartServer struct {
@@ -22,7 +25,15 @@ func NewCartServer(cartUCase cart.UseCase) *CartServer {
 
 func (s *CartServer) AddProduct(ctx context.Context,
 	cartArticle *proto.ReqCartArticle) (*empty.Empty, error) {
-	err := s.CartUCase.AddProduct(cartArticle.UserId, &models.CartArticle{
+	var err error
+	defer func() {
+		requireId := grpc_utils.MustGetRequireId(ctx)
+		if err != nil {
+			logger.LogError("cart_service_handler", "AddProduct", requireId, err)
+		}
+	}()
+
+	err = s.CartUCase.AddProduct(cartArticle.UserId, &models.CartArticle{
 		ProductPosition: models.ProductPosition{
 			Count: cartArticle.Position.Count,
 		},
@@ -40,7 +51,15 @@ func (s *CartServer) AddProduct(ctx context.Context,
 
 func (s *CartServer) DeleteProduct(ctx context.Context,
 	productIdentifier *proto.ReqProductIdentifier) (*empty.Empty, error) {
-	err := s.CartUCase.DeleteProduct(productIdentifier.UserId,
+	var err error
+	defer func() {
+		requireId := grpc_utils.MustGetRequireId(ctx)
+		if err != nil {
+			logger.LogError("cart_service_handler", "DeleteProduct", requireId, err)
+		}
+	}()
+
+	err = s.CartUCase.DeleteProduct(productIdentifier.UserId,
 		&models.ProductIdentifier{
 			ProductId: productIdentifier.ProductId,
 		})
@@ -54,7 +73,15 @@ func (s *CartServer) DeleteProduct(ctx context.Context,
 
 func (s *CartServer) ChangeProduct(ctx context.Context,
 	cartArticle *proto.ReqCartArticle) (*empty.Empty, error) {
-	err := s.CartUCase.ChangeProduct(cartArticle.UserId, &models.CartArticle{
+	var err error
+	defer func() {
+		requireId := grpc_utils.MustGetRequireId(ctx)
+		if err != nil {
+			logger.LogError("cart_service_handler", "ChangeProduct", requireId, err)
+		}
+	}()
+
+	err = s.CartUCase.ChangeProduct(cartArticle.UserId, &models.CartArticle{
 		ProductPosition: models.ProductPosition{
 			Count: cartArticle.Position.Count,
 		},
@@ -72,6 +99,14 @@ func (s *CartServer) ChangeProduct(ctx context.Context,
 
 func (s *CartServer) GetPreviewCart(ctx context.Context,
 	userId *proto.ReqUserId) (*proto.Cart, error) {
+	var err error
+	defer func() {
+		requireId := grpc_utils.MustGetRequireId(ctx)
+		if err != nil {
+			logger.LogError("cart_service_handler", "GetPreviewCart", requireId, err)
+		}
+	}()
+
 	userCart, err := s.CartUCase.GetPreviewCart(userId.UserId)
 
 	if err != nil {
@@ -91,7 +126,15 @@ func (s *CartServer) GetPreviewCart(ctx context.Context,
 
 func (s *CartServer) DeleteCart(ctx context.Context,
 	userId *proto.ReqUserId) (*empty.Empty, error) {
-	err := s.CartUCase.DeleteCart(userId.UserId)
+	var err error
+	defer func() {
+		requireId := grpc_utils.MustGetRequireId(ctx)
+		if err != nil {
+			logger.LogError("cart_service_handler", "DeleteCart", requireId, err)
+		}
+	}()
+
+	err = s.CartUCase.DeleteCart(userId.UserId)
 
 	if err != nil {
 		return &empty.Empty{}, errors.CreateError(err)

@@ -1,12 +1,12 @@
 CREATE USER ozon_root WITH password 'qwerty123';
 
 
-DROP DATABASE IF EXISTS ozon_db;
-CREATE DATABASE ozon_db
+DROP DATABASE IF EXISTS ozon_api_db;
+CREATE DATABASE ozon_api_db
     WITH OWNER ozon_root
     ENCODING 'utf8';
-GRANT ALL PRIVILEGES ON database ozon_db TO ozon_root;
-\connect ozon_db;
+GRANT ALL PRIVILEGES ON database ozon_api_db TO ozon_root;
+\connect ozon_api_db;
 
 
 CREATE TEXT SEARCH DICTIONARY russian_ispell (
@@ -29,14 +29,9 @@ CREATE TABLE data_users (
     id SERIAL NOT NULL PRIMARY KEY,
     first_name TEXT,
     last_name TEXT,
-    avatar TEXT
-);
-
-DROP TABLE IF EXISTS auth_users CASCADE;
-CREATE TABLE auth_users (
-    id SERIAL NOT NULL PRIMARY KEY,
-    email TEXT NOT NULL,
-    password BYTEA NOT NULL,
+    avatar TEXT,
+    id_auth INTEGER NOT NULL,
+    email TEXT NOT NULL
 );
 
 
@@ -123,7 +118,7 @@ CREATE TABLE user_orders (
     status_pay TEXT NOT NULL DEFAULT 'оплачено',
     status_delivery TEXT NOT NULL DEFAULT 'получено',
 
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    FOREIGN KEY (user_id) REFERENCES data_users(id)
 );
 
 DROP TABLE IF EXISTS ordered_products CASCADE;
@@ -154,14 +149,13 @@ CREATE TABLE reviews (
     date_added TIMESTAMP NOT NULL DEFAULT NOW(),
 
     FOREIGN KEY (product_id) REFERENCES products(id),
-    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (user_id) REFERENCES data_users(id),
 
     CONSTRAINT rating_value CHECK (rating >= 0 AND rating <= 5)
 );
 
 
 GRANT ALL PRIVILEGES ON TABLE data_users TO ozon_root;
-GRANT ALL PRIVILEGES ON TABLE auth_users TO ozon_root;
 GRANT ALL PRIVILEGES ON TABLE ordered_products TO ozon_root;
 GRANT ALL PRIVILEGES ON TABLE categories TO ozon_root;
 GRANT ALL PRIVILEGES ON TABLE products TO ozon_root;

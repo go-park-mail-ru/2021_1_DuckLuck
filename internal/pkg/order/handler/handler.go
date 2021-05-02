@@ -10,8 +10,8 @@ import (
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/order"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/http_utils"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/logger"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/validator"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/pkg/tools/logger"
 )
 
 type OrderHandler struct {
@@ -31,7 +31,7 @@ func (h *OrderHandler) GetOrderFromCart(w http.ResponseWriter, r *http.Request) 
 	defer func() {
 		requireId := http_utils.MustGetRequireId(r.Context())
 		if err != nil {
-			logger.LogError(r.URL.Path, "order_handler", "GetOrderFromCart", requireId, err)
+			logger.LogError("order_handler", "GetOrderFromCart", requireId, err)
 		}
 	}()
 
@@ -57,7 +57,7 @@ func (h *OrderHandler) AddCompletedOrder(w http.ResponseWriter, r *http.Request)
 	defer func() {
 		requireId := http_utils.MustGetRequireId(r.Context())
 		if err != nil {
-			logger.LogError(r.URL.Path, "order_handler", "AddCompletedOrder", requireId, err)
+			logger.LogError("order_handler", "AddCompletedOrder", requireId, err)
 		}
 	}()
 
@@ -98,7 +98,7 @@ func (h *OrderHandler) GetUserOrders(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		requireId := http_utils.MustGetRequireId(r.Context())
 		if err != nil {
-			logger.LogError(r.URL.Path, "order_handler", "GetUserOrders", requireId, err)
+			logger.LogError("order_handler", "GetUserOrders", requireId, err)
 		}
 	}()
 

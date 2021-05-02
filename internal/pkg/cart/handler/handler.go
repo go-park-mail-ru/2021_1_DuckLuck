@@ -9,8 +9,8 @@ import (
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/http_utils"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/logger"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/validator"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/pkg/tools/logger"
 )
 
 type CartHandler struct {
@@ -29,7 +29,7 @@ func (h *CartHandler) AddProductInCart(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		requireId := http_utils.MustGetRequireId(r.Context())
 		if err != nil {
-			logger.LogError(r.URL.Path, "cart_handler", "AddProductInCart", requireId, err)
+			logger.LogError("cart_handler", "AddProductInCart", requireId, err)
 		}
 	}()
 
@@ -70,7 +70,7 @@ func (h *CartHandler) DeleteProductInCart(w http.ResponseWriter, r *http.Request
 	defer func() {
 		requireId := http_utils.MustGetRequireId(r.Context())
 		if err != nil {
-			logger.LogError(r.URL.Path, "cart_handler", "DeleteProductInCart", requireId, err)
+			logger.LogError("cart_handler", "DeleteProductInCart", requireId, err)
 		}
 	}()
 
@@ -111,7 +111,7 @@ func (h *CartHandler) ChangeProductInCart(w http.ResponseWriter, r *http.Request
 	defer func() {
 		requireId := http_utils.MustGetRequireId(r.Context())
 		if err != nil {
-			logger.LogError(r.URL.Path, "cart_handler", "ChangeProductInCart", requireId, err)
+			logger.LogError("cart_handler", "ChangeProductInCart", requireId, err)
 		}
 	}()
 
@@ -152,7 +152,7 @@ func (h *CartHandler) GetProductsFromCart(w http.ResponseWriter, r *http.Request
 	defer func() {
 		requireId := http_utils.MustGetRequireId(r.Context())
 		if err != nil {
-			logger.LogError(r.URL.Path, "cart_handler", "GetProductsFromCart", requireId, err)
+			logger.LogError("cart_handler", "GetProductsFromCart", requireId, err)
 		}
 	}()
 
@@ -173,7 +173,7 @@ func (h *CartHandler) DeleteProductsFromCart(w http.ResponseWriter, r *http.Requ
 	defer func() {
 		requireId := http_utils.MustGetRequireId(r.Context())
 		if err != nil {
-			logger.LogError(r.URL.Path, "cart_handler", "GetProductsFromCart", requireId, err)
+			logger.LogError("cart_handler", "GetProductsFromCart", requireId, err)
 		}
 	}()
 

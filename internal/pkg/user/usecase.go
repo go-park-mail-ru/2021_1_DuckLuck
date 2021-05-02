@@ -9,7 +9,7 @@ import (
 //go:generate mockgen -destination=./mock/mock_usecase.go -package=mock github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user UseCase
 
 type UseCase interface {
-	Authorize(authUser *models.LoginUser) (*models.ProfileUser, error)
+	Authorize(authUser *models.LoginUser) (uint64, error)
 	UpdateProfile(userId uint64, updateUser *models.UpdateUser) error
 	SetAvatar(userId uint64, file *multipart.File, header *multipart.FileHeader) (string, error)
 	GetAvatar(userId uint64) (string, error)

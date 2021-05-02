@@ -10,8 +10,8 @@ import (
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/http_utils"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/logger"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/validator"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/pkg/tools/logger"
 
 	"github.com/gorilla/mux"
 )
@@ -32,7 +32,7 @@ func (h *ProductHandler) GetProduct(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		requireId := http_utils.MustGetRequireId(r.Context())
 		if err != nil {
-			logger.LogError(r.URL.Path, "product_handler", "GetProduct", requireId, err)
+			logger.LogError("product_handler", "GetProduct", requireId, err)
 		}
 	}()
 
@@ -57,7 +57,7 @@ func (h *ProductHandler) GetListPreviewProducts(w http.ResponseWriter, r *http.R
 	defer func() {
 		requireId := http_utils.MustGetRequireId(r.Context())
 		if err != nil {
-			logger.LogError(r.URL.Path, "product_handler", "GetListPreviewProducts", requireId, err)
+			logger.LogError("product_handler", "GetListPreviewProducts", requireId, err)
 		}
 	}()
 
@@ -96,7 +96,7 @@ func (h *ProductHandler) SearchListPreviewProducts(w http.ResponseWriter, r *htt
 	defer func() {
 		requireId := http_utils.MustGetRequireId(r.Context())
 		if err != nil {
-			logger.LogError(r.URL.Path, "product_handler", "SearchListPreviewProducts", requireId, err)
+			logger.LogError("product_handler", "SearchListPreviewProducts", requireId, err)
 		}
 	}()
 

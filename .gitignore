@@ -3,7 +3,7 @@ configs/envs
 .idea
 bin
 go.sum
-log/log.txt
+log
 
 # Binaries for programs and plugins
 *.exe
