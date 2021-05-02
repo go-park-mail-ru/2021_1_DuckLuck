@@ -43,6 +43,18 @@ services:
       - ./configs/envs/network.env:/configs/envs/network.env
     networks:
       - app-network
+  session-service:
+    depends_on:
+      - api-db
+    image: duckluckmarket/godeploy/session-service:${TAG}
+    container_name: session_service
+    restart: unless-stopped
+    volumes:
+      - ./log:/log
+      - ./configs/envs/session_service:/configs/envs/session_service
+      - ./configs/envs/network.env:/configs/envs/network.env
+    networks:
+      - app-network
 networks:
   app-network:
     driver: bridge
