@@ -21,6 +21,11 @@ COPY --from=build /project/bin/cart_service /
 RUN apt update && apt install ca-certificates -y && rm -rf /var/cache/apt/*
 CMD ["./cart_service"]
 
+FROM ubuntu:latest as auth-service
+COPY --from=build /project/bin/auth_service /
+RUN apt update && apt install ca-certificates -y && rm -rf /var/cache/apt/*
+CMD ["./auth_service"]
+
 FROM postgres:13 as postgres
 RUN apt update && \
     apt install myspell-ru -y
