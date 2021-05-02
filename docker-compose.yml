@@ -67,6 +67,18 @@ services:
       - ./configs/envs/network.env:/configs/envs/network.env
     networks:
       - app-network
+  cart-service:
+    depends_on:
+      - api-db
+    image: duckluckmarket/godeploy/cart-service:${TAG}
+    container_name: cart_service
+    restart: unless-stopped
+    volumes:
+      - ./log:/log
+      - ./configs/envs/cart_service:/configs/envs/cart_service
+      - ./configs/envs/network.env:/configs/envs/network.env
+    networks:
+      - app-network
 networks:
   app-network:
     driver: bridge
