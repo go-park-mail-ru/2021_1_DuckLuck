@@ -28,7 +28,7 @@ services:
     image: redis
     restart: unless-stopped
     networks:
-      - app-network
+      - cart-network
   api-server:
     depends_on:
       - api-db
@@ -78,9 +78,11 @@ services:
       - ./configs/envs/cart_service:/configs/envs/cart_service
       - ./configs/envs/network.env:/configs/envs/network.env
     networks:
-      - app-network
+      - cart-network
 networks:
   api-network:
     driver: bridge
   auth-network:
+    driver: bridge
+  cart-network:
     driver: bridge
