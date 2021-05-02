@@ -2,14 +2,19 @@ FROM golang:1.15 as build
 COPY . /project
 WORKDIR /project
 RUN make build
-RUN go test -coverprofile=coverage1.out -coverpkg=./... -cover ./...
-RUN cat coverage1.out | grep -v mock > ./bin/cover.out
-RUN go tool cover -func ./bin/cover.out
+#RUN go test -coverprofile=coverage1.out -coverpkg=./... -cover ./...
+#RUN cat coverage1.out | grep -v mock > ./bin/cover.out
+#RUN go tool cover -func ./bin/cover.out
 
-FROM ubuntu:latest as server
-COPY --from=build /project/bin/ /
+FROM ubuntu:latest as api-server
+COPY --from=build /project/bin/api_server /
 RUN apt update && apt install ca-certificates -y && rm -rf /var/cache/apt/*
-CMD ["./server"]
+CMD ["./api_server"]
+
+FROM ubuntu:latest as session-service
+COPY --from=build /project/bin/session_service /
+RUN apt update && apt install ca-certificates -y && rm -rf /var/cache/apt/*
+CMD ["./session_service"]
 
 FROM postgres:13 as postgres
 RUN apt update && \
