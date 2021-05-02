@@ -18,7 +18,7 @@ services:
     volumes:
       - ./scripts/postgresql/init_auth_db.sql:/docker-entrypoint-initdb.d/init_auth_db.sql
     networks:
-      - app-network
+      - auth-network
   session-db:
     image: redis
     restart: unless-stopped
@@ -66,7 +66,7 @@ services:
       - ./configs/envs/auth_service:/configs/envs/auth_service
       - ./configs/envs/network.env:/configs/envs/network.env
     networks:
-      - app-network
+      - auth-network
   cart-service:
     depends_on:
       - api-db
@@ -81,4 +81,6 @@ services:
       - app-network
 networks:
   api-network:
+    driver: bridge
+  auth-network:
     driver: bridge
