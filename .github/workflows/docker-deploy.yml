@@ -62,14 +62,14 @@ jobs:
           source: "Backend"
           target: "/home/ubuntu/duckluckmarket"
 
-      - name: pull api_server docker image
+      - name: pull api-server docker image
         uses: appleboy/ssh-action@master
         with:
           envs: GITHUB_SHA
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.PRIVATE_KEY }}
-          script: sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/godeploy:${{ env.TAG }}
+          script: sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/api-server:${{ env.TAG }}
       - name: pull postgres docker image
         uses: appleboy/ssh-action@master
         with:
