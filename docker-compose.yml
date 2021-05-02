@@ -29,17 +29,18 @@ services:
     restart: unless-stopped
     networks:
       - app-network
-  server:
+  api-server:
     depends_on:
-      - postgres
-    image: duckluckmarket/godeploy:${TAG}
+      - api-db
+    image: duckluckmarket/godeploy/api-server:${TAG}
     container_name: api_server
     restart: unless-stopped
     ports:
       - "8080:8080"
     volumes:
       - ./log:/log
-      - ./configs/envs:/configs/envs
+      - ./configs/envs/api_server:/configs/envs/api_server
+      - ./configs/envs/network.env:/configs/envs/network.env
     networks:
       - app-network
 networks:
