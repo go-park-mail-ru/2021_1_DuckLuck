@@ -9,7 +9,7 @@ services:
     volumes:
       - ./scripts/postgresql/init_api_db.sql:/docker-entrypoint-initdb.d/init_auth_db.sql
     networks:
-      - app-network
+      - api-network
   auth-db:
     image: postgres
     restart: unless-stopped
@@ -42,7 +42,7 @@ services:
       - ./configs/envs/api_server:/configs/envs/api_server
       - ./configs/envs/network.env:/configs/envs/network.env
     networks:
-      - app-network
+      - api-network
   session-service:
     depends_on:
       - api-db
@@ -80,5 +80,5 @@ services:
     networks:
       - app-network
 networks:
-  app-network:
+  api-network:
     driver: bridge
