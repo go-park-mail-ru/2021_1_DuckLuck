@@ -55,6 +55,18 @@ services:
       - ./configs/envs/network.env:/configs/envs/network.env
     networks:
       - app-network
+  auth-service:
+    depends_on:
+      - api-db
+    image: duckluckmarket/godeploy/auth-service:${TAG}
+    container_name: auth_service
+    restart: unless-stopped
+    volumes:
+      - ./log:/log
+      - ./configs/envs/auth_service:/configs/envs/auth_service
+      - ./configs/envs/network.env:/configs/envs/network.env
+    networks:
+      - app-network
 networks:
   app-network:
     driver: bridge
