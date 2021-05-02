@@ -28,26 +28,14 @@ jobs:
         run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/session-service:${{ env.TAG }} --target session-service .
       - name: Push the session-service image
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/session-service:${{ env.TAG }}
-      - name: Build Docker session-db image
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/session-db:${{ env.TAG }} --target session-db .
-      - name: Push the session-db image
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/session-db:${{ env.TAG }}
       - name: Build Docker cart-service image
         run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/cart-service:${{ env.TAG }} --target cart-service .
       - name: Push the cart-service image
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/cart-service:${{ env.TAG }}
-      - name: Build Docker cart-db image
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/cart-db:${{ env.TAG }} --target cart-db .
-      - name: Push the cart-db image
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/cart-db:${{ env.TAG }}
       - name: Build Docker auth-service image
         run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/auth-service:${{ env.TAG }} --target auth-service .
       - name: Push the auth-service image
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/auth-service:${{ env.TAG }}
-      - name: Build Docker auth-db image
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/auth-db:${{ env.TAG }} --target auth-db .
-      - name: Push the auth-db image
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/auth-db:${{ env.TAG }}
       - name: Upload dependencies
         uses: actions/upload-artifact@v2
         with:
