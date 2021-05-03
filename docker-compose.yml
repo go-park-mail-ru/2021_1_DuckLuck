@@ -43,6 +43,7 @@ services:
       - ./configs/envs/network.env:/configs/envs/network.env
     networks:
       - api-network
+      - app-network
   session-service:
     depends_on:
       - api-db
@@ -55,6 +56,7 @@ services:
       - ./configs/envs/network.env:/configs/envs/network.env
     networks:
       - session-network
+      - app-network
   auth-service:
     depends_on:
       - api-db
@@ -67,6 +69,7 @@ services:
       - ./configs/envs/network.env:/configs/envs/network.env
     networks:
       - auth-network
+      - app-network
   cart-service:
     depends_on:
       - api-db
@@ -79,6 +82,7 @@ services:
       - ./configs/envs/network.env:/configs/envs/network.env
     networks:
       - cart-network
+      - app-network
 networks:
   api-network:
     driver: bridge
@@ -87,4 +91,6 @@ networks:
   cart-network:
     driver: bridge
   session-network:
+    driver: bridge
+  app-network:
     driver: bridge
