@@ -32,6 +32,7 @@ cover:
 
 .PHONY: init_db
 init_db:
-	sudo -u postgres psql -f configs/init.sql
+	sudo -u postgres psql -f scripts/postgresql/init_api_db.sql
+	sudo -u postgres psql -f scripts/postgresql/init_auth_db.sql
 
 .DEFAULT_GOAL := build

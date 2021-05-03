@@ -145,7 +145,7 @@ CREATE TABLE reviews (
     advantages TEXT,
     disadvantages TEXT,
     comment TEXT,
-    is_public BOOLEAN,
+    is_public BOOLEAN NOT NULL DEFAULT FALSE,
     date_added TIMESTAMP NOT NULL DEFAULT NOW(),
 
     FOREIGN KEY (product_id) REFERENCES products(id),

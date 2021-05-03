@@ -72,7 +72,7 @@ func (r *PostgresqlRepository) SelectProfileById(userId uint64) (*models.Profile
 // Update info in user profile
 func (r *PostgresqlRepository) UpdateProfile(userId uint64, user *models.UpdateUser) error {
 	_, err := r.db.Exec(
-		"UPDATE users SET "+
+		"UPDATE data_users SET "+
 			"first_name = $1, "+
 			"last_name = $2 "+
 			"WHERE id = $3",
@@ -90,7 +90,7 @@ func (r *PostgresqlRepository) UpdateProfile(userId uint64, user *models.UpdateU
 // Update user avatar
 func (r *PostgresqlRepository) UpdateAvatar(userId uint64, avatarUrl string) error {
 	_, err := r.db.Exec(
-		"UPDATE users SET "+
+		"UPDATE data_users SET "+
 			"avatar = $1 "+
 			"WHERE id = $2",
 		avatarUrl,
