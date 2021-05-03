@@ -79,11 +79,12 @@ type ProductFilter struct {
 
 // Search query with options
 type SearchQuery struct {
-	QueryString string `json:"query_string" valid:"minstringlength(2)"`
-	PageNum     int    `json:"page_num"`
-	Count       int    `json:"count"`
+	QueryString string         `json:"query_string" valid:"minstringlength(2)"`
+	PageNum     int            `json:"page_num"`
+	Count       int            `json:"count"`
+	Category    uint64         `json:"category"`
+	Filter      *ProductFilter `json:"filter"`
 	SortOptions
-	Category uint64 `json:"category"`
 }
 
 func (sq *SearchQuery) Sanitize() {

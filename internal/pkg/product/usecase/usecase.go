@@ -77,9 +77,14 @@ func (u *ProductUseCase) SearchRangeProducts(searchQuery *models.SearchQuery) (*
 		return nil, errors.ErrIncorrectSearchQuery
 	}
 
+	var filterString string
+	if searchQuery.Filter != nil {
+		filterString = u.ProductRepo.CreateFilterString(searchQuery.Filter)
+	}
+
 	// Max count pages for this search
 	countPages, err := u.ProductRepo.GetCountSearchPages(searchQuery.Category,
-		searchQuery.Count, searchQuery.QueryString)
+		searchQuery.Count, searchQuery.QueryString, filterString)
 	if err != nil {
 		return nil, errors.ErrIncorrectSearchQuery
 	}
@@ -91,7 +96,7 @@ func (u *ProductUseCase) SearchRangeProducts(searchQuery *models.SearchQuery) (*
 	}
 
 	// Get range of products
-	products, err := u.ProductRepo.SearchRangeProducts(searchQuery, sortString)
+	products, err := u.ProductRepo.SearchRangeProducts(searchQuery, sortString, filterString)
 	if err != nil {
 		return nil, errors.ErrIncorrectPaginator
 	}
