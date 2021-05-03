@@ -46,7 +46,7 @@ services:
       - app-network
   session-service:
     depends_on:
-      - api-db
+      - session-db
     image: duckluckmarket/session-service:${TAG}
     container_name: session_service
     restart: unless-stopped
@@ -59,7 +59,7 @@ services:
       - app-network
   auth-service:
     depends_on:
-      - api-db
+      - auth-db
     image: duckluckmarket/auth-service:${TAG}
     container_name: auth_service
     restart: unless-stopped
@@ -72,7 +72,7 @@ services:
       - app-network
   cart-service:
     depends_on:
-      - api-db
+      - cart-db
     image: duckluckmarket/cart-service:${TAG}
     container_name: cart_service
     restart: unless-stopped
