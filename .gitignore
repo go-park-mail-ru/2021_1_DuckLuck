@@ -4,7 +4,7 @@ configs/envs
 bin
 go.sum
 log
-
+.env
 # Binaries for programs and plugins
 *.exe
 *.exe~

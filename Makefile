@@ -5,6 +5,17 @@ build:
 	go build -o bin/cart_service -v ./cmd/cart_service
 	go build -o bin/auth_service -v ./cmd/auth_service
 
+.PHONY: local
+local:
+	echo TAG=local > .env
+	docker build -t duckluckmarket/api-server:local --target api-server .
+	docker build -t duckluckmarket/api-db:local --target api-db .
+	docker build -t duckluckmarket/auth-service:local --target auth-service .
+	docker build -t duckluckmarket/session-service:local --target session-service .
+	docker build -t duckluckmarket/cart-service:local --target cart-service .
+	docker-compose down
+	docker-compose up -d
+
 .PHONY: test
 test:
 	go test ./...
