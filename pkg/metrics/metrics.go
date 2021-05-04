@@ -10,7 +10,7 @@ type Metrics struct {
 	TotalHits  prometheus.Counter
 	AccessHits *prometheus.CounterVec
 	Errors     *prometheus.CounterVec
-	Durations   *prometheus.HistogramVec
+	Durations  *prometheus.HistogramVec
 }
 
 func CreateNewMetrics(name string) (*Metrics, error) {

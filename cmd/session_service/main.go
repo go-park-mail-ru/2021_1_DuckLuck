@@ -2,12 +2,14 @@ package main
 
 import (
 	"fmt"
+
 	"log"
 	"net"
 	"os"
 
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/pkg/metrics"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/pkg/tools/grpc_utils"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/pkg/tools/logger"
 	session_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/services/session/pkg/session/repository"
@@ -77,8 +79,13 @@ func main() {
 		log.Fatalf("error start session service %v", err)
 	}
 
+	metric, err := metrics.CreateNewMetrics("session_service")
+	if err != nil {
+		log.Fatal(err)
+	}
+	accessInterceptor := grpc_utils.AccessInterceptor(metric)
 	server := grpc.NewServer(
-		grpc.UnaryInterceptor(grpc_utils.AuthInterceptor),
+		grpc.UnaryInterceptor(accessInterceptor),
 	)
 	proto.RegisterSessionServiceServer(server, sessionServer)
 
