@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/pkg/metrics"
 	"log"
 	"net/http"
 	"os"
@@ -184,7 +185,13 @@ func main() {
 	csrfTokenHandler := csrf_token_delivery.NewHandler()
 
 	mainMux := mux.NewRouter()
-	mainMux.Use(middleware.AccessLog)
+
+	metric, err := metrics.CreateNewMetrics("api_server")
+	if err != nil {
+		log.Fatal(err)
+	}
+	accessLog := middleware.AccessLog(metric)
+	mainMux.Use(accessLog)
 	mainMux.Use(middleware.Panic)
 	mainMux.Use(middleware.Cors)
 	// Check csrf token
