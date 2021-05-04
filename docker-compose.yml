@@ -99,7 +99,29 @@ services:
     networks:
       - app-network
     ports:
-      - "9100:9100"
+      - "9090:9090"
+  node-exporter:
+    image: prom/node-exporter
+    restart: always
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    ports:
+      - '9100:9100'
+  grafana:
+    image: grafana/grafana:latest
+    depends_on:
+      - prometheus
+      - node-exporter
+    volumes:
+      - ./configs/grafana/grafana.ini:/configs/grafana/grafana.ini
+    environment:
+      - GF_SECURITY_ADMIN_USER=${ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    ports:
+      - "3030:3000"
 networks:
   api-network:
     driver: bridge
