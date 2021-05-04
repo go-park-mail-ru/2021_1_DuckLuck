@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/pkg/metrics"
 	"log"
 	"net/http"
 	"os"
@@ -35,6 +34,7 @@ import (
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/middleware"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/s3_utils"
 	_ "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/s3_utils"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/pkg/metrics"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/pkg/tools/logger"
 
 	"github.com/go-redis/redis/v8"
