@@ -17,6 +17,7 @@ require (
 	github.com/google/uuid v1.2.0 // indirect
 	github.com/gorilla/mux v1.8.0
 	github.com/joho/godotenv v1.3.0
+	github.com/julienschmidt/httprouter v1.3.0
 	github.com/lib/pq v1.10.0
 	github.com/lithammer/shortuuid v3.0.0+incompatible
 	github.com/microcosm-cc/bluemonday v1.0.6

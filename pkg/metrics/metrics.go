@@ -2,6 +2,9 @@ package metrics
 
 import (
 	"fmt"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"log"
+	"net/http"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -44,4 +47,12 @@ func CreateNewMetrics(name string) (*Metrics, error) {
 	}
 
 	return metrics, nil
+}
+
+func CreateNewMetricsRouter(host string) {
+	router := http.NewServeMux()
+	router.Handle("/metrics", promhttp.Handler())
+	if err := http.ListenAndServe(fmt.Sprintf("%s:9090", host), router); err != nil {
+		log.Fatalln(err)
+	}
 }

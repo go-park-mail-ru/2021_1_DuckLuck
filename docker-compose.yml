@@ -83,20 +83,6 @@ services:
     networks:
       - cart-network
       - app-network
-  prometheus:
-    image: prom/prometheus
-    privileged: true
-    restart: always
-    volumes:
-      - ./configs/prometheus/prometheus.yml:/configs/prometheus/prometheus.yml
-    command:
-      - '--config.file=/configs/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--storage.tsdb.retention=20d'
-      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
-      - '--web.console.templates=/usr/share/prometheus/consoles'
-    networks:
-      - app-network
   node-exporter:
     image: prom/node-exporter
     restart: always
@@ -110,6 +96,25 @@ services:
       - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
     networks:
       - app-network
+  prometheus:
+    depends_on:
+      - api-server
+      - node-exporter
+    image: prom/prometheus
+    privileged: true
+    restart: always
+    volumes:
+      - ./configs/prometheus/prometheus.yml:/configs/prometheus/prometheus.yml
+    command:
+      - '--config.file=/configs/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention=20d'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    networks:
+      - app-network
+    ports:
+      - "9090:9090"
   grafana:
     image: grafana/grafana:latest
     depends_on:
