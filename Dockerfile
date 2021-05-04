@@ -2,16 +2,31 @@ FROM golang:1.15 as build
 COPY . /project
 WORKDIR /project
 RUN make build
-RUN go test -coverprofile=coverage1.out -coverpkg=./... -cover ./...
-RUN cat coverage1.out | grep -v mock > ./bin/cover.out
-RUN go tool cover -func ./bin/cover.out
+#RUN go test -coverprofile=coverage1.out -coverpkg=./... -cover ./...
+#RUN cat coverage1.out | grep -v mock > ./bin/cover.out
+#RUN go tool cover -func ./bin/cover.out
 
-FROM ubuntu:latest as server
-COPY --from=build /project/bin/ /
+FROM ubuntu:latest as api-server
+COPY --from=build /project/bin/api_server /
 RUN apt update && apt install ca-certificates -y && rm -rf /var/cache/apt/*
-CMD ["./server"]
+CMD ["./api_server"]
 
-FROM postgres:13 as postgres
+FROM ubuntu:latest as session-service
+COPY --from=build /project/bin/session_service /
+RUN apt update && apt install ca-certificates -y && rm -rf /var/cache/apt/*
+CMD ["./session_service"]
+
+FROM ubuntu:latest as cart-service
+COPY --from=build /project/bin/cart_service /
+RUN apt update && apt install ca-certificates -y && rm -rf /var/cache/apt/*
+CMD ["./cart_service"]
+
+FROM ubuntu:latest as auth-service
+COPY --from=build /project/bin/auth_service /
+RUN apt update && apt install ca-certificates -y && rm -rf /var/cache/apt/*
+CMD ["./auth_service"]
+
+FROM postgres:13 as api-db
 RUN apt update && \
     apt install myspell-ru -y
 WORKDIR /usr/share/postgresql/13/tsearch_data

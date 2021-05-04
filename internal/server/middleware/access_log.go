@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/logger"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/pkg/tools/logger"
 
 	"github.com/lithammer/shortuuid"
 )
@@ -18,8 +18,8 @@ func AccessLog(next http.Handler) http.Handler {
 		r = r.WithContext(ctx)
 
 		startTime := time.Now()
-		logger.AccessLogStart(r.URL.Path, r.RemoteAddr, r.Method, requireId)
+		logger.HttpAccessLogStart(r.URL.Path, r.RemoteAddr, r.Method, requireId)
 		next.ServeHTTP(w, r)
-		logger.AccessLogEnd(r.URL.Path, r.RemoteAddr, r.Method, requireId, startTime)
+		logger.HttpAccessLogEnd(r.URL.Path, r.RemoteAddr, r.Method, requireId, startTime)
 	})
 }

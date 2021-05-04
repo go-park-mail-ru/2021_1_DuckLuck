@@ -10,9 +10,9 @@ type ProfileUser struct {
 	Id        uint64 `json:"-"`
 	FirstName string `json:"first_name" valid:"utfletter, stringlength(1|30)"`
 	LastName  string `json:"last_name" valid:"utfletter, stringlength(1|30)"`
-	Email     string `json:"email" valid:"email"`
-	Password  []byte `json:"-"`
 	Avatar    Avatar `json:"avatar" valid:"notnull, json"`
+	AuthId    uint64 `json:"-"`
+	Email     string `json:"email" valid:"email"`
 }
 
 // User avatar

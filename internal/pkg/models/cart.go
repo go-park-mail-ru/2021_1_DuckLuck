@@ -30,11 +30,11 @@ type PreviewCart struct {
 // View of product in cart
 // This model contains field for showing product in user cart
 type PreviewCartArticle struct {
-	Id           uint64       `json:"id"`
-	Title        string       `json:"title" valid:"minstringlength(1)"`
-	Price        ProductPrice `json:"price" valid:"notnull"`
-	PreviewImage string       `json:"preview_image" valid:"minstringlength(1)"`
-	Count        uint64       `json:"count"`
+	Id           uint64           `json:"id"`
+	Title        string           `json:"title" valid:"minstringlength(1)"`
+	Price        CartProductPrice `json:"price" valid:"notnull"`
+	PreviewImage string           `json:"preview_image" valid:"minstringlength(1)"`
+	Count        uint64           `json:"count"`
 }
 
 // Order price kept in integer nums
@@ -43,4 +43,12 @@ type TotalPrice struct {
 	TotalDiscount int `json:"total_discount"`
 	TotalCost     int `json:"total_cost"`
 	TotalBaseCost int `json:"total_base_cost"`
+}
+
+// Price product kept in integer nums
+// and contains base price and discount
+type CartProductPrice struct {
+	Discount  int `json:"discount"`
+	BaseCost  int `json:"base_cost"`
+	TotalCost int `json:"total_cost"`
 }

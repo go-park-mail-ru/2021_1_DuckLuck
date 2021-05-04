@@ -80,7 +80,8 @@ func (r *PostgresqlRepository) GetCountPages(category uint64, count int, filterS
 }
 
 // Get count of all pages for this search
-func (r *PostgresqlRepository) GetCountSearchPages(category uint64, count int, searchString string) (int, error) {
+func (r *PostgresqlRepository) GetCountSearchPages(category uint64, count int,
+	searchString, filterString string) (int, error) {
 	row := r.db.QueryRow(
 		"WITH current_node AS ( "+
 			"SELECT c.left_node, c.right_node "+
@@ -92,7 +93,9 @@ func (r *PostgresqlRepository) GetCountSearchPages(category uint64, count int, s
 			"JOIN categories c ON c.id = p.id_category "+
 			"WHERE (c.left_node >= current_node.left_node "+
 			"AND c.right_node <= current_node.right_node "+
-			"AND p.fts @@ plainto_tsquery('ru', $2))",
+			"AND p.fts @@ plainto_tsquery('ru', $2) "+
+			filterString+
+			" ) ",
 		category,
 		searchString,
 	)
@@ -207,7 +210,7 @@ func (r *PostgresqlRepository) SelectRangeProducts(paginator *models.PaginatorPr
 
 // Find list of products by query string
 func (r *PostgresqlRepository) SearchRangeProducts(searchQuery *models.SearchQuery,
-	sortString string) ([]*models.ViewProduct, error) {
+	sortString, filterString string) ([]*models.ViewProduct, error) {
 	rows, err := r.db.Query(
 		"WITH current_node AS ( "+
 			"SELECT c.left_node, c.right_node "+
@@ -219,7 +222,9 @@ func (r *PostgresqlRepository) SearchRangeProducts(searchQuery *models.SearchQue
 			"JOIN categories c ON c.id = p.id_category "+
 			"WHERE (c.left_node >= current_node.left_node "+
 			"AND c.right_node <= current_node.right_node "+
-			"AND p.fts @@ plainto_tsquery('ru', $2)) "+
+			"AND p.fts @@ plainto_tsquery('ru', $2) "+
+			filterString+
+			" ) "+
 			sortString+
 			"LIMIT $3 OFFSET $4",
 		searchQuery.Category,

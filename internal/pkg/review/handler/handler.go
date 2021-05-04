@@ -10,8 +10,8 @@ import (
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/review"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/http_utils"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/logger"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/validator"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/pkg/tools/logger"
 
 	"github.com/gorilla/mux"
 )
@@ -32,7 +32,7 @@ func (h *ReviewHandler) GetReviewStatistics(w http.ResponseWriter, r *http.Reque
 	defer func() {
 		requireId := http_utils.MustGetRequireId(r.Context())
 		if err != nil {
-			logger.LogError(r.URL.Path, "review_handler", "GetReviewInfo", requireId, err)
+			logger.LogError("review_handler", "GetReviewInfo", requireId, err)
 		}
 	}()
 
@@ -58,7 +58,7 @@ func (h *ReviewHandler) CheckReviewRights(w http.ResponseWriter, r *http.Request
 	defer func() {
 		requireId := http_utils.MustGetRequireId(r.Context())
 		if err != nil {
-			logger.LogError(r.URL.Path, "review_handler", "AddCompletedOrder", requireId, err)
+			logger.LogError("review_handler", "AddCompletedOrder", requireId, err)
 		}
 	}()
 
@@ -86,7 +86,7 @@ func (h *ReviewHandler) AddNewReview(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		requireId := http_utils.MustGetRequireId(r.Context())
 		if err != nil {
-			logger.LogError(r.URL.Path, "review_handler", "AddNewReview", requireId, err)
+			logger.LogError("review_handler", "AddNewReview", requireId, err)
 		}
 	}()
 
@@ -128,7 +128,7 @@ func (h *ReviewHandler) GetReviewsForProduct(w http.ResponseWriter, r *http.Requ
 	defer func() {
 		requireId := http_utils.MustGetRequireId(r.Context())
 		if err != nil {
-			logger.LogError(r.URL.Path, "review_handler", "GetReviewsForProduct", requireId, err)
+			logger.LogError("review_handler", "GetReviewsForProduct", requireId, err)
 		}
 	}()
 

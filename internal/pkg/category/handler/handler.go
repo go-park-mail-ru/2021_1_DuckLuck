@@ -7,7 +7,7 @@ import (
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/category"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/http_utils"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/logger"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/pkg/tools/logger"
 
 	"github.com/gorilla/mux"
 )
@@ -28,7 +28,7 @@ func (h *CategoryHandler) GetCatalogCategories(w http.ResponseWriter, r *http.Re
 	defer func() {
 		requireId := http_utils.MustGetRequireId(r.Context())
 		if err != nil {
-			logger.LogError(r.URL.Path, "category_handler", "GetCatalogCategories", requireId, err)
+			logger.LogError("category_handler", "GetCatalogCategories", requireId, err)
 		}
 	}()
 
@@ -47,7 +47,7 @@ func (h *CategoryHandler) GetSubCategories(w http.ResponseWriter, r *http.Reques
 	defer func() {
 		requireId := http_utils.MustGetRequireId(r.Context())
 		if err != nil {
-			logger.LogError(r.URL.Path, "category_handler", "GetSubCategories", requireId, err)
+			logger.LogError("category_handler", "GetSubCategories", requireId, err)
 		}
 	}()
 

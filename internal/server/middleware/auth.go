@@ -8,7 +8,7 @@ import (
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/session"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/http_utils"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/logger"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/pkg/tools/logger"
 )
 
 func Auth(sm session.UseCase) func(http.Handler) http.Handler {
@@ -18,7 +18,7 @@ func Auth(sm session.UseCase) func(http.Handler) http.Handler {
 			defer func() {
 				requireId := http_utils.MustGetRequireId(r.Context())
 				if err != nil {
-					logger.LogError(r.URL.Path, "middleware", "Auth", requireId, err)
+					logger.LogError("middleware", "Auth", requireId, err)
 				}
 			}()
 

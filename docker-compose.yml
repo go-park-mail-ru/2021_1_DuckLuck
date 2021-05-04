@@ -1,33 +1,96 @@
 version: '3'
 
 services:
-  postgres:
-    image: duckluckmarket/postgres:${TAG}
+  api-db:
+    image: duckluckmarket/api-db:${TAG}
     restart: unless-stopped
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
     volumes:
-      - ./configs/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./scripts/postgresql/init_api_db.sql:/docker-entrypoint-initdb.d/init_api_db.sql
     networks:
-      - app-network
-  redis:
+      - api-network
+  auth-db:
+    image: postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    volumes:
+      - ./scripts/postgresql/init_auth_db.sql:/docker-entrypoint-initdb.d/init_auth_db.sql
+    networks:
+      - auth-network
+  session-db:
     image: redis
     restart: unless-stopped
     networks:
-      - app-network
-  server:
+      - session-network
+  cart-db:
+    image: redis
+    restart: unless-stopped
+    networks:
+      - cart-network
+  api-server:
     depends_on:
-      - postgres
-    image: duckluckmarket/godeploy:${TAG}
-    container_name: server
+      - api-db
+    image: duckluckmarket/api-server:${TAG}
+    container_name: api_server
     restart: unless-stopped
     ports:
       - "8080:8080"
     volumes:
       - ./log:/log
-      - ./configs/envs:/configs/envs
+      - ./configs/envs/api_server:/configs/envs/api_server
+      - ./configs/envs/network.env:/configs/envs/network.env
     networks:
+      - api-network
+      - app-network
+  session-service:
+    depends_on:
+      - session-db
+    image: duckluckmarket/session-service:${TAG}
+    container_name: session_service
+    restart: unless-stopped
+    volumes:
+      - ./log:/log
+      - ./configs/envs/session_service:/configs/envs/session_service
+      - ./configs/envs/network.env:/configs/envs/network.env
+    networks:
+      - session-network
+      - app-network
+  auth-service:
+    depends_on:
+      - auth-db
+    image: duckluckmarket/auth-service:${TAG}
+    container_name: auth_service
+    restart: unless-stopped
+    volumes:
+      - ./log:/log
+      - ./configs/envs/auth_service:/configs/envs/auth_service
+      - ./configs/envs/network.env:/configs/envs/network.env
+    networks:
+      - auth-network
+      - app-network
+  cart-service:
+    depends_on:
+      - cart-db
+    image: duckluckmarket/cart-service:${TAG}
+    container_name: cart_service
+    restart: unless-stopped
+    volumes:
+      - ./log:/log
+      - ./configs/envs/cart_service:/configs/envs/cart_service
+      - ./configs/envs/network.env:/configs/envs/network.env
+    networks:
+      - cart-network
       - app-network
 networks:
+  api-network:
+    driver: bridge
+  auth-network:
+    driver: bridge
+  cart-network:
+    driver: bridge
+  session-network:
+    driver: bridge
   app-network:
     driver: bridge

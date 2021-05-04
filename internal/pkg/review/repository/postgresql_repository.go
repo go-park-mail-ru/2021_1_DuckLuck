@@ -142,7 +142,9 @@ func (r *PostgresqlRepository) CheckReview(userId uint64, productId uint64) bool
 		"SELECT count(us.id) "+
 			"FROM user_orders us "+
 			"JOIN ordered_products op ON us.id = op.order_id "+
-			"WHERE (us.user_id = $1 AND op.product_id = $2)",
+			"LEFT JOIN reviews rv ON op.product_id = rv.product_id "+
+			"WHERE (us.user_id = $1 AND op.product_id = $2 "+
+			"AND rv.product_id IS NULL)",
 		userId,
 		productId,
 	)
