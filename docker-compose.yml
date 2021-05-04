@@ -95,11 +95,8 @@ services:
       - '--storage.tsdb.retention=20d'
       - '--web.console.libraries=/usr/share/prometheus/console_libraries'
       - '--web.console.templates=/usr/share/prometheus/consoles'
-
     networks:
       - app-network
-    ports:
-      - "9090:9090"
   node-exporter:
     image: prom/node-exporter
     restart: always
@@ -107,21 +104,23 @@ services:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
       - /:/rootfs:ro
-    ports:
-      - '9100:9100'
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+    networks:
+      - app-network
   grafana:
     image: grafana/grafana:latest
     depends_on:
       - prometheus
       - node-exporter
-    volumes:
-      - ./configs/grafana/grafana.ini:/configs/grafana/grafana.ini
-    environment:
-      - GF_SECURITY_ADMIN_USER=${ADMIN_USER:-admin}
-      - GF_SECURITY_ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin}
-      - GF_USERS_ALLOW_SIGN_UP=false
+    env_file:
+      - configs/envs/grafana/main.env
     ports:
-      - "3030:3000"
+      - "3000:3000"
+    networks:
+      - app-network
 networks:
   api-network:
     driver: bridge
