@@ -132,7 +132,7 @@ services:
     ports:
       - "9093:9093"
     volumes:
-      - "./configs/alertmanager:/configs/alertmanager"
+      - ./configs/alertmanager:/configs/alertmanager
     command:
       - '--config.file=/configs/alertmanager/alertmanager.yml'
     restart: always
