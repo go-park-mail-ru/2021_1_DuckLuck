@@ -1,11 +1,41 @@
 groups:
-  - name: default
+  - name: api-server
     rules:
       - alert: InternalServerError
-        expr: increase(hits{status="500"}[1m]) > 0
+        expr: increase(api_server_errors{status_code="500"}[1m]) > 0
         for: 1s
         labels:
           severity: critical
         annotations:
-          summary: "path {{ $labels.path }} returned status 500"
+          summary: "api-server: path {{ $labels.path }} returned status 500"
+          description: "{{ $labels.path }} of job {{ $labels.job }} returned status {{ $labels.status }}"
+  - name: session-service
+    rules:
+      - alert: InternalServerError
+        expr: increase(session_service_errors{status_code="500"}[1m]) > 0
+        for: 1s
+        labels:
+          severity: critical
+        annotations:
+          summary: "session-service: path {{ $labels.path }} returned status 500"
+          description: "{{ $labels.path }} of job {{ $labels.job }} returned status {{ $labels.status }}"
+  - name: cart-service
+    rules:
+      - alert: InternalServerError
+        expr: increase(cart_service_errors{status_code="500"}[1m]) > 0
+        for: 1s
+        labels:
+          severity: critical
+        annotations:
+          summary: "cart-service: path {{ $labels.path }} returned status 500"
+          description: "{{ $labels.path }} of job {{ $labels.job }} returned status {{ $labels.status }}"
+  - name: auth-service
+    rules:
+      - alert: InternalServerError
+        expr: increase(auth_service_errors{status_code="500"}[1m]) > 0
+        for: 1s
+        labels:
+          severity: critical
+        annotations:
+          summary: "auth-service: path {{ $labels.path }} returned status 500"
           description: "{{ $labels.path }} of job {{ $labels.job }} returned status {{ $labels.status }}"

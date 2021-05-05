@@ -105,6 +105,7 @@ services:
     restart: always
     volumes:
       - ./configs/prometheus/prometheus.yml:/configs/prometheus/prometheus.yml
+      - ./configs/prometheus/alerts.yml:/configs/prometheus/alerts.yml
     command:
       - '--config.file=/configs/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
@@ -114,8 +115,6 @@ services:
     networks:
       - api-network
       - app-network
-    ports:
-      - "9090:9090"
   grafana:
     image: grafana/grafana:latest
     depends_on:
@@ -129,27 +128,24 @@ services:
       - app-network
   alertmanager:
     image: prom/alertmanager
-    ports:
-      - "9093:9093"
     volumes:
       - ./configs/alertmanager:/configs/alertmanager
     command:
       - '--config.file=/configs/alertmanager/alertmanager.yml'
+      - '--storage.path=/configs/alertmanager'
     restart: always
     networks:
       - app-network
   alertmanager-bot:
     image: metalmatze/alertmanager-bot
+    depends_on:
+      - alertmanager
     command:
-      - "--listen.addr=0.0.0.0:9080"
-    environment:
-      ALERTMANAGER_URL: http://alertmanager:9093
-      BOLT_PATH: /data/bot.db
-      STORE: bolt
-      TEMPLATE_PATHS: /alertbot/default.tmpl
+      - "--listen.addr=0.0.0.0:8080"
+    env_file:
+      - configs/envs/alertmanager_bot/main.env
     volumes:
-      - ./configs/alertbot:/configs/alertbot
-      - ./data:/data
+      - ./configs/alertbot/default.tmpl:/configs/alertbot/default.tmpl
     restart: always
     networks:
       - app-network

@@ -2,16 +2,18 @@ global:
   resolve_timeout: 5m
 
 route:
-  group_by: ['alertname']
+  group_by:
+    - 'alertname'
   group_wait: 30s
   group_interval: 10s
   repeat_interval: 20s
-  receiver: 'email'
-
+  receiver: 'alertmananger-bot'
+  routes:
+    - receiver: alertmananger-bot
 receivers:
   - name: 'alertmananger-bot'
     webhook_configs:
-      - url: 'http://alertmanager-bot:9080'
+      - url: 'http://alertmanager-bot:8080'
 
 inhibit_rules:
   - source_match:
