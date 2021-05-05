@@ -73,7 +73,7 @@ func (h *ReviewHandler) CheckReviewRights(w http.ResponseWriter, r *http.Request
 
 	err = h.ReviewUCase.CheckReviewUserRights(currentSession.UserData.Id, uint64(productId))
 	if err != nil {
-		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
+		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusConflict)
 		return
 	}
 
