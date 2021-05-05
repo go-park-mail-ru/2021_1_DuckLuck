@@ -45,6 +45,7 @@ jobs:
             ./log
             ./scripts
             ./uploads
+            ./configs
   deploy:
     runs-on: ubuntu-latest
     needs: build
