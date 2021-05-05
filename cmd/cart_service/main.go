@@ -88,7 +88,7 @@ func main() {
 	)
 	proto.RegisterCartServiceServer(server, cartServer)
 
-	metrics.CreateNewMetricsRouter(os.Getenv("CART_SERVICE_HOST"))
+	go metrics.CreateNewMetricsRouter(os.Getenv("CART_SERVICE_HOST"))
 
 	if err := server.Serve(lis); err != nil {
 		log.Fatal(err)

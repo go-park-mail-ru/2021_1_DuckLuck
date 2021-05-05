@@ -9,7 +9,16 @@ scrape_configs:
   - job_name: 'api_server'
     metrics_path: '/metrics'
     static_configs:
-      - targets: ['api-server:9090', 'session-service:9090', 'cart-service:9090', 'auth-service:9090']
+      - targets: ['api-server:8080', 'session-service:9090', 'cart-service:9090', 'auth-service:9090']
   - job_name: 'prometheus'
     static_configs:
       - targets: ['prometheus:9090']
+
+rule_files:
+  - 'alerts.yml'
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager:9093

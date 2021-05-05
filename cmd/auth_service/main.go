@@ -100,7 +100,7 @@ func main() {
 	)
 	proto.RegisterAuthServiceServer(server, authServer)
 
-	metrics.CreateNewMetricsRouter(os.Getenv("AUTH_SERVICE_HOST"))
+	go metrics.CreateNewMetricsRouter(os.Getenv("AUTH_SERVICE_HOST"))
 
 	if err := server.Serve(lis); err != nil {
 		log.Fatal(err)

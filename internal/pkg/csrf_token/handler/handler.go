@@ -38,5 +38,5 @@ func (h *CsrfTokenHandler) GetCsrfToken(w http.ResponseWriter, r *http.Request) 
 	}
 	csrfToken.Value = jwtToken
 
-	http_utils.SetJSONResponse(w, csrfToken, http.StatusOK)
+	http_utils.SetJSONResponse(w, csrfToken, http.StatusInternalServerError)
 }

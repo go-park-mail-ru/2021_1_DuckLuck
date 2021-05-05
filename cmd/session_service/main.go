@@ -89,7 +89,7 @@ func main() {
 	)
 	proto.RegisterSessionServiceServer(server, sessionServer)
 
-	metrics.CreateNewMetricsRouter(os.Getenv("SESSION_SERVICE_HOST"))
+	go metrics.CreateNewMetricsRouter(os.Getenv("SESSION_SERVICE_HOST"))
 
 	if err := server.Serve(lis); err != nil {
 		log.Fatal(err)

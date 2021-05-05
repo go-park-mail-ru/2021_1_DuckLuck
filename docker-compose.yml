@@ -112,6 +112,7 @@ services:
       - '--web.console.libraries=/usr/share/prometheus/console_libraries'
       - '--web.console.templates=/usr/share/prometheus/consoles'
     networks:
+      - api-network
       - app-network
     ports:
       - "9090:9090"
@@ -123,7 +124,33 @@ services:
     env_file:
       - configs/envs/grafana/main.env
     ports:
-      - "3000:3000"
+      - "3030:3000"
+    networks:
+      - app-network
+  alertmanager:
+    image: prom/alertmanager
+    ports:
+      - "9093:9093"
+    volumes:
+      - "./configs/alertmanager:/configs/alertmanager"
+    command:
+      - '--config.file=/configs/alertmanager/alertmanager.yml'
+    restart: always
+    networks:
+      - app-network
+  alertmanager-bot:
+    image: metalmatze/alertmanager-bot
+    command:
+      - "--listen.addr=0.0.0.0:9080"
+    environment:
+      ALERTMANAGER_URL: http://alertmanager:9093
+      BOLT_PATH: /data/bot.db
+      STORE: bolt
+      TEMPLATE_PATHS: /alertbot/default.tmpl
+    volumes:
+      - ./configs/alertbot:/configs/alertbot
+      - ./data:/data
+    restart: always
     networks:
       - app-network
 networks:
