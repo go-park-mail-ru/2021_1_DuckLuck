@@ -53,7 +53,7 @@ DROP TABLE IF EXISTS products CASCADE;
 CREATE TABLE products (
     id SERIAL NOT NULL PRIMARY KEY,
     title TEXT NOT NULL UNIQUE,
-    rating NUMERIC(4, 2) NOT NULL DEFAULT 0,
+    rating NUMERIC(4, 2) NOT NULL DEFAULT 0.0,
     description TEXT,
     base_cost INTEGER NOT NULL,
     total_cost INTEGER NOT NULL,
@@ -99,23 +99,6 @@ CREATE TRIGGER t_create_fts
     FOR EACH ROW
     EXECUTE PROCEDURE create_fts();
 
-
-DROP FUNCTION IF EXISTS update_rating() CASCADE;
-CREATE OR REPLACE FUNCTION update_rating() RETURNS TRIGGER AS $$
-BEGIN
-    UPDATE products SET (rating) = (
-        SELECT avg(rating)
-        FROM reviews rv
-        WHERE rv.product_id = NEW.product_id
-    )
-RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-DROP TRIGGER IF EXISTS t_reviews on reviews CASCADE;
-CREATE TRIGGER t_reviews
-    AFTER INSERT OR UPDATE OR DELETE ON reviews
-    FOR EACH ROW EXECUTE PROCEDURE reviews();
 
 
 DROP TABLE IF EXISTS user_orders CASCADE;
@@ -173,6 +156,23 @@ CREATE TABLE reviews (
     CONSTRAINT rating_value CHECK (rating >= 0 AND rating <= 5)
 );
 
+DROP FUNCTION IF EXISTS update_rating() CASCADE;
+CREATE OR REPLACE FUNCTION update_rating() RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE products SET (rating) = (
+        SELECT avg(rating)
+        FROM reviews rv
+        WHERE rv.product_id = NEW.product_id
+    )
+    WHERE products.id = NEW.product_id;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS t_reviews on reviews CASCADE;
+CREATE TRIGGER t_reviews
+    AFTER INSERT OR UPDATE OR DELETE ON reviews
+    FOR EACH ROW EXECUTE PROCEDURE update_rating();
 
 GRANT ALL PRIVILEGES ON TABLE data_users TO ozon_root;
 GRANT ALL PRIVILEGES ON TABLE ordered_products TO ozon_root;
