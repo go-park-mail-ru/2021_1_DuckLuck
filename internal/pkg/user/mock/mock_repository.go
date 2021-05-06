@@ -49,21 +49,6 @@ func (mr *MockRepositoryMockRecorder) AddProfile(arg0 interface{}) *gomock.Call 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddProfile", reflect.TypeOf((*MockRepository)(nil).AddProfile), arg0)
 }
 
-// SelectProfileByEmail mocks base method.
-func (m *MockRepository) SelectProfileByEmail(arg0 string) (*models.ProfileUser, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SelectProfileByEmail", arg0)
-	ret0, _ := ret[0].(*models.ProfileUser)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// SelectProfileByEmail indicates an expected call of SelectProfileByEmail.
-func (mr *MockRepositoryMockRecorder) SelectProfileByEmail(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectProfileByEmail", reflect.TypeOf((*MockRepository)(nil).SelectProfileByEmail), arg0)
-}
-
 // SelectProfileById mocks base method.
 func (m *MockRepository) SelectProfileById(arg0 uint64) (*models.ProfileUser, error) {
 	m.ctrl.T.Helper()
