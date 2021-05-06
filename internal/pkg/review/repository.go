@@ -2,7 +2,7 @@ package review
 
 import "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 
-//go:generate mockgen -destination=./mock/mock_repository.go -package=mock github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product Repository
+//go:generate mockgen -destination=./mock/mock_repository.go -package=mock github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/review Repository
 
 type Repository interface {
 	SelectStatisticsByProductId(productId uint64) (*models.ReviewStatistics, error)
