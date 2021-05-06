@@ -2,6 +2,8 @@ package session
 
 import "github.com/go-park-mail-ru/2021_1_DuckLuck/services/session/pkg/models"
 
+//go:generate mockgen -destination=./mock/mock_usecase.go -package=mock github.com/go-park-mail-ru/2021_1_DuckLuck/services/session/pkg/session UseCase
+
 type UseCase interface {
 	GetUserIdBySession(sessionCookieValue string) (uint64, error)
 	CreateNewSession(userId uint64) (*models.Session, error)

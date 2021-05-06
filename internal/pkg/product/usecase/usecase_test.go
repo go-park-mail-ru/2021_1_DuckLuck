@@ -115,7 +115,3 @@ func TestUserUseCase_GetProductById(t *testing.T) {
 		assert.Equal(t, err, errors.ErrCategoryNotFound, "not equal errors")
 	})
 }
-
-func TestUserUseCase_GetRangeProducts(t *testing.T) {
-
-}
