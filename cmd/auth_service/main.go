@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/pkg/metrics"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/pkg/tools/grpc_utils"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/pkg/tools/logger"
 	auth_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/services/auth/pkg/user/repository"
@@ -89,10 +90,17 @@ func main() {
 		log.Fatalf("error start session service %v", err)
 	}
 
+	metric, err := metrics.CreateNewMetrics("auth_service")
+	if err != nil {
+		log.Fatal(err)
+	}
+	accessInterceptor := grpc_utils.AccessInterceptor(metric)
 	server := grpc.NewServer(
-		grpc.UnaryInterceptor(grpc_utils.AuthInterceptor),
+		grpc.UnaryInterceptor(accessInterceptor),
 	)
 	proto.RegisterAuthServiceServer(server, authServer)
+
+	go metrics.CreateNewMetricsRouter(os.Getenv("AUTH_SERVICE_HOST"))
 
 	if err := server.Serve(lis); err != nil {
 		log.Fatal(err)

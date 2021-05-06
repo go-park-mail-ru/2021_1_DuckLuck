@@ -34,12 +34,14 @@ import (
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/middleware"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/s3_utils"
 	_ "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/s3_utils"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/pkg/metrics"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/pkg/tools/logger"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"
 )
 
@@ -183,7 +185,13 @@ func main() {
 	csrfTokenHandler := csrf_token_delivery.NewHandler()
 
 	mainMux := mux.NewRouter()
-	mainMux.Use(middleware.AccessLog)
+
+	metric, err := metrics.CreateNewMetrics("api_server")
+	if err != nil {
+		log.Fatal(err)
+	}
+	accessLog := middleware.AccessLog(metric)
+	mainMux.Use(accessLog)
 	mainMux.Use(middleware.Panic)
 	mainMux.Use(middleware.Cors)
 	// Check csrf token
@@ -198,6 +206,8 @@ func main() {
 	mainMux.HandleFunc("/api/v1/category", categoryHandler.GetCatalogCategories).Methods("GET", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/category/{id:[0-9]+}", categoryHandler.GetSubCategories).Methods("GET", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/review/product/{id:[0-9]+}", reviewHandler.GetReviewsForProduct).Methods("POST", "OPTIONS")
+
+	mainMux.Handle("/metrics", promhttp.Handler())
 
 	// Handlers with Auth middleware
 	authMux := mainMux.PathPrefix("/").Subrouter()

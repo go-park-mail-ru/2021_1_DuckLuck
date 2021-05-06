@@ -139,12 +139,12 @@ func (r *PostgresqlRepository) SelectStatisticsByProductId(productId uint64) (*m
 // Check rights for review (the user has completed orders)
 func (r *PostgresqlRepository) CheckReview(userId uint64, productId uint64) bool {
 	row := r.db.QueryRow(
-		"SELECT count(us.id) "+
+		"SELECT (SELECT count(us.id) "+
 			"FROM user_orders us "+
 			"JOIN ordered_products op ON us.id = op.order_id "+
-			"LEFT JOIN reviews rv ON op.product_id = rv.product_id "+
-			"WHERE (us.user_id = $1 AND op.product_id = $2 "+
-			"AND rv.product_id IS NULL)",
+			"WHERE (us.user_id = $1 AND op.product_id = $2)) - "+
+			"(SELECT count(rv.id) FROM reviews rv "+
+			"WHERE (rv.user_id = $1 AND rv.product_id = $2))",
 		userId,
 		productId,
 	)

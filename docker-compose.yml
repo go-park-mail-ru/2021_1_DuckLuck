@@ -83,6 +83,72 @@ services:
     networks:
       - cart-network
       - app-network
+  node-exporter:
+    image: prom/node-exporter
+    restart: always
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+    networks:
+      - app-network
+  prometheus:
+    depends_on:
+      - api-server
+      - node-exporter
+    image: prom/prometheus
+    privileged: true
+    restart: always
+    volumes:
+      - ./configs/prometheus/prometheus.yml:/configs/prometheus/prometheus.yml
+      - ./configs/prometheus/alerts.yml:/configs/prometheus/alerts.yml
+    command:
+      - '--config.file=/configs/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention=20d'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    networks:
+      - api-network
+      - app-network
+  grafana:
+    image: grafana/grafana:latest
+    depends_on:
+      - prometheus
+      - node-exporter
+    env_file:
+      - configs/envs/grafana/main.env
+    ports:
+      - "3030:3000"
+    networks:
+      - app-network
+  alertmanager:
+    image: prom/alertmanager
+    volumes:
+      - ./configs/alertmanager:/configs/alertmanager
+    command:
+      - '--config.file=/configs/alertmanager/alertmanager.yml'
+      - '--storage.path=/configs/alertmanager'
+    restart: always
+    networks:
+      - app-network
+  alertmanager-bot:
+    image: metalmatze/alertmanager-bot
+    depends_on:
+      - alertmanager
+    command:
+      - "--listen.addr=0.0.0.0:8080"
+    env_file:
+      - configs/envs/alertmanager_bot/main.env
+    volumes:
+      - ./configs/alertbot/default.tmpl:/configs/alertbot/default.tmpl
+    restart: always
+    networks:
+      - app-network
 networks:
   api-network:
     driver: bridge
