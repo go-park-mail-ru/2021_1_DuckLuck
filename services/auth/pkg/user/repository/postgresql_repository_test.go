@@ -20,9 +20,9 @@ func TestPostgresqlRepository_SelectUserByEmail(t *testing.T) {
 	hashedPassword, _ := password_hasher.GenerateHashFromPassword("qwerty")
 
 	userProfile := models.AuthUser{
-		Id:        userId,
-		Password:  hashedPassword,
-		Email: userEmail,
+		Id:       userId,
+		Password: hashedPassword,
+		Email:    userEmail,
 	}
 
 	t.Run("SelectUserByEmail_success", func(t *testing.T) {
@@ -116,9 +116,9 @@ func TestPostgresqlRepository_AddProfile(t *testing.T) {
 	hashedPassword, _ := password_hasher.GenerateHashFromPassword("qwerty")
 
 	userProfile := models.AuthUser{
-		Id:        userId,
-		Password:  hashedPassword,
-		Email: userEmail,
+		Id:       userId,
+		Password: hashedPassword,
+		Email:    userEmail,
 	}
 
 	t.Run("AddProfile_internal_db_error", func(t *testing.T) {

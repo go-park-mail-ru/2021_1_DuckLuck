@@ -38,7 +38,7 @@ func TestNewSessionRedisRepository(t *testing.T) {
 
 func TestRedisRepository_AddSession(t *testing.T) {
 	sess := models.Session{
-		Value: "test",
+		Value:  "test",
 		UserId: uint64(33),
 	}
 
@@ -67,7 +67,7 @@ func TestRedisRepository_SelectUserIdBySession(t *testing.T) {
 	incorrectValue := "none"
 	failureValue := "five"
 	sess := models.Session{
-		Value: sessionValue,
+		Value:  sessionValue,
 		UserId: uint64(33),
 	}
 	data := fmt.Sprintf("%d", sess.UserId)
@@ -106,7 +106,7 @@ func TestRedisRepository_SelectUserIdBySession(t *testing.T) {
 func TestRedisRepository_DeleteSessionByValue(t *testing.T) {
 	sessionValue := "test"
 	sess := models.Session{
-		Value: sessionValue,
+		Value:  sessionValue,
 		UserId: uint64(33),
 	}
 	data := fmt.Sprintf("%d", sess.UserId)

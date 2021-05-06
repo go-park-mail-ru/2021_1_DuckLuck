@@ -142,7 +142,6 @@ func TestReviewHandler_AddNewReview(t *testing.T) {
 		req, _ := http.NewRequestWithContext(cctx, "POST", "/api/v1/review/product",
 			bytes.NewBuffer(reviewBytes))
 
-
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(reviewHandler.AddNewReview)
 		handler.ServeHTTP(rr, req)

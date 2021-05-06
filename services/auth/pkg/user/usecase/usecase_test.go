@@ -23,9 +23,9 @@ func TestUserUseCase_Login(t *testing.T) {
 
 	hashedPassword, _ := password_hasher.GenerateHashFromPassword("qwerty")
 	profileUser := models.AuthUser{
-		Id:        1,
-		Password:  hashedPassword,
-		Email:     "test@test.ru",
+		Id:       1,
+		Password: hashedPassword,
+		Email:    "test@test.ru",
 	}
 
 	userId := uint64(1)
@@ -91,9 +91,9 @@ func TestUserUseCase_Signup(t *testing.T) {
 
 	hashedPassword, _ := password_hasher.GenerateHashFromPassword("qwerty")
 	profileUser := models.AuthUser{
-		Id:        1,
-		Email:     "test@test.ru",
-		Password:  hashedPassword,
+		Id:       1,
+		Email:    "test@test.ru",
+		Password: hashedPassword,
 	}
 
 	t.Run("Signup_success", func(t *testing.T) {
