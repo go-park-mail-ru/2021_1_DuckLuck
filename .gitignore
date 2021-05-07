@@ -1,5 +1,7 @@
 # Project gitignore
 configs/envs
+services_data/
+
 .idea
 bin
 go.sum
