@@ -1,7 +1,11 @@
 name: Build and deploy
 
 env:
-  TAG: v1.7
+  api-db-tag: v1.7
+  api-server-tag: v1.7
+  session-service-tag: v1.7
+  auth-service-tag: v1.7
+  cart-service-tag: v1.7
 
 on:
   push:
@@ -17,25 +21,25 @@ jobs:
       - name: Login to DockerHub Registry
         run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
       - name: Build Docker api-server image
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/api-server:${{ env.TAG }} --target api-server .
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/api-server:${{ env.api-server-tag }} --target api-server .
       - name: Push the api_server image
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/api-server:${{ env.TAG }}
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/api-server:${{ env.api-server-tag }}
       - name: Build Docker api-db image
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/api-db:${{ env.TAG }} --target api-db .
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/api-db:${{ env.api-db-tag }} --target api-db .
       - name: Push the api-db image
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/api-db:${{ env.TAG }}
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/api-db:${{ env.api-db-tag }}
       - name: Build Docker session-service image
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/session-service:${{ env.TAG }} --target session-service .
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/session-service:${{ env.session-service-tag }} --target session-service .
       - name: Push the session-service image
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/session-service:${{ env.TAG }}
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/session-service:${{ env.session-service-tag }}
       - name: Build Docker cart-service image
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/cart-service:${{ env.TAG }} --target cart-service .
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/cart-service:${{ env.cart-service-tag }} --target cart-service .
       - name: Push the cart-service image
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/cart-service:${{ env.TAG }}
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/cart-service:${{ env.cart-service-tag }}
       - name: Build Docker auth-service image
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/auth-service:${{ env.TAG }} --target auth-service .
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/auth-service:${{ env.auth-service-tag }} --target auth-service .
       - name: Push the auth-service image
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/auth-service:${{ env.TAG }}
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/auth-service:${{ env.auth-service-tag }}
       - name: Upload dependencies
         uses: actions/upload-artifact@v2
         with:
@@ -111,6 +115,10 @@ jobs:
           key: ${{ secrets.PRIVATE_KEY }}
           script: |
             cd /home/ubuntu/duckluckmarket/Backend
-            echo TAG=${{ env.TAG }} > .env
+            echo api-db-tag=${{ env.api-db-tag }} > .env
+            echo api-server-tag=${{ env.api-server-tag }} >> .env
+            echo session-service-tag=${{ env.session-service-tag }} >> .env
+            echo auth-service-tag=${{ env.auth-service-tag }} >> .env
+            echo cart-service-tag=${{ env.cart-service-tag }} >> .env
             sudo docker-compose down
             sudo docker-compose up -d
