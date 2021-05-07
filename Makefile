@@ -19,7 +19,7 @@ cart_service:
 
 .PHONY: auth_service
 auth_service:
-	go build -o bin/cart_service -v ./cmd/auth_service
+	go build -o bin/auth_service -v ./cmd/auth_service
 
 .PHONY: start_local
 start_local:
