@@ -1,9 +1,9 @@
 .PHONY: build
 build:
-	go build -o bin/api_server -v ./cmd/api_server
-	go build -o bin/session_service -v ./cmd/session_service
-	go build -o bin/cart_service -v ./cmd/cart_service
-	go build -o bin/auth_service -v ./cmd/auth_service
+	make api_server
+	make session_service
+	make cart_service
+	make auth_service
 
 .PHONY: api_server
 api_server:
