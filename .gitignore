@@ -2,6 +2,9 @@
 configs/envs
 services_data/
 
+nflog
+silences
+
 .idea
 bin
 go.sum
