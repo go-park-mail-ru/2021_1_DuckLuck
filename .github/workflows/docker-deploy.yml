@@ -73,7 +73,7 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.PRIVATE_KEY }}
-          script: sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/api-server:${{ env.TAG }}
+          script: sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/api-server:${{ env.API_SERVER_TAG  }}
       - name: pull api-db docker image
         uses: appleboy/ssh-action@master
         with:
@@ -81,7 +81,7 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.PRIVATE_KEY }}
-          script: sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/api-db:${{ env.TAG }}
+          script: sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/api-db:${{ env.API_DB_TAG }}
       - name: pull cart-service docker image
         uses: appleboy/ssh-action@master
         with:
@@ -89,7 +89,7 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.PRIVATE_KEY }}
-          script: sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/cart-service:${{ env.TAG }}
+          script: sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/cart-service:${{ env.CART_SERVICE_TAG }}
       - name: pull auth-service docker image
         uses: appleboy/ssh-action@master
         with:
@@ -97,7 +97,7 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.PRIVATE_KEY }}
-          script: sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/auth-service:${{ env.TAG }}
+          script: sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/auth-service:${{ env.AUTH_SERVICE_TAG }}
       - name: pull session-service docker image
         uses: appleboy/ssh-action@master
         with:
@@ -105,7 +105,7 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.PRIVATE_KEY }}
-          script: sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/session-service:${{ env.TAG }}
+          script: sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/session-service:${{ env.SESSION_SERVICE_TAG }}
       - name: deploy docker image
         uses: appleboy/ssh-action@master
         with:
