@@ -123,7 +123,7 @@ services:
     env_file:
       - configs/envs/grafana/main.env
     volumes:
-      - grafana-storage:/var/lib/grafana
+      - ./services_data/grafana/data:/var/lib/grafana
       - ./services_data/grafana/datasources:/etc/grafana/datasources
       - ./services_data/grafana/dashboards:/etc/grafana/dashboards
     ports:
