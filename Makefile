@@ -24,11 +24,11 @@ auth_service:
 .PHONY: start_local
 start_local:
 	make stop_local
-	echo api-db-tag=local > .env
-	echo api-server-tag=local >> .env
-	echo session-service-tag=local >> .env
-	echo auth-service-tag=local >> .env
-	echo cart-service-tag=local >> .env
+	echo API_DB_TAG=local > .env
+	echo API_SERVER_TAG=local >> .env
+	echo SESSION_SERVICE_TAG=local >> .env
+	echo AUTH_SERVICE_TAG=local >> .env
+	echo CART_SERVICE_TAG=local >> .env
 	docker build -t duckluckmarket/api-server:local --target api-server .
 	docker build -t duckluckmarket/api-db:local --target api-db .
 	docker build -t duckluckmarket/auth-service:local --target auth-service .
