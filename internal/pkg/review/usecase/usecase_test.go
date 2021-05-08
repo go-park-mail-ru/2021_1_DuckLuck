@@ -119,6 +119,8 @@ func TestReviewUseCase_GetReviewsByProductId(t *testing.T) {
 		Count:              0,
 		SortReviewsOptions: models.SortReviewsOptions{},
 	}
+	reviews := []*models.ViewReview{{}}
+	userProfile := models.ProfileUser{}
 
 	t.Run("GetStatisticsByProductId_paginator_error", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
@@ -179,5 +181,81 @@ func TestReviewUseCase_GetReviewsByProductId(t *testing.T) {
 		_, err := userUCase.GetReviewsByProductId(productId, &badPaginator)
 
 		assert.Equal(t, errors.ErrIncorrectPaginator, err, "not equal data")
+	})
+
+	t.Run("GetReviewsByProductId_success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		badPaginator.Count = 2
+		badPaginator.PageNum = 4
+
+		reviewRepo := mock.NewMockRepository(ctrl)
+
+		reviewRepo.
+			EXPECT().
+			GetCountPages(productId, badPaginator.Count).
+			Return(1, nil)
+
+		reviewRepo.
+			EXPECT().
+			CreateSortString(badPaginator.SortKey, badPaginator.SortDirection).
+			Return("", nil)
+
+		reviewRepo.
+			EXPECT().
+			SelectRangeReviews(productId, "", &badPaginator).
+			Return(reviews, nil)
+
+
+		userRepo := user_mock.NewMockRepository(ctrl)
+		userRepo.
+			EXPECT().
+			SelectProfileById(uint64(0)).
+			Return(&userProfile, nil)
+
+		userUCase := NewUseCase(reviewRepo, userRepo)
+
+		_, err := userUCase.GetReviewsByProductId(productId, &badPaginator)
+
+		assert.NoError(t, err, "not error")
+	})
+
+	t.Run("GetReviewsByProductId_internal_error", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		badPaginator.Count = 2
+		badPaginator.PageNum = 4
+
+		reviewRepo := mock.NewMockRepository(ctrl)
+
+		reviewRepo.
+			EXPECT().
+			GetCountPages(productId, badPaginator.Count).
+			Return(1, nil)
+
+		reviewRepo.
+			EXPECT().
+			CreateSortString(badPaginator.SortKey, badPaginator.SortDirection).
+			Return("", nil)
+
+		reviewRepo.
+			EXPECT().
+			SelectRangeReviews(productId, "", &badPaginator).
+			Return(reviews, nil)
+
+
+		userRepo := user_mock.NewMockRepository(ctrl)
+		userRepo.
+			EXPECT().
+			SelectProfileById(uint64(0)).
+			Return(&userProfile, errors.ErrInternalError)
+
+		userUCase := NewUseCase(reviewRepo, userRepo)
+
+		_, err := userUCase.GetReviewsByProductId(productId, &badPaginator)
+
+		assert.Error(t, err, "expected error")
 	})
 }

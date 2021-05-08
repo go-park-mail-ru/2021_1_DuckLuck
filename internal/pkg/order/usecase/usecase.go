@@ -9,8 +9,6 @@ import (
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	proto "github.com/go-park-mail-ru/2021_1_DuckLuck/services/cart/proto/cart"
-
-	"google.golang.org/grpc"
 )
 
 type OrderUseCase struct {
@@ -20,11 +18,11 @@ type OrderUseCase struct {
 	UserRepo    user.Repository
 }
 
-func NewUseCase(orderRepo order.Repository, cartConn grpc.ClientConnInterface,
+func NewUseCase(orderRepo order.Repository, cartClient proto.CartServiceClient,
 	productRepo product.Repository, userRepo user.Repository) order.UseCase {
 	return &OrderUseCase{
 		OrderRepo:   orderRepo,
-		CartClient:  proto.NewCartServiceClient(cartConn),
+		CartClient:  cartClient,
 		ProductRepo: productRepo,
 		UserRepo:    userRepo,
 	}

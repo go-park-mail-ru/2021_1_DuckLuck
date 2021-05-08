@@ -9,6 +9,7 @@ import (
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestPostgresqlRepository_GetNextLevelCategories(t *testing.T) {
@@ -203,8 +204,65 @@ func TestPostgresqlRepository_GetCategoriesByLevel(t *testing.T) {
 	})
 }
 
-func TestPostgresqlRepository_GetAllSubCategoriesId(t *testing.T) {
+func TestPostgresqlRepository_GetBordersOfBranch(t *testing.T) {
+	leftNode := uint64(3)
+	rightNode := uint64(4)
+	categoryId := uint64(25)
 
+	t.Run("GetBordersOfBranch_success", func(t *testing.T) {
+		db, sqlMock, err := sqlmock.New()
+		if err != nil {
+			t.Fatalf("can't create mock: %s", err)
+		}
+		defer db.Close()
+
+		repository := NewSessionPostgresqlRepository(db)
+
+		rows := sqlmock.
+			NewRows([]string{"left_node", "right_node"}).
+			AddRow(leftNode, rightNode)
+		sqlMock.
+			ExpectQuery("SELECT").
+			WithArgs(categoryId).
+			WillReturnRows(rows)
+
+		left, right, err := repository.GetBordersOfBranch(categoryId)
+		if err != nil {
+			t.Errorf("internal err: %s", err)
+			return
+		}
+
+		err = sqlMock.ExpectationsWereMet()
+		if err != nil {
+			t.Errorf("expectations were not met in order: %s", err)
+			return
+		}
+
+		assert.NoError(t, err, "unexpected error")
+		assert.Equal(t, leftNode, left)
+		assert.Equal(t, rightNode, right)
+	})
+
+	t.Run("GetBordersOfBranch_incorrect_data", func(t *testing.T) {
+		db, sqlMock, err := sqlmock.New()
+		if err != nil {
+			t.Fatalf("can't create mock: %s", err)
+		}
+		defer db.Close()
+
+		repository := NewSessionPostgresqlRepository(db)
+
+		rows := sqlmock.
+			NewRows([]string{"left_node", "right_node"}).
+			AddRow(leftNode, "test")
+		sqlMock.
+			ExpectQuery("SELECT").
+			WithArgs(categoryId).
+			WillReturnRows(rows)
+
+		_, _, err = repository.GetBordersOfBranch(categoryId)
+		assert.Error(t, err, "expected error")
+	})
 }
 
 func TestPostgresqlRepository_GetPathToCategory(t *testing.T) {
