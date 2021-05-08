@@ -29,6 +29,7 @@ start_local:
 	echo SESSION_SERVICE_TAG=local >> .env
 	echo AUTH_SERVICE_TAG=local >> .env
 	echo CART_SERVICE_TAG=local >> .env
+	docker volume create --name=grafana-storage
 	docker build -t duckluckmarket/api-server:local --target api-server .
 	docker build -t duckluckmarket/api-db:local --target api-db .
 	docker build -t duckluckmarket/auth-service:local --target auth-service .
