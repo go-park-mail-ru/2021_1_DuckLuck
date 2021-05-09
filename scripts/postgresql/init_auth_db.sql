@@ -11,7 +11,7 @@ GRANT ALL PRIVILEGES ON database ozon_auth_db TO ozon_root;
 DROP TABLE IF EXISTS auth_users CASCADE;
 CREATE TABLE auth_users (
     id SERIAL NOT NULL PRIMARY KEY,
-    email TEXT NOT NULL,
+    email TEXT UNIQUE NOT NULL,
     password BYTEA NOT NULL
 );
 
