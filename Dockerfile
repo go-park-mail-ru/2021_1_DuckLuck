@@ -4,9 +4,9 @@ COPY go.mod .
 RUN go mod download
 COPY . /project
 RUN make build
-#RUN go test -coverprofile=coverage1.out -coverpkg=./... -cover ./...
-#RUN cat coverage1.out | grep -v mock | grep -v proto | grep -v cmd > cover.out
-#RUN go tool cover -func cover.out
+RUN go test -coverprofile=coverage1.out -coverpkg=./... -cover ./...
+RUN cat coverage1.out | grep -v mock | grep -v proto | grep -v cmd > cover.out
+RUN go tool cover -func cover.out
 
 FROM golang:1.15 as api-server-build
 WORKDIR /project
