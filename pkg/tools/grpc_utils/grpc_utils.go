@@ -3,7 +3,6 @@ package grpc_utils
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"time"
 
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/pkg/metrics"
@@ -31,20 +30,17 @@ func AccessInterceptor(metric *metrics.Metrics) grpc.UnaryServerInterceptor {
 		logger.GrpcAccessLogStart(info.FullMethod, requireId,
 			fmt.Sprintf("%v", req), fmt.Sprintf("%v", md))
 
-		re := regexp.MustCompile(".+/[a-z]+")
-		method := re.FindStringSubmatch(info.FullMethod)[0]
-
 		newContext := context.WithValue(ctx, RequireIdKey, requireId)
 		reply, err := handler(newContext, req)
 
 		if err != nil {
 			statusCode = "500"
-			metric.Errors.WithLabelValues(statusCode, method, method).Inc()
+			metric.Errors.WithLabelValues(statusCode, info.FullMethod, info.FullMethod).Inc()
 		} else {
-			metric.AccessHits.WithLabelValues(statusCode, method, method).Inc()
+			metric.AccessHits.WithLabelValues(statusCode, info.FullMethod, info.FullMethod).Inc()
 		}
 
-		metric.Durations.WithLabelValues(statusCode, method, method).Observe(time.Since(start).Seconds())
+		metric.Durations.WithLabelValues(statusCode, info.FullMethod, info.FullMethod).Observe(time.Since(start).Seconds())
 		logger.GrpcAccessLogEnd(info.FullMethod, requireId,
 			fmt.Sprintf("%v", reply), start)
 		metric.TotalHits.Inc()

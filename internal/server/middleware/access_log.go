@@ -36,7 +36,8 @@ func AccessLog(metric *metrics.Metrics) func(http.Handler) http.Handler {
 
 			logger.HttpAccessLogStart(r.URL.Path, r.RemoteAddr, r.Method, requireId)
 			startTime := time.Now()
-			re := regexp.MustCompile(".+/[a-z]+")
+
+			re := regexp.MustCompile(".?/[a-z]+")
 			url := re.FindStringSubmatch(r.URL.Path)[0]
 
 			next.ServeHTTP(&res, r)
