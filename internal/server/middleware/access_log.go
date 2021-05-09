@@ -3,6 +3,7 @@ package middleware
 import (
 	"context"
 	"net/http"
+	"regexp"
 	"strconv"
 	"time"
 
@@ -26,24 +27,31 @@ func (r *statusResponse) WriteHeader(code int) {
 func AccessLog(metric *metrics.Metrics) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			metric.ActualConnections.Inc()
+
 			requireId := shortuuid.New()
 			ctx := context.WithValue(r.Context(), models.RequireIdKey, requireId)
 			r = r.WithContext(ctx)
-			res := statusResponse{w, 200}
+			res := statusResponse{w, http.StatusOK}
 
-			startTime := time.Now()
 			logger.HttpAccessLogStart(r.URL.Path, r.RemoteAddr, r.Method, requireId)
+			startTime := time.Now()
+			re := regexp.MustCompile(".+/[a-z]+")
+			url := re.FindStringSubmatch(r.URL.Path)[0]
+
 			next.ServeHTTP(&res, r)
 			metric.Durations.WithLabelValues(strconv.Itoa(res.status), r.Method,
-				r.URL.Path).Observe(time.Since(startTime).Seconds())
-			logger.HttpAccessLogEnd(r.URL.Path, r.RemoteAddr, r.Method, requireId, startTime)
+				url).Observe(time.Since(startTime).Seconds())
+			logger.HttpAccessLogEnd(url, r.RemoteAddr, r.Method, requireId, startTime)
 
 			if res.status != http.StatusOK {
-				metric.Errors.WithLabelValues(strconv.Itoa(res.status), r.Method, r.URL.Path).Inc()
+				metric.Errors.WithLabelValues(strconv.Itoa(res.status), r.Method, url).Inc()
 			} else {
-				metric.AccessHits.WithLabelValues(strconv.Itoa(res.status), r.Method, r.URL.Path).Inc()
+				metric.AccessHits.WithLabelValues(strconv.Itoa(res.status), r.Method, url).Inc()
 			}
+
 			metric.TotalHits.Inc()
+			metric.ActualConnections.Desc()
 		})
 	}
 }
