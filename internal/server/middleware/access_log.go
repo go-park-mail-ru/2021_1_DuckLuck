@@ -45,7 +45,7 @@ func AccessLog(metric *metrics.Metrics) func(http.Handler) http.Handler {
 				url).Observe(time.Since(startTime).Seconds())
 			logger.HttpAccessLogEnd(url, r.RemoteAddr, r.Method, requireId, startTime)
 
-			if res.status != http.StatusOK {
+			if res.status >= 300 {
 				metric.Errors.WithLabelValues(strconv.Itoa(res.status), r.Method, url).Inc()
 			} else {
 				metric.AccessHits.WithLabelValues(strconv.Itoa(res.status), r.Method, url).Inc()
