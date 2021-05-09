@@ -314,9 +314,9 @@ func TestUserHandler_GetProfileAvatar(t *testing.T) {
 func TestUserHandler_GetProfile(t *testing.T) {
 	userId := uint64(12)
 	profileUser := models.ProfileUser{
-		Id:        userId,
-		AuthId:    2323,
-		Email:     "test@test.ru",
+		Id:     userId,
+		AuthId: 2323,
+		Email:  "test@test.ru",
 	}
 	sess := models.Session{
 		Value: "fdsfdsfdsf",

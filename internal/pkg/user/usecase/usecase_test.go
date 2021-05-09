@@ -2,13 +2,15 @@ package usecase
 
 import (
 	"context"
+	"testing"
+
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	user_mock "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user/mock"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	auth_service "github.com/go-park-mail-ru/2021_1_DuckLuck/services/auth/proto/user"
+
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestUserUseCase_Authorize(t *testing.T) {

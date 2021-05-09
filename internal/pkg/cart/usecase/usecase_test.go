@@ -20,7 +20,7 @@ func TestCartUseCase_AddProduct(t *testing.T) {
 	count := uint64(4)
 	productId := uint64(1)
 	cartArticle := &models.CartArticle{
-		ProductPosition:   models.ProductPosition{
+		ProductPosition: models.ProductPosition{
 			Count: count,
 		},
 		ProductIdentifier: models.ProductIdentifier{
@@ -123,7 +123,7 @@ func TestCartUseCase_ChangeProduct(t *testing.T) {
 	count := uint64(4)
 	productId := uint64(1)
 	cartArticle := &models.CartArticle{
-		ProductPosition:   models.ProductPosition{
+		ProductPosition: models.ProductPosition{
 			Count: count,
 		},
 		ProductIdentifier: models.ProductIdentifier{
@@ -224,11 +224,11 @@ func TestCartUseCase_GetPreviewCart(t *testing.T) {
 	}
 	cart := &proto.Cart{
 		Products: map[uint64]*proto.ProductPosition{
-			productId : &proto.ProductPosition{Count: 1},
+			productId: &proto.ProductPosition{Count: 1},
 		},
 	}
 	productById := &models.Product{
-		Images:       []string{"test"},
+		Images: []string{"test"},
 	}
 	previewCart := &models.PreviewCart{
 		Products: []*models.PreviewCartArticle{
@@ -237,7 +237,7 @@ func TestCartUseCase_GetPreviewCart(t *testing.T) {
 				Count:        1,
 			},
 		},
-		Price:    models.TotalPrice{},
+		Price: models.TotalPrice{},
 	}
 
 	t.Run("GetPreviewCart_success", func(t *testing.T) {

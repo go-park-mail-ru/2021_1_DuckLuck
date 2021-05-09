@@ -1,18 +1,20 @@
 package repository
 
 import (
-	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
+
+	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestPostgresqlRepository_SelectRangeOrders(t *testing.T) {
 	orders := []*models.PlacedOrder{
 		{
-			Id:             uint64(1),
-			Address:        models.OrderAddress{
+			Id: uint64(1),
+			Address: models.OrderAddress{
 				Address: "test street",
 			},
 			TotalCost:      12,
@@ -30,8 +32,8 @@ func TestPostgresqlRepository_SelectRangeOrders(t *testing.T) {
 	offset := 0
 	sortString := ""
 	paginator := models.PaginatorOrders{
-		PageNum:           1,
-		Count:             count,
+		PageNum: 1,
+		Count:   count,
 		SortOrdersOptions: models.SortOrdersOptions{
 			SortKey:       "",
 			SortDirection: "",
@@ -51,8 +53,8 @@ func TestPostgresqlRepository_SelectRangeOrders(t *testing.T) {
 			NewRows([]string{"id", "address", "total_cost", "date_added",
 				"date_delivery", "order_num", "status_pay"}).
 			AddRow(orders[0].Id, orders[0].Address.Address, orders[0].TotalCost,
-			orders[0].DateAdded, orders[0].DateDelivery, orders[0].OrderNumber.Number,
-			orders[0].StatusPay)
+				orders[0].DateAdded, orders[0].DateDelivery, orders[0].OrderNumber.Number,
+				orders[0].StatusPay)
 		sqlMock.
 			ExpectQuery("SELECT").
 			WithArgs(userId, count, offset).

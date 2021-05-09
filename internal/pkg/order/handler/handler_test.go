@@ -148,7 +148,7 @@ func TestOrderHandler_AddCompletedOrder(t *testing.T) {
 			LastName:  "surname",
 			Email:     "email@test.ru",
 		},
-		Address:   models.OrderAddress{
+		Address: models.OrderAddress{
 			Address: "test street",
 		},
 	}
@@ -278,8 +278,8 @@ func TestOrderHandler_GetUserOrders(t *testing.T) {
 		},
 	}
 	orderPaginator := models.PaginatorOrders{
-		PageNum:           2,
-		Count:             3,
+		PageNum: 2,
+		Count:   3,
 		SortOrdersOptions: models.SortOrdersOptions{
 			SortKey:       "date",
 			SortDirection: "ASC",

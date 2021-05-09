@@ -1,19 +1,21 @@
 package usecase
 
 import (
+	"testing"
+
 	category_mock "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/category/mock"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
+
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
-func TestUserUseCase_GetSubCategoriesById(t *testing.T) {
+func TestCategoryUseCase_GetSubCategoriesById(t *testing.T) {
 	categoryId := uint64(1)
 	categories := []*models.CategoriesCatalog{
 		{
-			Id: categoryId,
+			Id:   categoryId,
 			Name: "test",
 			Next: nil,
 		},

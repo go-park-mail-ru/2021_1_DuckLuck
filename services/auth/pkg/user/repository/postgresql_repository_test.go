@@ -2,13 +2,14 @@ package repository
 
 import (
 	"database/sql"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/services/auth/server/tools/password_hasher"
 	"reflect"
 	"testing"
 
-	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/services/auth/pkg/models"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/services/auth/server/errors"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/services/auth/server/tools/password_hasher"
+
+	"github.com/DATA-DOG/go-sqlmock"
 )
 
 func TestPostgresqlRepository_SelectUserByEmail(t *testing.T) {

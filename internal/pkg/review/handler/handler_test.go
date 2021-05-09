@@ -280,8 +280,8 @@ func TestReviewHandler_GetReviewsForProduct(t *testing.T) {
 		},
 	}
 	paginatorReview := models.PaginatorReviews{
-		PageNum:            2,
-		Count:              4,
+		PageNum: 2,
+		Count:   4,
 		SortReviewsOptions: models.SortReviewsOptions{
 			SortKey:       "date",
 			SortDirection: "ASC",

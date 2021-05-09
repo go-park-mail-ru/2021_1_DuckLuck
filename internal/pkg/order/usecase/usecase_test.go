@@ -1,24 +1,26 @@
 package usecase
 
 import (
+	"testing"
+
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	order_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/order/mock"
 	product_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/mock"
 	user_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user/mock"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	cart_service "github.com/go-park-mail-ru/2021_1_DuckLuck/services/cart/proto/cart"
+
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
-func TestUserUseCase_GetSubCategoriesById(t *testing.T) {
+func TestOrderUseCase_GetSubCategoriesById(t *testing.T) {
 	userId := uint64(12)
 	previewCart := models.PreviewCart{
 		Products: []*models.PreviewCartArticle{
 			{},
 		},
-		Price:    models.TotalPrice{},
+		Price: models.TotalPrice{},
 	}
 	userProfile := models.ProfileUser{}
 
@@ -63,11 +65,11 @@ func TestUserUseCase_GetSubCategoriesById(t *testing.T) {
 	})
 }
 
-func TestUserUseCase_GetRangeOrders(t *testing.T) {
+func TestOrderUseCase_GetRangeOrders(t *testing.T) {
 	userId := uint64(12)
 	paginator := models.PaginatorOrders{
-		PageNum:           1,
-		Count:             43,
+		PageNum: 1,
+		Count:   43,
 		SortOrdersOptions: models.SortOrdersOptions{
 			SortKey:       "date",
 			SortDirection: "ASC",

@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	session_service "github.com/go-park-mail-ru/2021_1_DuckLuck/services/session/proto/session"
 	"log"
 	"net/http"
 	"os"
@@ -39,6 +38,8 @@ import (
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/pkg/tools/logger"
 	auth_service "github.com/go-park-mail-ru/2021_1_DuckLuck/services/auth/proto/user"
 	cart_service "github.com/go-park-mail-ru/2021_1_DuckLuck/services/cart/proto/cart"
+	session_service "github.com/go-park-mail-ru/2021_1_DuckLuck/services/session/proto/session"
+
 	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"

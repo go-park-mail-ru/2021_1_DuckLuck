@@ -1,13 +1,15 @@
 package usecase
 
 import (
+	"testing"
+
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/services/auth/pkg/models"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/services/auth/pkg/user/mock"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/services/auth/server/errors"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/services/auth/server/tools/password_hasher"
+
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestUserUseCase_Login(t *testing.T) {

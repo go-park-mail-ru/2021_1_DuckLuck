@@ -1,12 +1,13 @@
 package usecase
 
 import (
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/review/mock"
-	user_mock "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user/mock"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	"testing"
 
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/review/mock"
+	user_mock "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user/mock"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
+
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
@@ -35,7 +36,7 @@ func TestReviewUseCase_GetStatisticsByProductId(t *testing.T) {
 	})
 }
 
-func TestUserUseCase_AddNewReviewForProduct(t *testing.T) {
+func TestReviewUseCase_AddNewReviewForProduct(t *testing.T) {
 	userId := uint64(3)
 	productId := uint64(3)
 	review := models.Review{
@@ -207,7 +208,6 @@ func TestReviewUseCase_GetReviewsByProductId(t *testing.T) {
 			SelectRangeReviews(productId, "", &badPaginator).
 			Return(reviews, nil)
 
-
 		userRepo := user_mock.NewMockRepository(ctrl)
 		userRepo.
 			EXPECT().
@@ -244,7 +244,6 @@ func TestReviewUseCase_GetReviewsByProductId(t *testing.T) {
 			EXPECT().
 			SelectRangeReviews(productId, "", &badPaginator).
 			Return(reviews, nil)
-
 
 		userRepo := user_mock.NewMockRepository(ctrl)
 		userRepo.

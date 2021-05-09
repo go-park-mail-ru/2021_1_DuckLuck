@@ -15,7 +15,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCartHandler_GetCsrfToken(t *testing.T) {
+func TestCsrfTokenHandler_GetCsrfToken(t *testing.T) {
 	cartArticle := models.CartArticle{
 		ProductPosition: models.ProductPosition{
 			Count: 3,

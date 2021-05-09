@@ -1,13 +1,13 @@
 package product
 
 import (
-	category_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/category/mock"
-	product_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/mock"
 	"testing"
 
 	category_mock "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/category/mock"
+	category_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/category/mock"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	product_mock "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/mock"
+	product_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/mock"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 
 	"github.com/golang/mock/gomock"
@@ -120,10 +120,10 @@ func TestProductUseCase_GetProductById(t *testing.T) {
 
 func TestProductUseCase_GetRangeProducts(t *testing.T) {
 	paginator := models.PaginatorProducts{
-		PageNum:     1,
-		Count:       12,
-		Category:    4,
-		Filter:      &models.ProductFilter{
+		PageNum:  1,
+		Count:    12,
+		Category: 4,
+		Filter: &models.ProductFilter{
 			MinPrice:   0,
 			MaxPrice:   10,
 			IsNew:      false,
@@ -261,7 +261,7 @@ func TestProductUseCase_SearchRangeProducts(t *testing.T) {
 		PageNum:     1,
 		Count:       12,
 		Category:    4,
-		Filter:      &models.ProductFilter{
+		Filter: &models.ProductFilter{
 			MinPrice:   0,
 			MaxPrice:   10,
 			IsNew:      false,
