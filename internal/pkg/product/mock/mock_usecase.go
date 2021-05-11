@@ -49,6 +49,21 @@ func (mr *MockUseCaseMockRecorder) GetProductById(arg0 interface{}) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProductById", reflect.TypeOf((*MockUseCase)(nil).GetProductById), arg0)
 }
 
+// GetProductRecommendationsById mocks base method.
+func (m *MockUseCase) GetProductRecommendationsById(arg0 uint64, arg1 *models.PaginatorRecommendations) ([]*models.RecommendationProduct, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetProductRecommendationsById", arg0, arg1)
+	ret0, _ := ret[0].([]*models.RecommendationProduct)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetProductRecommendationsById indicates an expected call of GetProductRecommendationsById.
+func (mr *MockUseCaseMockRecorder) GetProductRecommendationsById(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProductRecommendationsById", reflect.TypeOf((*MockUseCase)(nil).GetProductRecommendationsById), arg0, arg1)
+}
+
 // GetRangeProducts mocks base method.
 func (m *MockUseCase) GetRangeProducts(arg0 *models.PaginatorProducts) (*models.RangeProducts, error) {
 	m.ctrl.T.Helper()
