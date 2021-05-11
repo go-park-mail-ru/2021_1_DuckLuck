@@ -21,7 +21,7 @@ func NewSessionPostgresqlRepository(db *sql.DB) user.Repository {
 // Add new user profile
 func (r *PostgresqlRepository) AddProfile(user *models.ProfileUser) (uint64, error) {
 	row := r.db.QueryRow(
-		"INSERT INTO data_users(id_auth, email) "+
+		"INSERT INTO data_users(id, email) "+
 			"VALUES ($1, $2) RETURNING id",
 		user.AuthId,
 		user.Email,

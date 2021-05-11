@@ -2,13 +2,12 @@ package usecase
 
 import (
 	"context"
-	"mime/multipart"
-
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/s3_utils"
 	proto "github.com/go-park-mail-ru/2021_1_DuckLuck/services/auth/proto/user"
+	"mime/multipart"
 )
 
 type UserUseCase struct {

@@ -30,7 +30,6 @@ CREATE TABLE data_users (
     first_name TEXT,
     last_name TEXT,
     avatar TEXT,
-    id_auth INTEGER NOT NULL,
     email TEXT NOT NULL
 );
 
@@ -48,6 +47,12 @@ CREATE TABLE categories (
     CONSTRAINT level_value CHECK (level >= 0)
 );
 
+DROP TABLE IF EXISTS promo_codes CASCADE;
+CREATE TABLE promo_codes (
+    id SERIAL NOT NULL PRIMARY KEY,
+    code TEXT NOT NULL,
+    sale INTEGER NOT NULL
+);
 
 DROP TABLE IF EXISTS products CASCADE;
 CREATE TABLE products (
@@ -61,6 +66,7 @@ CREATE TABLE products (
     id_category INTEGER NOT NULL,
     date_added TIMESTAMP NOT NULL DEFAULT NOW(),
     properties JSONB NOT NULL,
+    sale_group INTEGER[] NOT NULL DEFAULT '{}',
     fts TSVECTOR,
 
     FOREIGN KEY (id_category) REFERENCES categories(id),
