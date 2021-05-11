@@ -84,4 +84,3 @@ func TestUserUseCase_Login(t *testing.T) {
 		assert.Equal(t, err, errors.ErrIncorrectAuthData, "expected error")
 	})
 }
-

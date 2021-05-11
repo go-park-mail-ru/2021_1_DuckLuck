@@ -46,9 +46,56 @@ func (h *ProductHandler) GetProduct(w http.ResponseWriter, r *http.Request) {
 	productById, err := h.ProductUCase.GetProductById(uint64(id))
 	if err != nil {
 		http_utils.SetJSONResponse(w, errors.ErrProductNotFound, http.StatusInternalServerError)
+		return
 	}
 
 	http_utils.SetJSONResponse(w, productById, http.StatusOK)
+}
+
+// Get product recommendations by id
+func (h *ProductHandler) GetProductRecommendations(w http.ResponseWriter, r *http.Request) {
+	var err error
+	defer func() {
+		requireId := http_utils.MustGetRequireId(r.Context())
+		if err != nil {
+			logger.LogError("product_handler", "GetProductRecommendations", requireId, err)
+		}
+	}()
+
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil || id < 1 {
+		http_utils.SetJSONResponse(w, errors.ErrBadRequest, http.StatusBadRequest)
+		return
+	}
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		http_utils.SetJSONResponse(w, errors.ErrBadRequest, http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	var paginator models.PaginatorRecommendations
+	err = json.Unmarshal(body, &paginator)
+	if err != nil {
+		http_utils.SetJSONResponse(w, errors.ErrCanNotUnmarshal, http.StatusBadRequest)
+		return
+	}
+
+	err = validator.ValidateStruct(paginator)
+	if err != nil {
+		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusBadRequest)
+		return
+	}
+
+	listProducts, err := h.ProductUCase.GetProductRecommendationsById(uint64(id), &paginator)
+	if err != nil {
+		http_utils.SetJSONResponse(w, errors.ErrProductNotFound, http.StatusInternalServerError)
+		return
+	}
+
+	http_utils.SetJSONResponse(w, listProducts, http.StatusOK)
 }
 
 // Get range of preview products
