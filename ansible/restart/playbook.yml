@@ -1,0 +1,12 @@
+- name: "Restart server"
+  hosts: web
+  become: yes
+  tasks:
+    - name: "Stop server"
+      shell:
+        cmd: sudo docker-compose down
+        chdir: /home/ubuntu/duckluckmarket/Backend/
+    - name: "Start server"
+      shell:
+        cmd: sudo docker-compose up -d
+        chdir: /home/ubuntu/duckluckmarket/Backend/
