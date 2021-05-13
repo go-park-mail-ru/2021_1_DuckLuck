@@ -73,35 +73,27 @@ func (r *PostgresqlRepository) SelectProductById(productId uint64) (*models.Prod
 func (r *PostgresqlRepository) SelectRecommendationsByReviews(productId uint64, count int) (
 	[]*models.RecommendationProduct, error) {
 	rows, err := r.db.Query(
-		"WITH current_node AS ( "+
-			"SELECT c.left_node, c.right_node "+
-			"FROM categories c "+
-			"WHERE c.id = ("+
-			"		SELECT id_category "+
-			"		FROM products "+
-			"		WHERE id = $1 "+
-			"	) "+
+		"WITH current_category AS ( "+
+			"    SELECT id_category "+
+			"    FROM products "+
+			"    WHERE id = $1 "+
 			" ) "+
-			"SELECT p.id, p.title, p.base_cost, p.total_cost, "+
-			"p.discount, p.images[1] "+
+			"SELECT p.id, p.title, p.base_cost, p.total_cost, p.discount, p.images[1] "+
 			"FROM products p "+
 			"JOIN ( "+
-			"	SELECT DISTINCT r.product_id "+
-			"	FROM ordered_products r "+
-			"	JOIN ( "+
-			"		SELECT order_id "+
-			"		FROM ordered_products "+
-			"		WHERE product_id = $1 "+
-			"	) AS r2 ON (r.order_id = r2.order_id AND r.product_id <> $1) "+
-			") AS orders ON orders.product_id = p.id "+
-			"UNION "+
-			"SELECT p.id, p.title, p.base_cost, p.total_cost, "+
-			"p.discount, p.images[1] "+
-			"FROM current_node, products p "+
-			"JOIN categories c ON (c.id = p.id_category AND p.id <> $1) "+
-			"WHERE (c.left_node >= current_node.left_node "+
-			"AND c.right_node <= current_node.right_node) "+
-			"LIMIT $2",
+			"	 SELECT DISTINCT r.product_id "+
+			"	 FROM ordered_products r "+
+			"	 JOIN ( "+
+			"		 SELECT order_id "+
+			"		 FROM ordered_products "+
+			"        WHERE product_id = $1 "+
+			"    ) AS r2 ON (r.order_id = r2.order_id AND r.product_id <> $1) "+
+			"    UNION "+
+			"    SELECT p.id "+
+			"    FROM products p, current_category "+
+			"    WHERE (p.id_category = current_category.id_category AND p.id <> $1) "+
+			"    LIMIT $2 "+
+			") AS orders ON orders.product_id = p.id",
 		productId,
 		count,
 	)
