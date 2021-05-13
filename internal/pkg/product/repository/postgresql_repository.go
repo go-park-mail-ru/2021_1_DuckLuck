@@ -73,7 +73,16 @@ func (r *PostgresqlRepository) SelectProductById(productId uint64) (*models.Prod
 func (r *PostgresqlRepository) SelectRecommendationsByReviews(productId uint64, count int) (
 	[]*models.RecommendationProduct, error) {
 	rows, err := r.db.Query(
-		"SELECT p.id, p.title, p.base_cost, p.total_cost, "+
+		"WITH current_node AS ( "+
+			"SELECT c.left_node, c.right_node "+
+			"FROM categories c "+
+			"WHERE c.id = ("+
+			"		SELECT id_category "+
+			"		FROM products "+
+			"		WHERE id = $1 "+
+			"	) "+
+			" ) "+
+			"SELECT p.id, p.title, p.base_cost, p.total_cost, "+
 			"p.discount, p.images[1] "+
 			"FROM products p "+
 			"JOIN ( "+
@@ -85,48 +94,7 @@ func (r *PostgresqlRepository) SelectRecommendationsByReviews(productId uint64, 
 			"		WHERE product_id = $1 "+
 			"	) AS r2 ON (r.order_id = r2.order_id AND r.product_id <> $1) "+
 			") AS orders ON orders.product_id = p.id "+
-			"LIMIT $2",
-		productId,
-		count,
-	)
-	if err != nil {
-		return nil, errors.ErrIncorrectPaginator
-	}
-	defer rows.Close()
-
-	products := make([]*models.RecommendationProduct, 0)
-	for rows.Next() {
-		product := &models.RecommendationProduct{}
-		err = rows.Scan(
-			&product.Id,
-			&product.Title,
-			&product.Price.BaseCost,
-			&product.Price.TotalCost,
-			&product.Price.Discount,
-			&product.PreviewImage,
-		)
-
-		if err != nil {
-			return nil, err
-		}
-		products = append(products, product)
-	}
-
-	return products, nil
-}
-
-func (r *PostgresqlRepository) SelectRecommendationsByCategory(productId uint64, count int) (
-	[]*models.RecommendationProduct, error) {
-	rows, err := r.db.Query(
-		"WITH current_node AS ( "+
-			"SELECT c.left_node, c.right_node "+
-			"FROM categories c "+
-			"WHERE c.id = ("+
-			"		SELECT id_category "+
-			"		FROM products "+
-			"		WHERE id = $1 "+
-			"	) "+
-			" ) "+
+			"UNION "+
 			"SELECT p.id, p.title, p.base_cost, p.total_cost, "+
 			"p.discount, p.images[1] "+
 			"FROM current_node, products p "+

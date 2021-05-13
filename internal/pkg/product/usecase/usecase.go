@@ -44,16 +44,7 @@ func (u *ProductUseCase) GetProductRecommendationsById(productId uint64,
 		return nil, errors.ErrProductNotFound
 	}
 
-	countMissingItems := paginator.Count - len(recommendationsByReviews)
-	recommendationsByCategory := make([]*models.RecommendationProduct, 0)
-	if countMissingItems > 0 {
-		recommendationsByCategory, err = u.ProductRepo.SelectRecommendationsByCategory(productId, countMissingItems)
-		if err != nil {
-			return nil, errors.ErrProductNotFound
-		}
-	}
-
-	return append(recommendationsByReviews, recommendationsByCategory...), nil
+	return recommendationsByReviews, nil
 }
 
 // Get range products by paginator settings from repo

@@ -17,5 +17,4 @@ type Repository interface {
 	SearchRangeProducts(searchQuery *models.SearchQuery,
 		sortString, filterString string) ([]*models.ViewProduct, error)
 	SelectRecommendationsByReviews(productId uint64, count int) ([]*models.RecommendationProduct, error)
-	SelectRecommendationsByCategory(productId uint64, count int) ([]*models.RecommendationProduct, error)
 }
