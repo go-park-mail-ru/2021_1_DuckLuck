@@ -17,6 +17,11 @@ func NewUseCase(promoCodeRepo promo_code.Repository) promo_code.UseCase {
 }
 
 func (u *PromoCodeUseCase) ApplyPromoCodeToOrder(promoCodeGroup *models.PromoCodeGroup) (*models.DiscountedPrice, error) {
+	err := u.PromoCodeRepo.CheckPromo(promoCodeGroup.PromoCode)
+	if err != nil {
+		return nil, errors.ErrPromoCodeNotFound
+	}
+
 	discountedPrice := &models.DiscountedPrice{}
 	for _, productId := range promoCodeGroup.Products {
 		price, err := u.PromoCodeRepo.GetDiscountPriceByPromo(productId, promoCodeGroup.PromoCode)

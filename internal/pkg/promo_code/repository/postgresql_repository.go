@@ -18,40 +18,58 @@ func NewSessionPostgresqlRepository(db *sql.DB) promo_code.Repository {
 	}
 }
 
-func (r *PostgresqlRepository) GetDiscountPriceByPromo(productId uint64, promoCode string) (*models.ProductPrice, error) {
+func (r *PostgresqlRepository) CheckPromo(promoCode string) error {
+	row := r.db.QueryRow(
+		"SELECT count(*) "+
+			"FROM promo_codes "+
+			"WHERE code = $1",
+		promoCode,
+	)
+
+	var isExistPromo int
+	err := row.Scan(
+		&isExistPromo,
+	)
+
+	if err != nil || isExistPromo == 0 {
+		return errors.ErrDBInternalError
+	}
+
+	return nil
+}
+
+func (r *PostgresqlRepository) GetDiscountPriceByPromo(productId uint64, promoCode string) (*models.PromoPrice, error) {
 	row := r.db.QueryRow(
 		"WITH pr AS ( "+
 			"    SELECT id, sale "+
 			"    FROM promo_codes "+
 			"    WHERE code = $2 "+
 			") "+
-			"SELECT p.base_cost, p.discount, pr.sale "+
+			"SELECT p.base_cost, p.total_cost, pr.sale "+
 			"FROM products p "+
-			"JOIN pr ON (pr.id = ANY(p.sale_group) AND p.id = $1)",
+			"LEFT JOIN pr ON pr.id = ANY(p.sale_group) "+
+			"WHERE p.id = $1",
 		productId,
 		promoCode,
 	)
 
 	promoSale := sql.NullInt64{}
-	var baseCost, discount int
+	var baseCost, totalCost int
 	err := row.Scan(
 		&baseCost,
-		&discount,
+		&totalCost,
 		&promoSale,
 	)
 	if err != nil {
-		return nil, errors.ErrIncorrectPaginator
+		return nil, errors.ErrDBInternalError
 	}
 
-	discount = int(float32(discount) * (1.0 + float32(promoSale.Int64)) / 100.0)
-	totalCost := baseCost - discount
-	if discount > baseCost {
-		discount = baseCost
-		totalCost = 0
+	sale := float32(promoSale.Int64)
+	if sale > 0 {
+		totalCost = int(float32(totalCost) * (1 - (sale / 100.0)))
 	}
 
-	return &models.ProductPrice{
-		Discount:  discount,
+	return &models.PromoPrice{
 		BaseCost:  baseCost,
 		TotalCost: totalCost,
 	}, nil
