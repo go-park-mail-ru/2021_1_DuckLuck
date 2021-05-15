@@ -71,7 +71,7 @@ CREATE TABLE products (
 
     FOREIGN KEY (id_category) REFERENCES categories(id),
 
-    CONSTRAINT discount_value CHECK (discount >= 0 AND discount <= base_cost),
+    CONSTRAINT discount_value CHECK (discount >= 0 AND discount <= 100),
     CONSTRAINT base_cost_value CHECK (base_cost >= 0),
     CONSTRAINT total_cost_value CHECK (total_cost >= 0 AND total_cost <= base_cost)
 );
@@ -128,7 +128,7 @@ CREATE TABLE user_orders (
 
     FOREIGN KEY (user_id) REFERENCES data_users(id),
 
-    CONSTRAINT discount_value CHECK (discount >= 0 AND discount <= base_cost),
+    CONSTRAINT discount_value CHECK (discount >= 0 AND discount <= 100),
     CONSTRAINT base_cost_value CHECK (base_cost >= 0),
     CONSTRAINT total_cost_value CHECK (total_cost >= 0 AND total_cost <= base_cost)
 );
@@ -166,6 +166,19 @@ CREATE TABLE reviews (
     CONSTRAINT rating_value CHECK (rating >= 0 AND rating <= 5)
 );
 
+DROP TABLE IF EXISTS favorites CASCADE;
+CREATE TABLE favorites (
+    id SERIAL NOT NULL PRIMARY KEY,
+    product_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    date_added TIMESTAMP NOT NULL DEFAULT NOW(),
+
+    FOREIGN KEY (product_id) REFERENCES products(id),
+    FOREIGN KEY (user_id) REFERENCES data_users(id),
+
+    CONSTRAINT uniq_like UNIQUE (product_id, user_id)
+);
+
 GRANT ALL PRIVILEGES ON TABLE data_users TO ozon_root;
 GRANT ALL PRIVILEGES ON TABLE promo_codes TO ozon_root;
 GRANT ALL PRIVILEGES ON TABLE ordered_products TO ozon_root;
@@ -176,27 +189,29 @@ GRANT ALL PRIVILEGES ON TABLE reviews TO ozon_root;
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO ozon_root;
 
 
-INSERT INTO categories(id, name, left_node, right_node, level) VALUES (1, 'Base', 0, 13, 0);
+INSERT INTO promo_codes(id, code, sale) VALUES (1, 'test1', 10);
+INSERT INTO promo_codes(id, code, sale) VALUES (2, 'test2', 5);
+INSERT INTO promo_codes(id, code, sale) VALUES (3, 'test3', 100);
 
+INSERT INTO categories(id, name, left_node, right_node, level) VALUES (1, 'Base', 0, 13, 0);
 INSERT INTO categories(id, name, left_node, right_node, level) VALUES (2, 'Электроника', 1, 8, 1);
 INSERT INTO categories(id, name, left_node, right_node, level) VALUES (3, 'Мобильные телефоны', 2, 5, 2);
 INSERT INTO categories(id, name, left_node, right_node, level) VALUES (4, 'Чехлы', 3, 4, 3);
 INSERT INTO categories(id, name, left_node, right_node, level) VALUES (7, 'Наушники', 6, 7, 2);
-
 INSERT INTO categories(id, name, left_node, right_node, level) VALUES (5, 'Для дома', 9, 12, 1);
 INSERT INTO categories(id, name, left_node, right_node, level) VALUES (6, 'Для уюта', 10, 11, 2);
 
 INSERT INTO products(title, description, base_cost, total_cost, discount, images, id_category, properties) VALUES ('Чехол противоударный Armor Case для Samsung Galaxy A31, черный', 'Насос предназначен для использования на гибридных велосипедах. Также он подходит для подкачивания колес городских, горных, BMX и детских велосипедов. Встроенный шлаг, который точно не потеряется! Ручка : 100.0% Полиамид 6.6', 570, 451, 21, '{"/product/6023600636.jpg", "/product/6023600623.jpg", "/product/6023600635.jpg", "/product/6023600630.jpg", "/product/6023600633.jpg", "/product/6023600625.jpg"}', 4, '{ "вес" : "10 кг", "цвет" : "чёрный" }');
-INSERT INTO products(title, description, base_cost, total_cost, discount, images, id_category, properties) VALUES ('Защитное стекло TORUS для Huawei Honor 10X Lite, закруглённные края, полное покрытие', 'Насос предназначен для использования на гибридных велосипедах. Также он подходит для подкачивания колес городских, горных, BMX и детских велосипедов. Встроенный шлаг, который точно не потеряется! Ручка : 100.0% Полиамид 6.6', 799, 200, 75, '{"/product/6045097510.jpg", "/product/6045097505.jpg", "/product/6036662865.jpg", "/product/6036669672.jpg"}', 4, '{ "вес" : "10 кг", "цвет" : "чёрный" }');
+INSERT INTO products(title, description, base_cost, total_cost, discount, images, id_category, properties, sale_group) VALUES ('Защитное стекло TORUS для Huawei Honor 10X Lite, закруглённные края, полное покрытие', 'Насос предназначен для использования на гибридных велосипедах. Также он подходит для подкачивания колес городских, горных, BMX и детских велосипедов. Встроенный шлаг, который точно не потеряется! Ручка : 100.0% Полиамид 6.6', 799, 200, 75, '{"/product/6045097510.jpg", "/product/6045097505.jpg", "/product/6036662865.jpg", "/product/6036669672.jpg"}', 4, '{ "вес" : "10 кг", "цвет" : "чёрный" }', '{1, 2}');
 INSERT INTO products(title, description, base_cost, total_cost, discount, images, id_category, properties) VALUES ('Силиконовый чехол-накладка для iPhone 11/ Apple Silicone Case светло-голубой', 'Насос предназначен для использования на гибридных велосипедах. Также он подходит для подкачивания колес городских, горных, BMX и детских велосипедов. Встроенный шлаг, который точно не потеряется! Ручка : 100.0% Полиамид 6.6', 849, 425, 50, '{"/product/6032890130.jpg", "/product/6032860336.jpg"}', 4, '{ "вес" : "10 кг", "цвет" : "чёрный" }');
-INSERT INTO products(title, description, base_cost, total_cost, discount, images, id_category, properties) VALUES ('Чехол-книжка MyPads для Meizu M5 Note прошитый по контуру с необычным геометрическим швом синий', 'Насос предназначен для использования на гибридных велосипедах. Также он подходит для подкачивания колес городских, горных, BMX и детских велосипедов. Встроенный шлаг, который точно не потеряется! Ручка : 100.0% Полиамид 6.6', 1600, 704, 56, '{"/product/1037359526.jpg", "/product/1037359514.jpg", "/product/1037359516.jpg", "/product/1037359518.jpg", "/product/1037359520.jpg", "/product/1037359523.jpg"}', 4, '{ "вес" : "10 кг", "цвет" : "чёрный" }');
+INSERT INTO products(title, description, base_cost, total_cost, discount, images, id_category, properties, sale_group) VALUES ('Чехол-книжка MyPads для Meizu M5 Note прошитый по контуру с необычным геометрическим швом синий', 'Насос предназначен для использования на гибридных велосипедах. Также он подходит для подкачивания колес городских, горных, BMX и детских велосипедов. Встроенный шлаг, который точно не потеряется! Ручка : 100.0% Полиамид 6.6', 1600, 704, 56, '{"/product/1037359526.jpg", "/product/1037359514.jpg", "/product/1037359516.jpg", "/product/1037359518.jpg", "/product/1037359520.jpg", "/product/1037359523.jpg"}', 4, '{ "вес" : "10 кг", "цвет" : "чёрный" }', '{2}');
 INSERT INTO products(title, description, base_cost, total_cost, discount, images, id_category, properties) VALUES ('Аккумулятор для Apple iPhone 7 Plus', 'Насос предназначен для использования на гибридных велосипедах. Также он подходит для подкачивания колес городских, горных, BMX и детских велосипедов. Встроенный шлаг, который точно не потеряется! Ручка : 100.0% Полиамид 6.6', 1150, 736, 36, '{"/product/6048563870.jpg"}', 4, '{ "вес" : "10 кг", "цвет" : "чёрный" }');
-INSERT INTO products(title, description, base_cost, total_cost, discount, images, id_category, properties) VALUES ('Защитное стекло для OPPO A5s', 'Насос предназначен для использования на гибридных велосипедах. Также он подходит для подкачивания колес городских, горных, BMX и детских велосипедов. Встроенный шлаг, который точно не потеряется! Ручка : 100.0% Полиамид 6.6', 280, 182, 35, '{"/product/6036067021.jpg"}', 4, '{ "вес" : "10 кг", "цвет" : "чёрный" }');
+INSERT INTO products(title, description, base_cost, total_cost, discount, images, id_category, properties, sale_group) VALUES ('Защитное стекло для OPPO A5s', 'Насос предназначен для использования на гибридных велосипедах. Также он подходит для подкачивания колес городских, горных, BMX и детских велосипедов. Встроенный шлаг, который точно не потеряется! Ручка : 100.0% Полиамид 6.6', 280, 182, 35, '{"/product/6036067021.jpg"}', 4, '{ "вес" : "10 кг", "цвет" : "чёрный" }', '{1}');
 
-INSERT INTO products(title, description, base_cost, total_cost, discount, images, id_category, properties) VALUES ('Наушники для IPhone ligtning в футляре проводные для 7 8 X Xr Xs 11 (seria 81) , белые', 'Насос предназначен для использования на гибридных велосипедах. Также он подходит для подкачивания колес городских, горных, BMX и детских велосипедов. Встроенный шлаг, который точно не потеряется! Ручка : 100.0% Полиамид 6.6', 1990, 597, 70, '{"/product/6046394320.jpg", "/product/6046394303.jpg", "/product/6046394306.jpg"}', 7, '{ "вес" : "10 кг", "цвет" : "чёрный" }');
+INSERT INTO products(title, description, base_cost, total_cost, discount, images, id_category, properties, sale_group) VALUES ('Наушники для IPhone ligtning в футляре проводные для 7 8 X Xr Xs 11 (seria 81) , белые', 'Насос предназначен для использования на гибридных велосипедах. Также он подходит для подкачивания колес городских, горных, BMX и детских велосипедов. Встроенный шлаг, который точно не потеряется! Ручка : 100.0% Полиамид 6.6', 1990, 597, 70, '{"/product/6046394320.jpg", "/product/6046394303.jpg", "/product/6046394306.jpg"}', 7, '{ "вес" : "10 кг", "цвет" : "чёрный" }', '{1, 2}');
 INSERT INTO products(title, description, base_cost, total_cost, discount, images, id_category, properties) VALUES ('Наушники беспроводные внутриканальные Defender OutFit B725, красный', 'Насос предназначен для использования на гибридных велосипедах. Также он подходит для подкачивания колес городских, горных, BMX и детских велосипедов. Встроенный шлаг, который точно не потеряется! Ручка : 100.0% Полиамид 6.6', 289, 168, 42, '{"/product/1034408244.jpg", "/product/1034408253.jpg", "/product/6014331709.jpg"}', 7, '{ "вес" : "10 кг", "цвет" : "чёрный" }');
-INSERT INTO products(title, description, base_cost, total_cost, discount, images, id_category, properties) VALUES ('Наушники Sony MDR-EX15LP, белый', 'Насос предназначен для использования на гибридных велосипедах. Также он подходит для подкачивания колес городских, горных, BMX и детских велосипедов. Встроенный шлаг, который точно не потеряется! Ручка : 100.0% Полиамид 6.6', 699, 476, 32, '{"/product/6011283025.jpg", "/product/6011283027.jpg", "/product/6011283026.jpg"}', 7, '{ "вес" : "10 кг", "цвет" : "чёрный" }');
+INSERT INTO products(title, description, base_cost, total_cost, discount, images, id_category, properties, sale_group) VALUES ('Наушники Sony MDR-EX15LP, белый', 'Насос предназначен для использования на гибридных велосипедах. Также он подходит для подкачивания колес городских, горных, BMX и детских велосипедов. Встроенный шлаг, который точно не потеряется! Ручка : 100.0% Полиамид 6.6', 699, 476, 32, '{"/product/6011283025.jpg", "/product/6011283027.jpg", "/product/6011283026.jpg"}', 7, '{ "вес" : "10 кг", "цвет" : "чёрный" }', '{3}');
 INSERT INTO products(title, description, base_cost, total_cost, discount, images, id_category, properties) VALUES ('Наушники Sony MDR-XD150, белый', 'Насос предназначен для использования на гибридных велосипедах. Также он подходит для подкачивания колес городских, горных, BMX и детских велосипедов. Встроенный шлаг, который точно не потеряется! Ручка : 100.0% Полиамид 6.6', 1236, 1236, 0, '{"/product/1007465889.jpg", "/product/1007465888.jpg", "/product/1007465887.jpg", "/product/1007465886.jpg"}', 7, '{ "вес" : "10 кг", "цвет" : "чёрный" }');
 
 INSERT INTO products(title, description, base_cost, total_cost, discount, images, id_category, properties) VALUES ('Фоторамка Veld Co "10*15", 1 фото', 'Насос предназначен для использования на гибридных велосипедах. Также он подходит для подкачивания колес городских, горных, BMX и детских велосипедов. Встроенный шлаг, который точно не потеряется! Ручка : 100.0% Полиамид 6.6', 210, 162, 23, '{"/product/6026860610.jpg", "/product/6026825797.jpg"}', 6, '{ "вес" : "10 кг", "цвет" : "чёрный" }');
-INSERT INTO products(title, description, base_cost, total_cost, discount, images, id_category, properties) VALUES ('Фотоальбом Fotografia, 200 фото, 10 x 15 см (4 x 6")', 'Насос предназначен для использования на гибридных велосипедах. Также он подходит для подкачивания колес городских, горных, BMX и детских велосипедов. Встроенный шлаг, который точно не потеряется! Ручка : 100.0% Полиамид 6.6', 639, 639, 0, '{"/product/1036393602.jpg"}', 6, '{ "вес" : "10 кг", "цвет" : "чёрный" }');
+INSERT INTO products(title, description, base_cost, total_cost, discount, images, id_category, properties, sale_group) VALUES ('Фотоальбом Fotografia, 200 фото, 10 x 15 см (4 x 6")', 'Насос предназначен для использования на гибридных велосипедах. Также он подходит для подкачивания колес городских, горных, BMX и детских велосипедов. Встроенный шлаг, который точно не потеряется! Ручка : 100.0% Полиамид 6.6', 639, 639, 0, '{"/product/1036393602.jpg"}', 6, '{ "вес" : "10 кг", "цвет" : "чёрный" }', '{2}');
