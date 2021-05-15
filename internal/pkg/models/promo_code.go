@@ -1,8 +1,8 @@
 package models
 
 type PromoCodeGroup struct {
-	Products []uint64 `json:"products" valid:"notnull"`
-	PromoCode string `json:"promo_code" valid:"stringlength(1|30)"`
+	Products  []uint64 `json:"products" valid:"notnull"`
+	PromoCode string   `json:"promo_code" valid:"stringlength(1|30)"`
 }
 
 type DiscountedPrice struct {
@@ -12,6 +12,6 @@ type DiscountedPrice struct {
 }
 
 type PromoPrice struct {
-	TotalCost     int `json:"total_cost"`
-	BaseCost int `json:"base_cost"`
+	TotalCost int `json:"total_cost"`
+	BaseCost  int `json:"base_cost"`
 }

@@ -9,4 +9,5 @@ type Repository interface {
 	CreateSortString(sortKey, sortDirection string) (string, error)
 	SelectRangeFavorites(paginator *models.PaginatorFavorites,
 		sortString string, userId uint64) ([]*models.ViewFavorite, error)
+	GetUserFavorites(userId uint64) (*models.UserFavorites, error)
 }

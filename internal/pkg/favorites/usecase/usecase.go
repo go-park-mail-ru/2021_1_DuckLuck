@@ -16,7 +16,7 @@ func NewUseCase(favoritesRepo favorites.Repository) favorites.UseCase {
 	}
 }
 
-func (u *FavoritesUseCase) 	AddProductToFavorites(productId, userId uint64) error {
+func (u *FavoritesUseCase) AddProductToFavorites(productId, userId uint64) error {
 	return u.FavoritesRepo.AddProductToFavorites(productId, userId)
 }
 
@@ -52,4 +52,8 @@ func (u *FavoritesUseCase) GetRangeFavorites(paginator *models.PaginatorFavorite
 		ListPreviewProducts: products,
 		MaxCountPages:       countPages,
 	}, nil
+}
+
+func (u *FavoritesUseCase) GetUserFavorites(userId uint64) (*models.UserFavorites, error) {
+	return u.FavoritesRepo.GetUserFavorites(userId)
 }

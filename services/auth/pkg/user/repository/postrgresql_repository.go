@@ -21,12 +21,12 @@ func NewSessionPostgresqlRepository(db *sql.DB) user.Repository {
 func (r *PostgresqlRepository) AddProfile(newUser *models.AuthUser) (uint64, error) {
 	row := r.db.QueryRow(
 		"INSERT INTO auth_users(email, password) "+
-			"SELECT $1, $2 " +
-			"WHERE NOT EXISTS( " +
-			"	SELECT id " +
-			"	FROM auth_users " +
-			"	WHERE email = $1 " +
-			") " +
+			"SELECT $1, $2 "+
+			"WHERE NOT EXISTS( "+
+			"	SELECT id "+
+			"	FROM auth_users "+
+			"	WHERE email = $1 "+
+			") "+
 			"RETURNING id",
 		newUser.Email,
 		newUser.Password,

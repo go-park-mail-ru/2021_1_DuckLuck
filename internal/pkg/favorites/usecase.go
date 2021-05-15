@@ -7,4 +7,5 @@ type UseCase interface {
 	DeleteProductFromFavorites(productId, userId uint64) error
 	GetRangeFavorites(paginator *models.PaginatorFavorites,
 		userId uint64) (*models.RangeFavorites, error)
+	GetUserFavorites(userId uint64) (*models.UserFavorites, error)
 }

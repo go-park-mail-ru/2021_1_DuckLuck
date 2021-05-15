@@ -117,3 +117,23 @@ func (h *FavoritesHandler) GetListPreviewFavorites(w http.ResponseWriter, r *htt
 
 	http_utils.SetJSONResponse(w, listPreviewFavorites, http.StatusOK)
 }
+
+func (h *FavoritesHandler) GetUserFavorites(w http.ResponseWriter, r *http.Request) {
+	var err error
+	defer func() {
+		requireId := http_utils.MustGetRequireId(r.Context())
+		if err != nil {
+			logger.LogError("favorites_handler", "GetUserFavorites", requireId, err)
+		}
+	}()
+
+	currentSession := http_utils.MustGetSessionFromContext(r.Context())
+
+	listFavorites, err := h.FavoritesUCase.GetUserFavorites(currentSession.UserData.Id)
+	if err != nil {
+		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
+		return
+	}
+
+	http_utils.SetJSONResponse(w, listFavorites, http.StatusOK)
+}

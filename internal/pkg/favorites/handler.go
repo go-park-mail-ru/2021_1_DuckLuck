@@ -6,4 +6,5 @@ type Handler interface {
 	AddProductToFavorites(w http.ResponseWriter, r *http.Request)
 	DeleteProductFromFavorites(w http.ResponseWriter, r *http.Request)
 	GetListPreviewFavorites(w http.ResponseWriter, r *http.Request)
+	GetUserFavorites(w http.ResponseWriter, r *http.Request)
 }

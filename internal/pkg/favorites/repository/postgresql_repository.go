@@ -148,3 +148,33 @@ func (r *PostgresqlRepository) SelectRangeFavorites(paginator *models.PaginatorF
 
 	return products, nil
 }
+
+func (r *PostgresqlRepository) GetUserFavorites(userId uint64) (*models.UserFavorites, error) {
+	rows, err := r.db.Query(
+		"SELECT product_id "+
+			"FROM favorites "+
+			"WHERE user_id = $1",
+		userId,
+	)
+	if err != nil {
+		return nil, errors.ErrIncorrectPaginator
+	}
+	defer rows.Close()
+
+	favoritesProducts := make([]uint64, 0)
+	var productId uint64
+	for rows.Next() {
+		err = rows.Scan(
+			&productId,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+		favoritesProducts = append(favoritesProducts, productId)
+	}
+
+	return &models.UserFavorites{
+		Products: favoritesProducts,
+	}, nil
+}

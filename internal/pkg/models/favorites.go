@@ -13,7 +13,7 @@ var (
 // Set of product with count uniq sets of this size
 type RangeFavorites struct {
 	ListPreviewProducts []*ViewFavorite `json:"list_preview_products" valid:"notnull"`
-	MaxCountPages       int            `json:"max_count_pages"`
+	MaxCountPages       int             `json:"max_count_pages"`
 }
 
 type FavoritesSortOptions struct {
@@ -21,10 +21,10 @@ type FavoritesSortOptions struct {
 	SortDirection string `json:"sort_direction" valid:"in(ASC|DESC)"`
 }
 
-// Paginator for showing page of product
+// Paginator for showing page of favorites
 type PaginatorFavorites struct {
-	PageNum  int            `json:"page_num"`
-	Count    int            `json:"count"`
+	PageNum int `json:"page_num"`
+	Count   int `json:"count"`
 	SortOptions
 }
 
@@ -39,3 +39,6 @@ type ViewFavorite struct {
 	PreviewImage string       `json:"preview_image" valid:"minstringlength(3)"`
 }
 
+type UserFavorites struct {
+	Products []uint64 `json:"products"`
+}
