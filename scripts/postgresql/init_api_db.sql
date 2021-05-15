@@ -71,7 +71,9 @@ CREATE TABLE products (
 
     FOREIGN KEY (id_category) REFERENCES categories(id),
 
-    CONSTRAINT discount_value CHECK (discount >= 0 AND discount <= 100)
+    CONSTRAINT discount_value CHECK (discount >= 0 AND discount <= base_cost),
+    CONSTRAINT base_cost_value CHECK (base_cost >= 0),
+    CONSTRAINT total_cost_value CHECK (total_cost >= 0 AND total_cost <= base_cost)
 );
 
 DROP SEQUENCE IF EXISTS order_num CASCADE;
@@ -124,7 +126,11 @@ CREATE TABLE user_orders (
     status_pay TEXT NOT NULL DEFAULT 'оплачено',
     status_delivery TEXT NOT NULL DEFAULT 'получено',
 
-    FOREIGN KEY (user_id) REFERENCES data_users(id)
+    FOREIGN KEY (user_id) REFERENCES data_users(id),
+
+    CONSTRAINT discount_value CHECK (discount >= 0 AND discount <= base_cost),
+    CONSTRAINT base_cost_value CHECK (base_cost >= 0),
+    CONSTRAINT total_cost_value CHECK (total_cost >= 0 AND total_cost <= base_cost)
 );
 
 DROP TABLE IF EXISTS ordered_products CASCADE;
@@ -161,6 +167,7 @@ CREATE TABLE reviews (
 );
 
 GRANT ALL PRIVILEGES ON TABLE data_users TO ozon_root;
+GRANT ALL PRIVILEGES ON TABLE promo_codes TO ozon_root;
 GRANT ALL PRIVILEGES ON TABLE ordered_products TO ozon_root;
 GRANT ALL PRIVILEGES ON TABLE categories TO ozon_root;
 GRANT ALL PRIVILEGES ON TABLE products TO ozon_root;

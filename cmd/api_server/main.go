@@ -22,6 +22,9 @@ import (
 	product_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/handler"
 	product_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/repository"
 	product_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/usecase"
+	promo_code_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/promo_code/handler"
+	promo_code_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/promo_code/repository"
+	promo_code_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/promo_code/usecase"
 	review_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/review/handler"
 	review_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/review/repository"
 	review_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/review/usecase"
@@ -188,6 +191,10 @@ func main() {
 	reviewUCase := review_usecase.NewUseCase(reviewRepo, userRepo)
 	reviewHandler := review_delivery.NewHandler(reviewUCase)
 
+	promoCodeRepo := promo_code_repo.NewSessionPostgresqlRepository(postgreSqlConn)
+	promoCodeUCase := promo_code_usecase.NewUseCase(promoCodeRepo)
+	promoCodeHandler := promo_code_delivery.NewHandler(promoCodeUCase)
+
 	csrfTokenHandler := csrf_token_delivery.NewHandler()
 
 	mainMux := mux.NewRouter()
@@ -213,6 +220,7 @@ func main() {
 	mainMux.HandleFunc("/api/v1/category", categoryHandler.GetCatalogCategories).Methods("GET", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/category/{id:[0-9]+}", categoryHandler.GetSubCategories).Methods("GET", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/review/product/{id:[0-9]+}", reviewHandler.GetReviewsForProduct).Methods("POST", "OPTIONS")
+	mainMux.HandleFunc("/api/v1/promo", promoCodeHandler.ApplyPromoCodeToOrder).Methods("POST", "OPTIONS")
 
 	mainMux.Handle("/metrics", promhttp.Handler())
 
