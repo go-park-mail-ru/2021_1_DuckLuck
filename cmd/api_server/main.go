@@ -241,8 +241,6 @@ func main() {
 	mainMux.HandleFunc("/api/v1/category/{id:[0-9]+}", categoryHandler.GetSubCategories).Methods("GET", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/review/product/{id:[0-9]+}", reviewHandler.GetReviewsForProduct).Methods("POST", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/promo", promoCodeHandler.ApplyPromoCodeToOrder).Methods("POST", "OPTIONS")
-	mainMux.HandleFunc("/api/v1/notification", notificationHandler.SubscribeUser).Methods("POST", "OPTIONS")
-	mainMux.HandleFunc("/api/v1/notification", notificationHandler.UnsubscribeUser).Methods("DELETE", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/notification/key", notificationHandler.GetNotificationPublicKey).Methods("GET", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/admin/order/status", adminHandler.ChangeOrderStatus).Methods("POST", "OPTIONS")
 
@@ -273,6 +271,8 @@ func main() {
 	authMux.HandleFunc("/api/v1/favorites/product/{id:[0-9]+}", favoritesHandler.DeleteProductFromFavorites).Methods("DELETE", "OPTIONS")
 	authMux.HandleFunc("/api/v1/favorites", favoritesHandler.GetListPreviewFavorites).Methods("POST", "OPTIONS")
 	authMux.HandleFunc("/api/v1/favorites", favoritesHandler.GetUserFavorites).Methods("GET", "OPTIONS")
+	authMux.HandleFunc("/api/v1/notification", notificationHandler.SubscribeUser).Methods("POST", "OPTIONS")
+	authMux.HandleFunc("/api/v1/notification", notificationHandler.UnsubscribeUser).Methods("DELETE", "OPTIONS")
 
 	server := &http.Server{
 		Addr: fmt.Sprintf("%s:%s",
