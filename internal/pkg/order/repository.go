@@ -11,4 +11,5 @@ type Repository interface {
 	CreateSortString(sortKey, sortDirection string) (string, error)
 	GetCountPages(userId uint64, countOrdersOnPage int) (int, error)
 	GetProductsInOrder(orderId uint64) ([]*models.PreviewOrderedProducts, error)
+	ChangeStatusOrder(orderId uint64, status string) (*models.OrderNumber, uint64, error)
 }

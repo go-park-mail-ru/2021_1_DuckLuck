@@ -170,3 +170,23 @@ func (r *PostgresqlRepository) AddOrder(order *models.Order, userId uint64,
 
 	return &orderNumber, nil
 }
+
+func (r *PostgresqlRepository) ChangeStatusOrder(orderId uint64,
+	status string) (*models.OrderNumber, uint64, error) {
+	row := r.db.QueryRow(
+		"UPDATE user_orders " +
+			"SET status = $1 "+
+			"WHERE id = $2 " +
+			"RETURNING user_id, order_num",
+			status,
+			orderId,
+	)
+
+	var orderNumber models.OrderNumber
+	var userId uint64
+	if err := row.Scan(&userId, &orderNumber.Number); err != nil {
+		return nil, 0, errors.ErrDBInternalError
+	}
+
+	return &orderNumber, userId, nil
+}
