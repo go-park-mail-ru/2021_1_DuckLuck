@@ -57,7 +57,7 @@ CREATE TABLE promo_codes (
 DROP TABLE IF EXISTS products CASCADE;
 CREATE TABLE products (
     id SERIAL NOT NULL PRIMARY KEY,
-    title TEXT NOT NULL UNIQUE,
+    title TEXT NOT NULL,
     description TEXT,
     base_cost INTEGER NOT NULL,
     total_cost INTEGER NOT NULL,
