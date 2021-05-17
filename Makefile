@@ -35,7 +35,14 @@ start_local:
 	docker build -t duckluckmarket/auth-service:local --target auth-service .
 	docker build -t duckluckmarket/session-service:local --target session-service .
 	docker build -t duckluckmarket/cart-service:local --target cart-service .
-	docker-compose up -d
+	docker-compose up -d api-db
+	docker-compose up -d api-server-push-db
+	docker-compose up -d auth-db
+	docker-compose up -d cart-db
+	docker-compose up -d api-server
+	docker-compose up -d session-service
+	docker-compose up -d cart-service
+	docker-compose up -d prometheus
 
 .PHONY: stop_local
 stop_local:
