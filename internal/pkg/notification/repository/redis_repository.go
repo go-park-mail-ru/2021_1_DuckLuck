@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"time"
 
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/notification"
@@ -27,15 +26,15 @@ func (r *RedisRepository) getNewKey(value uint64) string {
 	return fmt.Sprintf("notification:%d", value)
 }
 
-func (r *RedisRepository) AddSubscribeUser(userId uint64, credentials *models.NotificationCredentials) error {
+func (r *RedisRepository) AddSubscribeUser(userId uint64, subscribes *models.Subscribes) error {
 	key := r.getNewKey(userId)
 
-	data, err := json.Marshal(credentials)
+	data, err := json.Marshal(subscribes)
 	if err != nil {
 		return errors.ErrCanNotMarshal
 	}
 
-	err = r.conn.Set(context.Background(), key, data, models.ExpireSessionCookie*time.Second).Err()
+	err = r.conn.Set(context.Background(), key, data, 0).Err()
 	if err != nil {
 		return errors.ErrDBInternalError
 	}
@@ -43,8 +42,8 @@ func (r *RedisRepository) AddSubscribeUser(userId uint64, credentials *models.No
 	return nil
 }
 
-func (r *RedisRepository) SelectCredentialsByUserId(userId uint64) (*models.NotificationCredentials, error) {
-	credentials := &models.NotificationCredentials{}
+func (r *RedisRepository) SelectCredentialsByUserId(userId uint64) (*models.Subscribes, error) {
+	subscribes := &models.Subscribes{}
 	key := r.getNewKey(userId)
 
 	data, err := r.conn.Get(context.Background(), key).Bytes()
@@ -52,11 +51,11 @@ func (r *RedisRepository) SelectCredentialsByUserId(userId uint64) (*models.Noti
 		return nil, errors.ErrSessionNotFound
 	}
 
-	if err = json.Unmarshal(data, credentials); err != nil {
+	if err = json.Unmarshal(data, subscribes); err != nil {
 		return nil, errors.ErrCanNotUnmarshal
 	}
 
-	return credentials, nil
+	return subscribes, nil
 }
 
 func (r *RedisRepository) DeleteSubscribeUser(userId uint64) error {

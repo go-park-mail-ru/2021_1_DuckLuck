@@ -27,19 +27,21 @@ func (u *AdminUseCase) ChangeOrderStatus(updateOrder *models.UpdateOrder) error 
 		return errors.ErrInternalError
 	}
 
-	credentials, err := u.NotificationRepo.SelectCredentialsByUserId(userId)
+	subscribes, err := u.NotificationRepo.SelectCredentialsByUserId(userId)
 	if err == nil {
-		err = server_push.Push(&server_push.Subscription{
-			Endpoint: credentials.Endpoint,
-			Auth:     credentials.Keys.Auth,
-			P256dh:   credentials.Keys.P256dh,
-		}, models.OrderNotification{
-			Number: *orderNumber,
-			Status: updateOrder.Status,
-		})
+		for endpoint, keys := range subscribes.Credentials {
+			err = server_push.Push(&server_push.Subscription{
+				Endpoint: endpoint,
+				Auth:     keys.Auth,
+				P256dh:   keys.P256dh,
+			}, models.OrderNotification{
+				Number: *orderNumber,
+				Status: updateOrder.Status,
+			})
 
-		if err != nil {
-			return errors.ErrInternalError
+			if err != nil {
+				return errors.ErrInternalError
+			}
 		}
 	}
 

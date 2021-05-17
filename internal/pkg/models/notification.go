@@ -3,14 +3,22 @@ package models
 import "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/sanitizer"
 
 type NotificationCredentials struct {
-	Endpoint string `json:"endpoint"`
+	UserIdentifier
 	Keys NotificationKeys `json:"keys"`
 }
 
 func (nc *NotificationCredentials) Sanitize() {
-	sanitizer := sanitizer.NewSanitizer()
-	nc.Endpoint = sanitizer.Sanitize(nc.Endpoint)
+	nc.UserIdentifier.Sanitize()
 	nc.Keys.Sanitize()
+}
+
+type UserIdentifier struct {
+	Endpoint string `json:"endpoint"`
+}
+
+func (ui *UserIdentifier) Sanitize() {
+	sanitizer := sanitizer.NewSanitizer()
+	ui.Endpoint = sanitizer.Sanitize(ui.Endpoint)
 }
 
 type NotificationKeys struct {
@@ -31,4 +39,8 @@ type NotificationPublicKey struct {
 type OrderNotification struct {
 	Number OrderNumber `json:"order_number"`
 	Status string `json:"status"`
+}
+
+type Subscribes struct {
+	Credentials map[string]*NotificationKeys `json:"subscribes" valid:"notnull"`
 }

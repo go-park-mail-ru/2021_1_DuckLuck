@@ -74,9 +74,30 @@ func (h *NotificationHandler) UnsubscribeUser(w http.ResponseWriter, r *http.Req
 		}
 	}()
 
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		http_utils.SetJSONResponse(w, errors.ErrBadRequest, http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	var userIdentifier models.UserIdentifier
+	err = json.Unmarshal(body, &userIdentifier)
+	if err != nil {
+		http_utils.SetJSONResponse(w, errors.ErrCanNotUnmarshal, http.StatusBadRequest)
+		return
+	}
+	userIdentifier.Sanitize()
+
+	err = validator.ValidateStruct(userIdentifier)
+	if err != nil {
+		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusBadRequest)
+		return
+	}
+
 	currentSession := http_utils.MustGetSessionFromContext(r.Context())
 
-	err = h.NotificationUCase.UnsubscribeUser(currentSession.UserData.Id)
+	err = h.NotificationUCase.UnsubscribeUser(currentSession.UserData.Id, userIdentifier.Endpoint)
 	if err != nil {
 		http_utils.SetJSONResponse(w, errors.ErrCanNotAddReview, http.StatusBadRequest)
 		return

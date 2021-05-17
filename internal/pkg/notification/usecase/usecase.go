@@ -17,9 +17,27 @@ func NewUseCase(notificationRepo notification.Repository) notification.UseCase {
 
 func (u *NotificationUseCase) SubscribeUser(userId uint64,
 	credentials *models.NotificationCredentials) error {
-	return u.NotificationRepo.AddSubscribeUser(userId, credentials)
+	userSubscribes, err := u.NotificationRepo.SelectCredentialsByUserId(userId)
+	if err != nil && userSubscribes != nil {
+		userSubscribes.Credentials = make(map[string]*models.NotificationKeys, 0)
+	}
+	userSubscribes.Credentials[credentials.Endpoint] = &credentials.Keys
+
+	return u.NotificationRepo.AddSubscribeUser(userId, userSubscribes)
 }
 
-func (u *NotificationUseCase) UnsubscribeUser(userId uint64) error {
-	return u.NotificationRepo.DeleteSubscribeUser(userId)
+func (u *NotificationUseCase) UnsubscribeUser(userId uint64, endpoint string) error {
+	userSubscribes, err := u.NotificationRepo.SelectCredentialsByUserId(userId)
+	if err != nil {
+		return err
+	}
+
+	if len(userSubscribes.Credentials) == 1 {
+		if err = u.NotificationRepo.DeleteSubscribeUser(userId); err != nil {
+			return err
+		}
+	}
+
+	delete(userSubscribes.Credentials, endpoint)
+	return u.NotificationRepo.AddSubscribeUser(userId, userSubscribes)
 }
