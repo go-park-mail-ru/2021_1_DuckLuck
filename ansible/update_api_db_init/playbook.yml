@@ -1,0 +1,12 @@
+- name: "Update api-db init data"
+  hosts: web
+  become: yes
+  tasks:
+    - name: "Copy categories.csv"
+      copy:
+        src: files/categories.csv
+        dest: /home/ubuntu/duckluckmarket/Backend/scripts/postgresql/
+    - name: "Copy products.csv"
+      copy:
+        src: files/products.csv
+        dest: /home/ubuntu/duckluckmarket/Backend/scripts/postgresql/
