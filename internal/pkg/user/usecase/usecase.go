@@ -2,15 +2,12 @@ package usecase
 
 import (
 	"context"
-	"mime/multipart"
-
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/s3_utils"
 	proto "github.com/go-park-mail-ru/2021_1_DuckLuck/services/auth/proto/user"
-
-	"google.golang.org/grpc"
+	"mime/multipart"
 )
 
 type UserUseCase struct {
@@ -18,9 +15,9 @@ type UserUseCase struct {
 	AuthClient proto.AuthServiceClient
 }
 
-func NewUseCase(authConn grpc.ClientConnInterface, repo user.Repository) user.UseCase {
+func NewUseCase(authClient proto.AuthServiceClient, repo user.Repository) user.UseCase {
 	return &UserUseCase{
-		AuthClient: proto.NewAuthServiceClient(authConn),
+		AuthClient: authClient,
 		UserRepo:   repo,
 	}
 }

@@ -20,6 +20,8 @@ var (
 func AccessInterceptor(metric *metrics.Metrics) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{},
 		info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+		metric.ActualConnections.Inc()
+
 		start := time.Now()
 		md, _ := metadata.FromIncomingContext(ctx)
 
@@ -38,11 +40,11 @@ func AccessInterceptor(metric *metrics.Metrics) grpc.UnaryServerInterceptor {
 			metric.AccessHits.WithLabelValues(statusCode, info.FullMethod, info.FullMethod).Inc()
 		}
 
-		metric.Durations.WithLabelValues(statusCode, info.FullMethod,
-			info.FullMethod).Observe(time.Since(start).Seconds())
+		metric.Durations.WithLabelValues(statusCode, info.FullMethod, info.FullMethod).Observe(time.Since(start).Seconds())
 		logger.GrpcAccessLogEnd(info.FullMethod, requireId,
 			fmt.Sprintf("%v", reply), start)
 		metric.TotalHits.Inc()
+		metric.ActualConnections.Desc()
 
 		return reply, err
 	}

@@ -2,18 +2,19 @@ package metrics
 
 import (
 	"fmt"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"log"
 	"net/http"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 type Metrics struct {
-	TotalHits  prometheus.Counter
-	AccessHits *prometheus.CounterVec
-	Errors     *prometheus.CounterVec
-	Durations  *prometheus.HistogramVec
+	TotalHits         prometheus.Counter
+	ActualConnections prometheus.Counter
+	AccessHits        *prometheus.CounterVec
+	Errors            *prometheus.CounterVec
+	Durations         *prometheus.HistogramVec
 }
 
 func CreateNewMetrics(name string) (*Metrics, error) {
@@ -22,6 +23,13 @@ func CreateNewMetrics(name string) (*Metrics, error) {
 		Name: fmt.Sprintf("%s_total", name),
 	})
 	if err := prometheus.Register(metrics.TotalHits); err != nil {
+		return nil, err
+	}
+
+	metrics.ActualConnections = prometheus.NewCounter(prometheus.CounterOpts{
+		Name: fmt.Sprintf("%s_actual_connections", name),
+	})
+	if err := prometheus.Register(metrics.ActualConnections); err != nil {
 		return nil, err
 	}
 

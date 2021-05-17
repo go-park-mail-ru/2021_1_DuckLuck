@@ -22,6 +22,9 @@ import (
 	product_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/handler"
 	product_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/repository"
 	product_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/usecase"
+	promo_code_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/promo_code/handler"
+	promo_code_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/promo_code/repository"
+	promo_code_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/promo_code/usecase"
 	review_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/review/handler"
 	review_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/review/repository"
 	review_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/review/usecase"
@@ -36,6 +39,9 @@ import (
 	_ "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/s3_utils"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/pkg/metrics"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/pkg/tools/logger"
+	auth_service "github.com/go-park-mail-ru/2021_1_DuckLuck/services/auth/proto/user"
+	cart_service "github.com/go-park-mail-ru/2021_1_DuckLuck/services/cart/proto/cart"
+	session_service "github.com/go-park-mail-ru/2021_1_DuckLuck/services/session/proto/session"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
@@ -121,7 +127,7 @@ func main() {
 	defer redisConn.Close()
 
 	// Init conn Session service
-	sessionService, err := grpc.Dial(
+	sessionConn, err := grpc.Dial(
 		fmt.Sprintf("%s:%s",
 			os.Getenv("SESSION_SERVICE_HOST"),
 			os.Getenv("SESSION_SERVICE_PORT")),
@@ -130,10 +136,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("cant connect to grpc")
 	}
-	defer sessionService.Close()
+	defer sessionConn.Close()
+	sessionService := session_service.NewSessionServiceClient(sessionConn)
 
 	// Init conn Cart service
-	cartService, err := grpc.Dial(
+	cartConn, err := grpc.Dial(
 		fmt.Sprintf("%s:%s",
 			os.Getenv("CART_SERVICE_HOST"),
 			os.Getenv("CART_SERVICE_PORT")),
@@ -142,10 +149,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("cant connect to grpc")
 	}
-	defer cartService.Close()
+	defer cartConn.Close()
+	cartService := cart_service.NewCartServiceClient(cartConn)
 
 	// Init conn Auth service
-	authService, err := grpc.Dial(
+	authConn, err := grpc.Dial(
 		fmt.Sprintf("%s:%s",
 			os.Getenv("AUTH_SERVICE_HOST"),
 			os.Getenv("AUTH_SERVICE_PORT")),
@@ -154,7 +162,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("cant connect to grpc")
 	}
-	defer authService.Close()
+	defer authConn.Close()
+	authService := auth_service.NewAuthServiceClient(authConn)
 
 	sessionUCase := session_usecase.NewUseCase(sessionService)
 	sessionHandler := session_delivery.NewHandler(sessionUCase)
@@ -182,6 +191,10 @@ func main() {
 	reviewUCase := review_usecase.NewUseCase(reviewRepo, userRepo)
 	reviewHandler := review_delivery.NewHandler(reviewUCase)
 
+	promoCodeRepo := promo_code_repo.NewSessionPostgresqlRepository(postgreSqlConn)
+	promoCodeUCase := promo_code_usecase.NewUseCase(promoCodeRepo)
+	promoCodeHandler := promo_code_delivery.NewHandler(promoCodeUCase)
+
 	csrfTokenHandler := csrf_token_delivery.NewHandler()
 
 	mainMux := mux.NewRouter()
@@ -201,11 +214,13 @@ func main() {
 	mainMux.HandleFunc("/api/v1/user/signup", userHandler.Signup).Methods("POST", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/user/login", userHandler.Login).Methods("POST", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/product/{id:[0-9]+}", productHandler.GetProduct).Methods("GET", "OPTIONS")
+	mainMux.HandleFunc("/api/v1/product/recommendations/{id:[0-9]+}", productHandler.GetProductRecommendations).Methods("POST", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/product", productHandler.GetListPreviewProducts).Methods("POST", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/product/search", productHandler.SearchListPreviewProducts).Methods("POST", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/category", categoryHandler.GetCatalogCategories).Methods("GET", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/category/{id:[0-9]+}", categoryHandler.GetSubCategories).Methods("GET", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/review/product/{id:[0-9]+}", reviewHandler.GetReviewsForProduct).Methods("POST", "OPTIONS")
+	mainMux.HandleFunc("/api/v1/promo", promoCodeHandler.ApplyPromoCodeToOrder).Methods("POST", "OPTIONS")
 
 	mainMux.Handle("/metrics", promhttp.Handler())
 
