@@ -10,6 +10,8 @@ import (
 
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
 	_ "github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
+	admin_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/admin/handler"
+	admin_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/admin/usecase"
 	cart_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/cart/handler"
 	cart_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/cart/usecase"
 	category_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/category/handler"
@@ -19,6 +21,9 @@ import (
 	favorites_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/favorites/handler"
 	favorites_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/favorites/repository"
 	favorites_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/favorites/usecase"
+	notification_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/notification/handler"
+	notification_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/notification/repository"
+	notification_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/notification/usecase"
 	order_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/order/handler"
 	order_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/order/repository"
 	order_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/order/usecase"
@@ -42,6 +47,7 @@ import (
 	_ "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/s3_utils"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/pkg/metrics"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/pkg/tools/logger"
+	_ "github.com/go-park-mail-ru/2021_1_DuckLuck/pkg/tools/server_push"
 	auth_service "github.com/go-park-mail-ru/2021_1_DuckLuck/services/auth/proto/user"
 	cart_service "github.com/go-park-mail-ru/2021_1_DuckLuck/services/cart/proto/cart"
 	session_service "github.com/go-park-mail-ru/2021_1_DuckLuck/services/session/proto/session"
@@ -202,6 +208,13 @@ func main() {
 	favoritesUCase := favorites_usecase.NewUseCase(favoritesRepo)
 	favoritesHandler := favorites_delivery.NewHandler(favoritesUCase)
 
+	notificationRepo := notification_repo.NewSessionRedisRepository(redisConn)
+	notificationUCase := notification_usecase.NewUseCase(notificationRepo)
+	notificationHandler := notification_delivery.NewHandler(notificationUCase)
+
+	adminUCase := admin_usecase.NewUseCase(notificationRepo, orderRepo)
+	adminHandler := admin_delivery.NewHandler(adminUCase)
+
 	csrfTokenHandler := csrf_token_delivery.NewHandler()
 
 	mainMux := mux.NewRouter()
@@ -228,6 +241,10 @@ func main() {
 	mainMux.HandleFunc("/api/v1/category/{id:[0-9]+}", categoryHandler.GetSubCategories).Methods("GET", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/review/product/{id:[0-9]+}", reviewHandler.GetReviewsForProduct).Methods("POST", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/promo", promoCodeHandler.ApplyPromoCodeToOrder).Methods("POST", "OPTIONS")
+	mainMux.HandleFunc("/api/v1/notification", notificationHandler.SubscribeUser).Methods("POST", "OPTIONS")
+	mainMux.HandleFunc("/api/v1/notification", notificationHandler.UnsubscribeUser).Methods("DELETE", "OPTIONS")
+	mainMux.HandleFunc("/api/v1/notification/key", notificationHandler.GetNotificationPublicKey).Methods("GET", "OPTIONS")
+	mainMux.HandleFunc("/api/v1/admin/order/status", adminHandler.ChangeOrderStatus).Methods("POST", "OPTIONS")
 
 	mainMux.Handle("/metrics", promhttp.Handler())
 
