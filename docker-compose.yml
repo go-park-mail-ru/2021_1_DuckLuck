@@ -10,6 +10,11 @@ services:
       - ./scripts/postgresql/init_api_db.sql:/docker-entrypoint-initdb.d/init_api_db.sql
     networks:
       - api-network
+  api-server-push-db:
+    image: redis
+    restart: unless-stopped
+    networks:
+      - api-network
   auth-db:
     image: postgres
     restart: unless-stopped
