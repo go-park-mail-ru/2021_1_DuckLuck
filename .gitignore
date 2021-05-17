@@ -4,6 +4,8 @@ services_data/
 
 *.csv
 
+.DS_Store
+
 nflog
 silences
 
