@@ -16,4 +16,3 @@ type Session struct {
 type UserId struct {
 	Id uint64
 }
-

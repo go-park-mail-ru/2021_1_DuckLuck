@@ -11,18 +11,18 @@ import (
 
 type AdminUseCase struct {
 	NotificationRepo notification.Repository
-	OrderRepo order.Repository
+	OrderRepo        order.Repository
 }
 
 func NewUseCase(notificationRepo notification.Repository, orderRepo order.Repository) admin.UseCase {
 	return &AdminUseCase{
 		NotificationRepo: notificationRepo,
-		OrderRepo: orderRepo,
+		OrderRepo:        orderRepo,
 	}
 }
 
 func (u *AdminUseCase) ChangeOrderStatus(updateOrder *models.UpdateOrder) error {
-	orderNumber, userId,  err := u.OrderRepo.ChangeStatusOrder(updateOrder.OrderId, updateOrder.Status)
+	orderNumber, userId, err := u.OrderRepo.ChangeStatusOrder(updateOrder.OrderId, updateOrder.Status)
 	if err != nil {
 		return errors.ErrInternalError
 	}

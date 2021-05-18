@@ -22,8 +22,8 @@ func (ui *UserIdentifier) Sanitize() {
 }
 
 type NotificationKeys struct {
-	Auth     string `json:"auth"`
-	P256dh   string `json:"p256dh"`
+	Auth   string `json:"auth"`
+	P256dh string `json:"p256dh"`
 }
 
 func (nk *NotificationKeys) Sanitize() {
@@ -38,7 +38,7 @@ type NotificationPublicKey struct {
 
 type OrderNotification struct {
 	Number OrderNumber `json:"order_number"`
-	Status string `json:"status"`
+	Status string      `json:"status"`
 }
 
 type Subscribes struct {
