@@ -74,7 +74,7 @@ type OrderRecipient struct {
 }
 
 type PlacedOrder struct {
-	Id           uint64                    `json:"-"`
+	Id           uint64                    `json:"id"`
 	Address      OrderAddress              `json:"address" valid:"notnull"`
 	TotalCost    int                       `json:"total_cost"`
 	Products     []*PreviewOrderedProducts `json:"product_images" valid:"notnull"`
