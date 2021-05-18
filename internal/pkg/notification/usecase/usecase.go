@@ -18,8 +18,10 @@ func NewUseCase(notificationRepo notification.Repository) notification.UseCase {
 func (u *NotificationUseCase) SubscribeUser(userId uint64,
 	credentials *models.NotificationCredentials) error {
 	userSubscribes, err := u.NotificationRepo.SelectCredentialsByUserId(userId)
-	if err != nil || userSubscribes.Credentials == nil {
-		userSubscribes.Credentials = make(map[string]*models.NotificationKeys, 0)
+	if err != nil || userSubscribes.Credentials == nil || userSubscribes == nil {
+		subscribes := &models.Subscribes{}
+		subscribes.Credentials = make(map[string]*models.NotificationKeys, 0)
+		return u.NotificationRepo.AddSubscribeUser(userId, subscribes)
 	}
 	userSubscribes.Credentials[credentials.Endpoint] = &credentials.Keys
 
