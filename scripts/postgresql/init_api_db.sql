@@ -127,7 +127,7 @@ CREATE TABLE user_orders (
 
     FOREIGN KEY (user_id) REFERENCES data_users(id),
 
-    CONSTRAINT discount_value CHECK (discount >= 0 AND discount <= 100),
+    CONSTRAINT discount_value CHECK (discount >= 0),
     CONSTRAINT base_cost_value CHECK (base_cost >= 0),
     CONSTRAINT total_cost_value CHECK (total_cost >= 0 AND total_cost <= base_cost)
 );
