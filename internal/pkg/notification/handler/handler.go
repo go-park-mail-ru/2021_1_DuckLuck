@@ -70,7 +70,7 @@ func (h *NotificationHandler) UnsubscribeUser(w http.ResponseWriter, r *http.Req
 	defer func() {
 		requireId := http_utils.MustGetRequireId(r.Context())
 		if err != nil {
-			logger.LogError("notification_handler", "SubscribeUser", requireId, err)
+			logger.LogError("notification_handler", "UnsubscribeUser", requireId, err)
 		}
 	}()
 
