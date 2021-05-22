@@ -130,7 +130,7 @@ func (r *PostgresqlRepository) SelectStatisticsByProductId(productId uint64) (*m
 		if err != nil {
 			return nil, err
 		}
-		statistics.Stars[rating] = countStars
+		statistics.Stars[rating-1] = countStars
 	}
 
 	return statistics, nil
