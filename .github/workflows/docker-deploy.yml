@@ -109,7 +109,7 @@ jobs:
           issue-number: ${{ github.event.number }}
           body:
 #            ${{ steps.get-comment-body.outputs.body }}
-            [![Coverage](https://duckluck-cov.hb.bizmrg.com/${{ env.BRANCH_NAME }}/tests.svg)](https://github.com/go-park-mail-ru/2021_1_DuckLuck/actions/workflows/docker-deploy.yml)
+            [![Coverage]("https://duckluck-cov.hb.bizmrg.com/${BRANCH_NAME}/tests.svg)"](https://github.com/go-park-mail-ru/2021_1_DuckLuck/actions/workflows/docker-deploy.yml)
           reactions: eyes
 
 
