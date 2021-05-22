@@ -79,22 +79,19 @@ jobs:
         run: cat coverage1.out | grep -v mock | grep -v proto | grep -v cmd | grep -v middleware | grep -v models > cover.out
       - name: Get total coverage
         run: go tool cover -func cover.out
-      - name: Make directory for coverage
-        run: mkdir coverage
       - name: Convert coverage to lcov
         uses: jandelgado/gcov2lcov-action@v1.0.5
         with:
           infile: cover.out
-          outfile: ./covarege/cover.lcov
+          outfile: cover.lcov
       - name: Upload badge to hotbox
         uses: jakejarvis/s3-sync-action@master
         with:
-          args: --endpoint-url https://hb.bizmrg.com --acl public-read --follow-symlinks
+          args: --endpoint-url https://hb.bizmrg.com --acl public-read --exclude '*' --include 'cover.lcov'
         env:
           AWS_S3_BUCKET: ${{ secrets.DUCKLUCK_COVERAGE_BUCKET }}
           AWS_ACCESS_KEY_ID: ${{ secrets.DUCKLUCK_COVERAGE_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.DUCKLUCK_COVERAGE_SECRET }}
-          SOURCE_DIR: 'coverage'
       - name: Write comment
         uses: mshick/add-pr-comment@v1
         with:
