@@ -88,26 +88,25 @@ jobs:
             COLOR=orange
           fi
           mkdir $BRANCH_NAME
-          curl "https://img.shields.io/badge/coavrege-$total%25-$COLOR" > $BRANCH_NAME-badge.svg
+          curl "https://img.shields.io/badge/coavrege-$total%25-$COLOR" > badge.svg
       - name: Upload badge to hotbox
         uses: jakejarvis/s3-sync-action@master
         with:
-          args: --endpoint-url https://hb.bizmrg.com --acl public-read --exclude '*' --include '${BRANCH_NAME}-badge.svg'
+          args: --endpoint-url https://hb.bizmrg.com --acl public-read --exclude '*' --include 'badge.svg'
         env:
           AWS_S3_BUCKET: ${{ secrets.DUCKLUCK_COVERAGE_BUCKET }}
           AWS_ACCESS_KEY_ID: ${{ secrets.DUCKLUCK_COVERAGE_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.DUCKLUCK_COVERAGE_SECRET }}
 
-      - name: Create coverage text variable
-        run: echo "::set-env name=COVERAGE_TEXT::$(cat cover.out)"
+      - name: Create md file with cover
+        run: cat cover.out > cover.md
 
       - name: Write comment
-        uses: mshick/add-pr-comment@v1
+        uses: harupy/comment-on-pr@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          message: |
-            $COVERAGE_TEXT
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          allow-repeats: true
+          filename: cover.md
 
 
 #      - name: Upload dependencies
