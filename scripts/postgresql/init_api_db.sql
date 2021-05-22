@@ -162,7 +162,7 @@ CREATE TABLE reviews (
     FOREIGN KEY (product_id) REFERENCES products(id),
     FOREIGN KEY (user_id) REFERENCES data_users(id),
 
-    CONSTRAINT rating_value CHECK (rating >= 0 AND rating <= 5)
+    CONSTRAINT rating_value CHECK (rating >= 1 AND rating <= 5)
 );
 
 DROP TABLE IF EXISTS favorites CASCADE;
