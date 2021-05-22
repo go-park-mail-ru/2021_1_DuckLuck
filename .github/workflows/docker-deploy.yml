@@ -81,17 +81,15 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.DUCKLUCK_COVERAGE_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.DUCKLUCK_COVERAGE_SECRET }}
           SOURCE_DIR: 'coverage'
-      test:
-        runs-on: ubuntu-latest
-        steps:
-          - uses: mshick/add-pr-comment@v1
-            with:
-              message: |
-                **Hello**
-                🌏
-                !
-              repo-token: ${{ secrets.GITHUB_TOKEN }}
-              allow-repeats: true
+      - name: Write comment
+      - uses: mshick/add-pr-comment@v1
+        with:
+          message: |
+            **Hello**
+            🌏
+            !
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          allow-repeats: true
 
 
 #      - name: Upload dependencies
