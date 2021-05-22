@@ -61,8 +61,11 @@ jobs:
         run: cat coverage1.out | grep -v mock | grep -v proto | grep -v cmd | grep -v middleware | grep -v models > cover.out
       - name: Get total coverage
         run: go tool cover -func cover.out
-      - name: Formatting go coverage to lcov
-        run: gcov2lcov -infile=cover.out -outfile=cover.lcov
+      - name: Convert coverage to lcov
+        uses: jandelgado/gcov2lcov-action@v1.0.5
+        with:
+          infile: cover.out
+          outfile: cover.lcov
 #      - name: Upload dependencies
 #        uses: actions/upload-artifact@v2
 #        with:
