@@ -80,7 +80,7 @@ jobs:
       - name: Get total coverage
         id: total-coverage
         run:
-          OUTPUT="$(go tool cover -func cover.out)"
+          OUTPUT=$(go tool cover -func cover.out)
           $OUTPUT="${$OUTPUT//'%'/'%25'}"
           $OUTPUT="${$OUTPUT//$'\n'/'%0A'}"
           $OUTPUT="${$OUTPUT//$'\r'/'%0D'}"
