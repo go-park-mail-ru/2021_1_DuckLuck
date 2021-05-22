@@ -106,7 +106,7 @@ jobs:
         with:
           template: .github/comment-template.md
           vars: |
-            output: ${{ steps.get-comment-body.outputs.body }}
+            output: ${{ env.COVERAGE }}
 
       - name: Create comment
         uses: peter-evans/create-or-update-comment@v1
