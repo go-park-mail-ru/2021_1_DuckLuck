@@ -56,9 +56,10 @@ jobs:
         uses: actions/setup-go@v2
         with:
           go-version: 1.15.x
+      - name: Get branch name
+        uses: nelonoel/branch-name@v1
+        run: echo ${BRANCH_NAME}
       - uses: actions/checkout@v1
-      - name: Branch name
-        run: echo running on branch ${GITHUB_REF##*/}
       - name: Get full coverage
         run: go test -coverprofile=coverage1.out -coverpkg=./... -cover ./...
       - name: Ignore some directories
@@ -71,7 +72,7 @@ jobs:
         uses: jandelgado/gcov2lcov-action@v1.0.5
         with:
           infile: cover.out
-          outfile: covarege/cover.lcov
+          outfile: ./covarege/cover.lcov
       - name: Upload badge to hotbox
         uses: jakejarvis/s3-sync-action@master
         with:
