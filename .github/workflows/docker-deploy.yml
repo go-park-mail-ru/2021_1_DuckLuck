@@ -21,7 +21,7 @@ jobs:
             🌏
             !
           repo-token: ${{ secrets.TOKEN }}
-          allow-repeats: false # This is the default
+          allow-repeats: true # This is the default
 #
 #on:
 #  push:
