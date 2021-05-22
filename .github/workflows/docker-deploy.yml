@@ -82,7 +82,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.DUCKLUCK_COVERAGE_SECRET }}
           SOURCE_DIR: 'coverage'
       - name: Write comment
-      - uses: mshick/add-pr-comment@v1
+        uses: mshick/add-pr-comment@v1
         with:
           message: |
             **Hello**
