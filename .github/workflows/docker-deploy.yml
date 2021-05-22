@@ -20,7 +20,7 @@ jobs:
             **Hello**
             🌏
             !
-          repo-token: ${{ secrets.TOKEN }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
           allow-repeats: true # This is the default
 #
 #on:
