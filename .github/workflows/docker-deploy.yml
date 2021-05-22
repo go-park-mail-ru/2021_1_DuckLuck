@@ -80,16 +80,20 @@ jobs:
           else
             COLOR=orange
           fi
+          mkdir badges
+          cd badges
           mkdir $BRANCH_NAME
-          curl "https://img.shields.io/badge/coverage-$total%25-$COLOR" > $BRANCH_NAME.svg
+          cd $BRANCH_NAME
+          curl "https://img.shields.io/badge/coverage-$total%25-$COLOR" > tests.svg
       - name: Upload badge to hotbox
         uses: jakejarvis/s3-sync-action@master
         with:
-          args: --endpoint-url https://hb.bizmrg.com --acl public-read --exclude '*' --include '${BRANCH_NAME}.svg'
+          args: --endpoint-url https://hb.bizmrg.com --acl public-read --follow-symlinks
         env:
           AWS_S3_BUCKET: ${{ secrets.DUCKLUCK_COVERAGE_BUCKET }}
           AWS_ACCESS_KEY_ID: ${{ secrets.DUCKLUCK_COVERAGE_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.DUCKLUCK_COVERAGE_SECRET }}
+          SOURCE_DIR: 'badges'
 
       - id: get-comment-body
         run: |
