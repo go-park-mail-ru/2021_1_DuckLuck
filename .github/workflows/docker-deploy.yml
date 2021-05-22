@@ -55,6 +55,14 @@ jobs:
       - uses: actions/checkout@v1
       - name: Get golang coverage to lcov formatter
         run: go get -u github.com/jandelgado/gcov2lcov
+      - name: Get full coverage
+        run: go test -coverprofile=coverage1.out -coverpkg=./... -cover ./...
+      - name: Ignore some directories
+        run: cat coverage1.out | grep -v mock | grep -v proto | grep -v cmd | grep -v middleware | grep -v models > cover.out
+      - name: Get total coverage
+        run: go tool cover -func cover.out
+      - name: Formatting go coverage to lcov
+        run: gcov2lcov -infile=cover.out -outfile=cover.lcov
 #      - name: Upload dependencies
 #        uses: actions/upload-artifact@v2
 #        with:
