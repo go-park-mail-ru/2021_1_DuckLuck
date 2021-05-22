@@ -35,9 +35,7 @@ func (u *NotificationUseCase) UnsubscribeUser(userId uint64, endpoint string) er
 	}
 
 	if len(userSubscribes.Credentials) == 1 {
-		if err = u.NotificationRepo.DeleteSubscribeUser(userId); err != nil {
-			return err
-		}
+		return u.NotificationRepo.DeleteSubscribeUser(userId)
 	}
 
 	delete(userSubscribes.Credentials, endpoint)
