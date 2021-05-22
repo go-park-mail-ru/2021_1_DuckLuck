@@ -51,6 +51,8 @@ jobs:
 #            ./uploads
   tests:
     runs-on: ubuntu-latest
+    outputs:
+      total-coverage: ${{ steps.total-coverage.outputs.total-coverage }}
     steps:
 #      - name: Install Go
 #        if: success()
@@ -70,13 +72,14 @@ jobs:
 #      - name: Get branch name
 #        run: echo 'The branch name is' $BRANCH_NAME
 #
-#      - uses: actions/checkout@v1
-#      - name: Get full coverage
-#        run: go test -coverprofile=coverage1.out -coverpkg=./... -cover ./...
-#      - name: Ignore some directories
-#        run: cat coverage1.out | grep -v mock | grep -v proto | grep -v cmd | grep -v middleware | grep -v models > cover.out
-#      - name: Get total coverage
-#        run: go tool cover -func cover.out
+      - uses: actions/checkout@v1
+      - name: Get full coverage
+        run: go test -coverprofile=coverage1.out -coverpkg=./... -cover ./...
+      - name: Ignore some directories
+        run: cat coverage1.out | grep -v mock | grep -v proto | grep -v cmd | grep -v middleware | grep -v models > cover.out
+      - name: Get total coverage
+        id: total-coverage
+        run: go tool cover -func cover.out
 #      - name: Create badge
 #        run: |
 #          total=`go tool cover -func=cover.out | grep total | grep -Eo '[0-9]+\.[0-9]+'`
@@ -100,20 +103,11 @@ jobs:
 #
 #      - name: Create md file with cover
 #        run: cat cover.out > cover.md
-
-      - name: Render template
-        id: template
-        uses: chuhlomin/render-template@v1.2
-        with:
-          template: .github/comment-template.md
-          vars: |
-            foo: this
-            bar: that
       - name: Create comment
         uses: peter-evans/create-or-update-comment@v1
         with:
           issue-number: ${{ github.event.number }}
-          body: ${{ steps.template.outputs.result }}
+          body: ${{ steps.total-coverage.outputs.total-coverage }}
           reactions: eyes
 
 
