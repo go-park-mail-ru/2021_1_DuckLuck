@@ -61,7 +61,7 @@ jobs:
         if: github.event_name == 'pull_request'
         run:
           echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_HEAD_REF})"
-          echo "::set-env name=BADGE::$(echo "https://duckluck-cov.hb.bizmrg.com/tests.svg)")"
+          echo "::set-env name=BADGE::$(echo "https://duckluck-cov.hb.bizmrg.com/tests.svg")"
 #
 #      - uses: actions/checkout@v1
 #      - name: Get full coverage
