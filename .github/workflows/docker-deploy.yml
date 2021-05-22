@@ -87,11 +87,12 @@ jobs:
           else
             COLOR=orange
           fi
-          curl "https://img.shields.io/badge/coavrege-$total%25-$COLOR" > $BRANCH_NAME/badge.svg
+          mkdir $BRANCH_NAME
+          curl "https://img.shields.io/badge/coavrege-$total%25-$COLOR" > ./$BRANCH_NAME/badge.svg
       - name: Upload badge to hotbox
         uses: jakejarvis/s3-sync-action@master
         with:
-          args: --endpoint-url https://hb.bizmrg.com --acl public-read --exclude '*' --include '$BRANCH_NAME/badge.svg'
+          args: --endpoint-url https://hb.bizmrg.com --acl public-read --exclude '*' --include './$BRANCH_NAME/badge.svg'
         env:
           AWS_S3_BUCKET: ${{ secrets.DUCKLUCK_COVERAGE_BUCKET }}
           AWS_ACCESS_KEY_ID: ${{ secrets.DUCKLUCK_COVERAGE_ID }}
