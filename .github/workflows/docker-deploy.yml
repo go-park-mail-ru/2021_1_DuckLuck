@@ -80,7 +80,7 @@ jobs:
       - name: Get total coverage
         id: total-coverage
         run:
-          OUTPUT = "$(go tool cover -func cover.out)"
+          OUTPUT="$(go tool cover -func cover.out)"
           echo $OUTPUT
           echo "::set-output name=total-coverage::$OUTPUT"
 #      - name: Create badge
