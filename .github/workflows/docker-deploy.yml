@@ -59,9 +59,9 @@ jobs:
         id: extract_branch
       - name: Create branch name variable
         if: github.event_name == 'pull_request'
-        run: echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_HEAD_REF})"
-      - name: Get branch name
-        run: echo 'The branch name is' $BRANCH_NAME
+        run:
+          echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_HEAD_REF})"
+          echo "::set-env name=BADGE::$(echo "https://duckluck-cov.hb.bizmrg.com/${ BRANCH_NAME }/tests.svg)")"
 #
 #      - uses: actions/checkout@v1
 #      - name: Get full coverage
@@ -109,7 +109,8 @@ jobs:
           issue-number: ${{ github.event.number }}
           body:
 #            ${{ steps.get-comment-body.outputs.body }}
-            [![Coverage]("https://duckluck-cov.hb.bizmrg.com/${{ BRANCH_NAME }}/tests.svg)"](https://github.com/go-park-mail-ru/2021_1_DuckLuck/actions/workflows/docker-deploy.yml)
+            ${{ env.BADGE }}
+            [![Coverage]()](https://github.com/go-park-mail-ru/2021_1_DuckLuck/actions/workflows/docker-deploy.yml)
           reactions: eyes
 
 
