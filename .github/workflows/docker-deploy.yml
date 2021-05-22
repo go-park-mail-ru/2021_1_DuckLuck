@@ -71,11 +71,15 @@ jobs:
         with:
           infile: cover.out
           outfile: cover.lcov
-      - name: Coveralls
-        uses: coverallsapp/github-action@v1.1.2
+      - name: Upload to hotbox
+        uses: jakejarvis/s3-sync-action@master
         with:
-          github-token: 7f5vCoUhJ1J92PtlpsIm4K0zpnpOTqQI1
-          path-to-lcov: cover.lcov
+          args: --endpoint-url https://hb.bizmrg.com --acl public-read --follow-symlinks
+        env:
+          AWS_S3_BUCKET: ${{ secrets.DUCKLUCK_COVERAGE_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.DUCKLUCK_COVERAGE_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.DUCKLUCK_COVERAGE_SECRET }}
+          SOURCE_DIR: 'cover.lcov'
 #      - name: Upload dependencies
 #        uses: actions/upload-artifact@v2
 #        with:
