@@ -1,4 +1,0 @@
-Coverage info:
-```bash
-{{ .output }}
-```

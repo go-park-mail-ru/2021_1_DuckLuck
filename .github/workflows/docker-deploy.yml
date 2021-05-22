@@ -102,21 +102,12 @@ jobs:
           body="${body//$'\n'/'%0A'}"
           body="${body//$'\r'/'%0D'}"
           echo ::set-output name=body::$body
-          echo "COVERAGE=${body}" >> $GITHUB_ENV
-
-      - name: Render template
-        id: template
-        uses: chuhlomin/render-template@v1.2
-        with:
-          template: .github/comment-template.md
-          vars: |
-            output: ${{ env.COVERAGE }}
 
       - name: Create comment
         uses: peter-evans/create-or-update-comment@v1
         with:
           issue-number: ${{ github.event.number }}
-          body: ${{ steps.template.outputs.result }}
+          body: ${{ steps.get-comment-body.outputs.body }}
           reactions: eyes
 
 
