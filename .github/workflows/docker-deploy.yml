@@ -52,6 +52,11 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/setup-go@v1
+        with:
+          version: '1.16'
+        env:
+          GOPATH: $HOME
       - uses: actions/checkout@v1
       - name: Get golang coverage to lcov formatter
         run: go get -u github.com/jandelgado/gcov2lcov
