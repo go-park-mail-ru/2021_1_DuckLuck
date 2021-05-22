@@ -72,7 +72,7 @@ jobs:
           infile: cover.out
           outfile: cover.lcov
       - name: Coveralls
-        uses: coverallsapp/github-action@v1.0.4
+        uses: coverallsapp/github-action@v1.1.2
         with:
           github-token: 7f5vCoUhJ1J92PtlpsIm4K0zpnpOTqQI1
           path-to-lcov: cover.lcov
