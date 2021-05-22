@@ -51,8 +51,6 @@ jobs:
 #            ./uploads
   tests:
     runs-on: ubuntu-latest
-    outputs:
-      total-coverage: ${{ steps.total-coverage.outputs.total-coverage }}
     steps:
       - name: Extract branch name
         if: github.event_name != 'pull_request'
@@ -70,9 +68,6 @@ jobs:
         run: go test -coverprofile=coverage1.out -coverpkg=./... -cover ./...
       - name: Ignore some directories
         run: cat coverage1.out | grep -v mock | grep -v proto | grep -v cmd | grep -v middleware | grep -v models > cover.out
-      - name: Get total coverage
-        id: total-coverage
-        run: go tool cover -func cover.out
 
       - name: Create badge
         run: |
@@ -103,11 +98,19 @@ jobs:
           body="${body//$'\r'/'%0D'}"
           echo ::set-output name=body::$body
 
+      - name: Render template
+        id: template
+        uses: chuhlomin/render-template@v1.2
+        with:
+          template: .github/comment-template.md
+          vars: |
+            output: ${{ steps.get-comment-body.outputs.body }}
+
       - name: Create comment
         uses: peter-evans/create-or-update-comment@v1
         with:
           issue-number: ${{ github.event.number }}
-          body: ${{ steps.get-comment-body.outputs.body }}
+          body: ${{ steps.template.outputs.result }}
           reactions: eyes
 
 

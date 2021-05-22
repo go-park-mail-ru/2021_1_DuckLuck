@@ -1,0 +1,4 @@
+Coverage info:
+```bash
+{{ .output }}
+```
