@@ -62,7 +62,7 @@ jobs:
         shell: bash
         run: echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_REF#refs/heads/})"
         id: extract_branch
-      - name: Print branch name
+      - name: Create branch name variable
         if: github.event_name == 'pull_request'
         run: echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_HEAD_REF})"
 
@@ -92,18 +92,20 @@ jobs:
       - name: Upload badge to hotbox
         uses: jakejarvis/s3-sync-action@master
         with:
-          args: --endpoint-url https://hb.bizmrg.com --acl public-read --exclude '*' --include './$BRANCH_NAME/badge.svg'
+          args: --endpoint-url https://hb.bizmrg.com --acl public-read --exclude '*' --include './${BRANCH_NAME}/badge.svg'
         env:
           AWS_S3_BUCKET: ${{ secrets.DUCKLUCK_COVERAGE_BUCKET }}
           AWS_ACCESS_KEY_ID: ${{ secrets.DUCKLUCK_COVERAGE_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.DUCKLUCK_COVERAGE_SECRET }}
+
+      - name: Create coverage text variable
+        run: echo "::set-env name=COVERAGE_TEXT::$(cat cover.out)"
+
       - name: Write comment
         uses: mshick/add-pr-comment@v1
         with:
           message: |
-            **Hello**
-            🌏
-            !
+            $COVERAGE_TEXT
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           allow-repeats: true
 
