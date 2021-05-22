@@ -41,8 +41,6 @@ jobs:
           fi
           mkdir badges
           cd badges
-#          mkdir $BRANCH_NAME
-#          cd $BRANCH_NAME
           curl "https://img.shields.io/badge/coverage-$total%25-$COLOR" > tests.svg
       - name: Upload badge to hotbox
         uses: jakejarvis/s3-sync-action@master
