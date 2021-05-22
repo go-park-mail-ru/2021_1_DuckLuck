@@ -62,8 +62,6 @@ jobs:
         shell: bash
         run: echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_REF#refs/heads/})"
         id: extract_branch
-
-      # extract branch name on pull request
       - name: Print branch name
         if: github.event_name == 'pull_request'
         run: echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_HEAD_REF})"
@@ -79,15 +77,21 @@ jobs:
         run: cat coverage1.out | grep -v mock | grep -v proto | grep -v cmd | grep -v middleware | grep -v models > cover.out
       - name: Get total coverage
         run: go tool cover -func cover.out
-      - name: Convert coverage to lcov
-        uses: jandelgado/gcov2lcov-action@v1.0.5
-        with:
-          infile: cover.out
-          outfile: cover.lcov
+      - name: Create badge
+        run: |
+          total=`go tool cover -func=coverage.out | grep total | grep -Eo '[0-9]+\.[0-9]+'`
+          if (( $(echo "$total <= 40" | bc -l) )) ; then
+            COLOR=red
+          elif (( $(echo "$total > 60" | bc -l) )); then
+            COLOR=green
+          else
+            COLOR=orange
+          fi
+          curl "https://img.shields.io/badge/coavrege-$total%25-$COLOR" > $BRANCH_NAME/badge.svg
       - name: Upload badge to hotbox
         uses: jakejarvis/s3-sync-action@master
         with:
-          args: --endpoint-url https://hb.bizmrg.com --acl public-read --exclude '*' --include 'cover.lcov'
+          args: --endpoint-url https://hb.bizmrg.com --acl public-read --exclude '*' --include '$BRANCH_NAME/badge.svg'
         env:
           AWS_S3_BUCKET: ${{ secrets.DUCKLUCK_COVERAGE_BUCKET }}
           AWS_ACCESS_KEY_ID: ${{ secrets.DUCKLUCK_COVERAGE_ID }}
