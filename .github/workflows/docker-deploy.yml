@@ -55,7 +55,10 @@ jobs:
       - name: Extract branch name
         if: github.event_name != 'pull_request'
         shell: bash
-        run: echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_REF#refs/heads/})"
+        run:
+          echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_REF#refs/heads/})"
+          echo "::set-env name=BADGE::$(echo https://duckluck-cov.hb.bizmrg.com/tests.svg)"
+
         id: extract_branch
       - name: Create branch name variable
         if: github.event_name == 'pull_request'
