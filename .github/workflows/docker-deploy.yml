@@ -71,6 +71,11 @@ jobs:
         with:
           infile: cover.out
           outfile: cover.lcov
+      - name: Upload lcov
+        uses: romeovs/lcov-reporter-action@v0.2.16
+        with:
+          github-token: 7f5vCoUhJ1J92PtlpsIm4K0zpnpOTqQI1
+          lcov-file: cover.lcov
 #      - name: Upload dependencies
 #        uses: actions/upload-artifact@v2
 #        with:
