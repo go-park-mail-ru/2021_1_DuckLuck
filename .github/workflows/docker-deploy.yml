@@ -106,7 +106,7 @@ jobs:
 #        run: cat cover.out > cover.md
       - id: get-comment-body
         run: |
-          body=$(cat cover.out)
+          body=$(go tool cover -func cover.out)
           body="${body//'%'/'%25'}"
           body="${body//$'\n'/'%0A'}"
           body="${body//$'\r'/'%0D'}"
