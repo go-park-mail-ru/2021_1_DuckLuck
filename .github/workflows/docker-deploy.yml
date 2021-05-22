@@ -56,8 +56,8 @@ jobs:
         uses: actions/setup-go@v2
         with:
           go-version: 1.15.x
+      - uses: nelonoel/branch-name@v1
       - name: Get branch name
-        uses: nelonoel/branch-name@v1
         run: echo ${BRANCH_NAME}
       - uses: actions/checkout@v1
       - name: Get full coverage
