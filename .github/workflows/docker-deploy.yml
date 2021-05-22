@@ -81,9 +81,9 @@ jobs:
         id: total-coverage
         run:
           OUTPUT=$(go tool cover -func cover.out)
-          $OUTPUT="${$OUTPUT//'%'/'%25'}"
-          $OUTPUT="${$OUTPUT//$'\n'/'%0A'}"
-          $OUTPUT="${$OUTPUT//$'\r'/'%0D'}"
+          $OUTPUT="${OUTPUT//'%'/'%25'}"
+          $OUTPUT="${OUTPUT//$'\n'/'%0A'}"
+          $OUTPUT="${OUTPUT//$'\r'/'%0D'}"
           echo $OUTPUT
           echo "::set-output name=total-coverage::$OUTPUT"
 #      - name: Create badge
