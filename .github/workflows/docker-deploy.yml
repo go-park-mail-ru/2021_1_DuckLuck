@@ -110,7 +110,6 @@ jobs:
           body="${body//'%'/'%25'}"
           body="${body//$'\n'/'%0A'}"
           body="${body//$'\r'/'%0D'}"
-          body="```bash\n${body}\n```"
           echo ::set-output name=body::$body
 
       - name: Create comment
