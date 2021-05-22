@@ -70,13 +70,13 @@ jobs:
 #      - name: Get branch name
 #        run: echo 'The branch name is' $BRANCH_NAME
 #
-      - uses: actions/checkout@v1
-      - name: Get full coverage
-        run: go test -coverprofile=coverage1.out -coverpkg=./... -cover ./...
-      - name: Ignore some directories
-        run: cat coverage1.out | grep -v mock | grep -v proto | grep -v cmd | grep -v middleware | grep -v models > cover.out
-      - name: Get total coverage
-        run: go tool cover -func cover.out
+#      - uses: actions/checkout@v1
+#      - name: Get full coverage
+#        run: go test -coverprofile=coverage1.out -coverpkg=./... -cover ./...
+#      - name: Ignore some directories
+#        run: cat coverage1.out | grep -v mock | grep -v proto | grep -v cmd | grep -v middleware | grep -v models > cover.out
+#      - name: Get total coverage
+#        run: go tool cover -func cover.out
 #      - name: Create badge
 #        run: |
 #          total=`go tool cover -func=cover.out | grep total | grep -Eo '[0-9]+\.[0-9]+'`
@@ -101,18 +101,19 @@ jobs:
 #      - name: Create md file with cover
 #        run: cat cover.out > cover.md
 
-      - id: get-comment-body
-        run: |
-          body=$(cat cover.out)
-          body="${body//'%'/'%25'}"
-          body="${body//$'\n'/'%0A'}"
-          body="${body//$'\r'/'%0D'}"
-          echo ::set-output name=body::$body
+      - name: Render template
+        id: template
+        uses: chuhlomin/render-template@v1.2
+        with:
+          template: .github/comment-template.md
+          vars: |
+            foo: this
+            bar: that
       - name: Create comment
         uses: peter-evans/create-or-update-comment@v1
         with:
           issue-number: ${{ github.event.number }}
-          body: ${{ steps.get-comment-body.outputs.body }}
+          body: ${{ steps.template.outputs.result }}
           reactions: eyes
 
 
