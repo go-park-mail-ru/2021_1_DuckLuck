@@ -54,23 +54,16 @@ jobs:
     outputs:
       total-coverage: ${{ steps.total-coverage.outputs.total-coverage }}
     steps:
-#      - name: Install Go
-#        if: success()
-#        uses: actions/setup-go@v2
-#        with:
-#          go-version: 1.15.x
-#      - name: Extract branch name
-#        if: github.event_name != 'pull_request'
-#        shell: bash
-#        run: echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_REF#refs/heads/})"
-#        id: extract_branch
-#      - name: Create branch name variable
-#        if: github.event_name == 'pull_request'
-#        run: echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_HEAD_REF})"
-#
-#      # print branch name
-#      - name: Get branch name
-#        run: echo 'The branch name is' $BRANCH_NAME
+      - name: Extract branch name
+        if: github.event_name != 'pull_request'
+        shell: bash
+        run: echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+      - name: Create branch name variable
+        if: github.event_name == 'pull_request'
+        run: echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_HEAD_REF})"
+      - name: Get branch name
+        run: echo 'The branch name is' $BRANCH_NAME
 #
       - uses: actions/checkout@v1
       - name: Get full coverage
@@ -81,29 +74,27 @@ jobs:
         id: total-coverage
         run: go tool cover -func cover.out
 
-#      - name: Create badge
-#        run: |
-#          total=`go tool cover -func=cover.out | grep total | grep -Eo '[0-9]+\.[0-9]+'`
-#          if (( $(echo "$total <= 40" | bc -l) )) ; then
-#            COLOR=red
-#          elif (( $(echo "$total > 60" | bc -l) )); then
-#            COLOR=green
-#          else
-#            COLOR=orange
-#          fi
-#          mkdir $BRANCH_NAME
-#          curl "https://img.shields.io/badge/coverage-$total%25-$COLOR" > badge.svg
-#      - name: Upload badge to hotbox
-#        uses: jakejarvis/s3-sync-action@master
-#        with:
-#          args: --endpoint-url https://hb.bizmrg.com --acl public-read --exclude '*' --include 'badge.svg'
-#        env:
-#          AWS_S3_BUCKET: ${{ secrets.DUCKLUCK_COVERAGE_BUCKET }}
-#          AWS_ACCESS_KEY_ID: ${{ secrets.DUCKLUCK_COVERAGE_ID }}
-#          AWS_SECRET_ACCESS_KEY: ${{ secrets.DUCKLUCK_COVERAGE_SECRET }}
-#
-#      - name: Create md file with cover
-#        run: cat cover.out > cover.md
+      - name: Create badge
+        run: |
+          total=`go tool cover -func=cover.out | grep total | grep -Eo '[0-9]+\.[0-9]+'`
+          if (( $(echo "$total <= 40" | bc -l) )) ; then
+            COLOR=red
+          elif (( $(echo "$total > 60" | bc -l) )); then
+            COLOR=green
+          else
+            COLOR=orange
+          fi
+          mkdir $BRANCH_NAME
+          curl "https://img.shields.io/badge/coverage-$total%25-$COLOR" > $BRANCH_NAME.svg
+      - name: Upload badge to hotbox
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --endpoint-url https://hb.bizmrg.com --acl public-read --exclude '*' --include '${BRANCH_NAME}.svg'
+        env:
+          AWS_S3_BUCKET: ${{ secrets.DUCKLUCK_COVERAGE_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.DUCKLUCK_COVERAGE_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.DUCKLUCK_COVERAGE_SECRET }}
+
       - id: get-comment-body
         run: |
           body=$(go tool cover -func cover.out)
