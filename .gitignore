@@ -2,6 +2,11 @@
 configs/envs
 services_data/
 
+*.csv
+
+.DS_Store
+__pycache__/
+
 nflog
 silences
 
