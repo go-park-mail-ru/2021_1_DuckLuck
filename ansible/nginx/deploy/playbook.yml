@@ -1,5 +1,5 @@
 - name: "Install nginx"
-  hosts: web
+  hosts: deploy
   become: yes
   tasks:
     - name: "Install nginx from apt"
