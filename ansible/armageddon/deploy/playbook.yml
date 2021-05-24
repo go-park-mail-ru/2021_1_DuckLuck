@@ -1,5 +1,5 @@
 - name: "Make armageddon"
-  hosts: web
+  hosts: deploy
   become: yes
   tasks:
     - name: "Start armageddon"
