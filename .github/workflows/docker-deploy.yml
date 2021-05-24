@@ -112,7 +112,7 @@ jobs:
           envs: GITHUB_SHA
           host: duckluckbreakout.xyz
           username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.PRIVATE_KEY }}
+          key: ${{ secrets.DEVELOP_PRIVATE_KEY }}
           script: |
             cd /home/ubuntu/duckluckmarket/Backend
             echo API_DB_TAG=${{ env.API_DB_TAG }} > .env
