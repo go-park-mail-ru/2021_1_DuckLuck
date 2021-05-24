@@ -4,9 +4,6 @@ COPY go.mod .
 RUN go mod download
 COPY . /project
 RUN make build
-#RUN go test -coverprofile=coverage1.out -coverpkg=./... -cover ./...
-#RUN cat coverage1.out | grep -v mock | grep -v proto | grep -v cmd > cover.out
-#RUN go tool cover -func cover.out
 
 FROM golang:1.15 as api-server-build
 WORKDIR /project
@@ -64,4 +61,3 @@ ENV DICT=/usr/share/hunspell/ru_RU
 ENV POSTGRES_HOST_AUTH_METHOD=trust
 RUN iconv -f koi8-r -t utf-8 -o russian.affix $DICT.aff && \
     iconv -f koi8-r -t utf-8 -o russian.dict $DICT.dic
-
