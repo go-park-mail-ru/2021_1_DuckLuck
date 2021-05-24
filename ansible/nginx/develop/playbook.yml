@@ -1,0 +1,14 @@
+- name: "Install nginx"
+  hosts: develop
+  become: yes
+  tasks:
+    - name: "Install nginx from apt"
+      apt:
+        name: nginx
+        state: present
+    - name: "Copy nginx config"
+      copy:
+        src: files/duckluckbreakout.xyz.conf
+        dest: /etc/nginx/conf.d
+    - name: "Reload nginx configuration"
+      command: nginx -s reload

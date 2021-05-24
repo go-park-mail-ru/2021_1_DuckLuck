@@ -1,0 +1,4 @@
+[deploy]
+185.241.193.131 ansible_user=ubuntu ansible_ssh_private_key_file=~/mcs/duckluckmarket-CWv95dIX.pem
+[develop]
+37.139.34.7 ansible_user=ubuntu ansible_ssh_private_key_file=~/mcs/TradeBot-bmLnS2aP.pem

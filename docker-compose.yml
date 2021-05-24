@@ -8,6 +8,8 @@ services:
       - POSTGRES_HOST_AUTH_METHOD=trust
     volumes:
       - ./scripts/postgresql/init_api_db.sql:/docker-entrypoint-initdb.d/init_api_db.sql
+      - ./scripts/postgresql/categories.csv:/categories.csv
+      - ./scripts/postgresql/products.csv:/products.csv
     networks:
       - api-network
   api-server-push-db:
