@@ -110,7 +110,7 @@ jobs:
         uses: appleboy/ssh-action@master
         with:
           envs: GITHUB_SHA
-          host: ${{ secrets.HOST }}
+          host: duckluckbreakout.xyz
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.PRIVATE_KEY }}
           script: |
