@@ -1,0 +1,41 @@
+name: Update develop badges
+
+env:
+  ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+
+on:
+  push:
+    branches: [ develop ]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Get full coverage
+        run: go test -coverprofile=coverage1.out -coverpkg=./... -cover ./...
+      - name: Ignore some directories
+        run: cat coverage1.out | grep -v mock | grep -v proto | grep -v cmd | grep -v middleware | grep -v models > cover.out
+
+      - name: Create badge
+        run: |
+          total=`go tool cover -func=cover.out | grep total | grep -Eo '[0-9]+\.[0-9]+'`
+          if (( $(echo "$total <= 40" | bc -l) )) ; then
+            COLOR=red
+          elif (( $(echo "$total > 60" | bc -l) )); then
+            COLOR=green
+          else
+            COLOR=orange
+          fi
+          mkdir badges
+          cd badges
+          curl "https://img.shields.io/badge/coverage-$total%25-$COLOR" > develop/tests.svg
+      - name: Upload badge to hotbox
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --endpoint-url https://hb.bizmrg.com --acl public-read --follow-symlinks
+        env:
+          AWS_S3_BUCKET: ${{ secrets.DUCKLUCK_COVERAGE_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.DUCKLUCK_COVERAGE_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.DUCKLUCK_COVERAGE_SECRET }}
+          SOURCE_DIR: 'badges'
