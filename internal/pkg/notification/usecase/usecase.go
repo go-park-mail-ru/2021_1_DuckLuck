@@ -21,7 +21,7 @@ func (u *NotificationUseCase) SubscribeUser(userId uint64,
 	subscribes, err := u.NotificationRepo.SelectCredentialsByUserId(userId)
 	if err != nil || subscribes.Credentials == nil || subscribes == nil {
 		subscribes = &models.Subscribes{}
-		subscribes.Credentials = make(map[string]*models.NotificationKeys, 0)
+		subscribes.Credentials = make(map[string]*models.NotificationKeys)
 	}
 
 	subscribes.Credentials[credentials.Endpoint] = &credentials.Keys

@@ -34,8 +34,7 @@ func Auth(sm session.UseCase) func(http.Handler) http.Handler {
 				return
 			}
 
-			ctx := r.Context()
-			ctx = context.WithValue(r.Context(), models.SessionContextKey,
+			ctx := context.WithValue(r.Context(), models.SessionContextKey,
 				&models.Session{
 					Value: sessionCookie.Value,
 					UserData: models.UserId{

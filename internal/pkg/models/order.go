@@ -42,6 +42,7 @@ func (p *PaginatorOrders) Sanitize() {
 type Order struct {
 	Recipient OrderRecipient `json:"recipient" valid:"notnull"`
 	Address   OrderAddress   `json:"address" valid:"notnull"`
+	PromoCode string         `json:"promo_code"`
 }
 
 func (o *Order) Sanitize() {

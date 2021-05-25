@@ -17,13 +17,11 @@ func TestPostgresqlRepository_SelectRangeOrders(t *testing.T) {
 			Address: models.OrderAddress{
 				Address: "test street",
 			},
-			TotalCost:      12,
-			Products:       nil,
-			DateAdded:      time.Time{},
-			DateDelivery:   time.Time{},
-			OrderNumber:    models.OrderNumber{},
-			StatusPay:      "ok",
-			StatusDelivery: "ok",
+			TotalCost:    12,
+			Products:     nil,
+			DateAdded:    time.Time{},
+			DateDelivery: time.Time{},
+			OrderNumber:  models.OrderNumber{},
 		},
 	}
 
@@ -51,10 +49,10 @@ func TestPostgresqlRepository_SelectRangeOrders(t *testing.T) {
 
 		rows := sqlmock.
 			NewRows([]string{"id", "address", "total_cost", "date_added",
-				"date_delivery", "order_num", "status_pay"}).
+				"date_delivery", "status"}).
 			AddRow(orders[0].Id, orders[0].Address.Address, orders[0].TotalCost,
-				orders[0].DateAdded, orders[0].DateDelivery, orders[0].OrderNumber.Number,
-				orders[0].StatusPay)
+				orders[0].DateAdded, orders[0].DateDelivery,
+				orders[0].OrderNumber.Number)
 		sqlMock.
 			ExpectQuery("SELECT").
 			WithArgs(userId, count, offset).
@@ -75,10 +73,10 @@ func TestPostgresqlRepository_SelectRangeOrders(t *testing.T) {
 
 		rows := sqlmock.
 			NewRows([]string{"id", "address", "total_cost", "date_added",
-				"date_delivery", "order_num", "status_pay", "status_delivery"}).
+				"date_delivery", "order_num", "status"}).
 			AddRow(orders[0].Id, orders[0].Address.Address, orders[0].TotalCost,
-				orders[0].DateAdded, orders[0].DateDelivery, orders[0].OrderNumber.Number,
-				orders[0].StatusPay, orders[0].StatusDelivery)
+				orders[0].DateAdded, orders[0].DateDelivery,
+				orders[0].OrderNumber.Number, orders[0].Status)
 		sqlMock.
 			ExpectQuery("SELECT").
 			WithArgs(userId, count, offset).

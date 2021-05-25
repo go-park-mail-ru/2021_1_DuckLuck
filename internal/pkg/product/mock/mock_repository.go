@@ -138,21 +138,6 @@ func (mr *MockRepositoryMockRecorder) SelectRangeProducts(arg0, arg1, arg2 inter
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectRangeProducts", reflect.TypeOf((*MockRepository)(nil).SelectRangeProducts), arg0, arg1, arg2)
 }
 
-// SelectRecommendationsByCategory mocks base method.
-func (m *MockRepository) SelectRecommendationsByCategory(arg0 uint64, arg1 int) ([]*models.RecommendationProduct, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SelectRecommendationsByCategory", arg0, arg1)
-	ret0, _ := ret[0].([]*models.RecommendationProduct)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// SelectRecommendationsByCategory indicates an expected call of SelectRecommendationsByCategory.
-func (mr *MockRepositoryMockRecorder) SelectRecommendationsByCategory(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectRecommendationsByCategory", reflect.TypeOf((*MockRepository)(nil).SelectRecommendationsByCategory), arg0, arg1)
-}
-
 // SelectRecommendationsByReviews mocks base method.
 func (m *MockRepository) SelectRecommendationsByReviews(arg0 uint64, arg1 int) ([]*models.RecommendationProduct, error) {
 	m.ctrl.T.Helper()

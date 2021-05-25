@@ -49,6 +49,22 @@ func (mr *MockRepositoryMockRecorder) AddOrder(arg0, arg1, arg2, arg3 interface{
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddOrder", reflect.TypeOf((*MockRepository)(nil).AddOrder), arg0, arg1, arg2, arg3)
 }
 
+// ChangeStatusOrder mocks base method.
+func (m *MockRepository) ChangeStatusOrder(arg0 uint64, arg1 string) (*models.OrderNumber, uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ChangeStatusOrder", arg0, arg1)
+	ret0, _ := ret[0].(*models.OrderNumber)
+	ret1, _ := ret[1].(uint64)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// ChangeStatusOrder indicates an expected call of ChangeStatusOrder.
+func (mr *MockRepositoryMockRecorder) ChangeStatusOrder(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangeStatusOrder", reflect.TypeOf((*MockRepository)(nil).ChangeStatusOrder), arg0, arg1)
+}
+
 // CreateSortString mocks base method.
 func (m *MockRepository) CreateSortString(arg0, arg1 string) (string, error) {
 	m.ctrl.T.Helper()
