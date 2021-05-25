@@ -243,6 +243,7 @@ func main() {
 	mainMux.HandleFunc("/api/v1/promo", promoCodeHandler.ApplyPromoCodeToOrder).Methods("POST", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/notification/key", notificationHandler.GetNotificationPublicKey).Methods("GET", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/admin/order/status", adminHandler.ChangeOrderStatus).Methods("POST", "OPTIONS")
+	mainMux.HandleFunc("/api/v1/review/statistics/product/{id:[0-9]+}", reviewHandler.GetReviewStatistics).Methods("GET", "OPTIONS")
 
 	mainMux.Handle("/metrics", promhttp.Handler())
 
@@ -266,7 +267,6 @@ func main() {
 	authMux.HandleFunc("/api/v1/order", orderHandler.AddCompletedOrder).Methods("POST", "OPTIONS")
 	authMux.HandleFunc("/api/v1/review/product", reviewHandler.AddNewReview).Methods("POST", "OPTIONS")
 	authMux.HandleFunc("/api/v1/review/rights/product/{id:[0-9]+}", reviewHandler.CheckReviewRights).Methods("GET", "OPTIONS")
-	authMux.HandleFunc("/api/v1/review/statistics/product/{id:[0-9]+}", reviewHandler.GetReviewStatistics).Methods("GET", "OPTIONS")
 	authMux.HandleFunc("/api/v1/favorites/product/{id:[0-9]+}", favoritesHandler.AddProductToFavorites).Methods("POST", "OPTIONS")
 	authMux.HandleFunc("/api/v1/favorites/product/{id:[0-9]+}", favoritesHandler.DeleteProductFromFavorites).Methods("DELETE", "OPTIONS")
 	authMux.HandleFunc("/api/v1/favorites", favoritesHandler.GetListPreviewFavorites).Methods("POST", "OPTIONS")
