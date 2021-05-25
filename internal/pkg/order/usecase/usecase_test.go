@@ -6,6 +6,7 @@ import (
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	order_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/order/mock"
 	product_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/mock"
+	promo_code_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/promo_code/mock"
 	user_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user/mock"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	cart_service "github.com/go-park-mail-ru/2021_1_DuckLuck/services/cart/proto/cart"
@@ -31,6 +32,7 @@ func TestOrderUseCase_GetSubCategoriesById(t *testing.T) {
 		orderRepo := order_repo.NewMockRepository(ctrl)
 		cartClient := cart_service.NewMockCartServiceClient(ctrl)
 		productRepo := product_repo.NewMockRepository(ctrl)
+		promoCodeRepo := promo_code_repo.NewMockRepository(ctrl)
 
 		userRepo := user_repo.NewMockRepository(ctrl)
 		userRepo.
@@ -38,7 +40,7 @@ func TestOrderUseCase_GetSubCategoriesById(t *testing.T) {
 			SelectProfileById(userId).
 			Return(&userProfile, nil)
 
-		orderUCase := NewUseCase(orderRepo, cartClient, productRepo, userRepo)
+		orderUCase := NewUseCase(orderRepo, cartClient, productRepo, userRepo, promoCodeRepo)
 
 		_, err := orderUCase.GetPreviewOrder(userId, &previewCart)
 		assert.NoError(t, err, "unexpected error")
@@ -51,6 +53,7 @@ func TestOrderUseCase_GetSubCategoriesById(t *testing.T) {
 		orderRepo := order_repo.NewMockRepository(ctrl)
 		cartClient := cart_service.NewMockCartServiceClient(ctrl)
 		productRepo := product_repo.NewMockRepository(ctrl)
+		promoCodeRepo := promo_code_repo.NewMockRepository(ctrl)
 
 		userRepo := user_repo.NewMockRepository(ctrl)
 		userRepo.
@@ -58,7 +61,7 @@ func TestOrderUseCase_GetSubCategoriesById(t *testing.T) {
 			SelectProfileById(userId).
 			Return(&userProfile, errors.ErrInternalError)
 
-		orderUCase := NewUseCase(orderRepo, cartClient, productRepo, userRepo)
+		orderUCase := NewUseCase(orderRepo, cartClient, productRepo, userRepo, promoCodeRepo)
 
 		_, err := orderUCase.GetPreviewOrder(userId, &previewCart)
 		assert.Error(t, err, "expected error")
@@ -110,8 +113,9 @@ func TestOrderUseCase_GetRangeOrders(t *testing.T) {
 		cartClient := cart_service.NewMockCartServiceClient(ctrl)
 		productRepo := product_repo.NewMockRepository(ctrl)
 		userRepo := user_repo.NewMockRepository(ctrl)
+		promoCodeRepo := promo_code_repo.NewMockRepository(ctrl)
 
-		orderUCase := NewUseCase(orderRepo, cartClient, productRepo, userRepo)
+		orderUCase := NewUseCase(orderRepo, cartClient, productRepo, userRepo, promoCodeRepo)
 
 		_, err := orderUCase.GetRangeOrders(userId, &paginator)
 		assert.NoError(t, err, "unexpected error")
@@ -130,8 +134,9 @@ func TestOrderUseCase_GetRangeOrders(t *testing.T) {
 		cartClient := cart_service.NewMockCartServiceClient(ctrl)
 		productRepo := product_repo.NewMockRepository(ctrl)
 		userRepo := user_repo.NewMockRepository(ctrl)
+		promoCodeRepo := promo_code_repo.NewMockRepository(ctrl)
 
-		orderUCase := NewUseCase(orderRepo, cartClient, productRepo, userRepo)
+		orderUCase := NewUseCase(orderRepo, cartClient, productRepo, userRepo, promoCodeRepo)
 
 		_, err := orderUCase.GetRangeOrders(userId, &paginator)
 		assert.Error(t, err, "expected error")
@@ -155,8 +160,9 @@ func TestOrderUseCase_GetRangeOrders(t *testing.T) {
 		cartClient := cart_service.NewMockCartServiceClient(ctrl)
 		productRepo := product_repo.NewMockRepository(ctrl)
 		userRepo := user_repo.NewMockRepository(ctrl)
+		promoCodeRepo := promo_code_repo.NewMockRepository(ctrl)
 
-		orderUCase := NewUseCase(orderRepo, cartClient, productRepo, userRepo)
+		orderUCase := NewUseCase(orderRepo, cartClient, productRepo, userRepo, promoCodeRepo)
 
 		_, err := orderUCase.GetRangeOrders(userId, &paginator)
 		assert.Error(t, err, "expected error")
@@ -185,8 +191,9 @@ func TestOrderUseCase_GetRangeOrders(t *testing.T) {
 		cartClient := cart_service.NewMockCartServiceClient(ctrl)
 		productRepo := product_repo.NewMockRepository(ctrl)
 		userRepo := user_repo.NewMockRepository(ctrl)
+		promoCodeRepo := promo_code_repo.NewMockRepository(ctrl)
 
-		orderUCase := NewUseCase(orderRepo, cartClient, productRepo, userRepo)
+		orderUCase := NewUseCase(orderRepo, cartClient, productRepo, userRepo, promoCodeRepo)
 
 		_, err := orderUCase.GetRangeOrders(userId, &paginator)
 		assert.Error(t, err, "expected error")
@@ -220,8 +227,9 @@ func TestOrderUseCase_GetRangeOrders(t *testing.T) {
 		cartClient := cart_service.NewMockCartServiceClient(ctrl)
 		productRepo := product_repo.NewMockRepository(ctrl)
 		userRepo := user_repo.NewMockRepository(ctrl)
+		promoCodeRepo := promo_code_repo.NewMockRepository(ctrl)
 
-		orderUCase := NewUseCase(orderRepo, cartClient, productRepo, userRepo)
+		orderUCase := NewUseCase(orderRepo, cartClient, productRepo, userRepo, promoCodeRepo)
 
 		_, err := orderUCase.GetRangeOrders(userId, &paginator)
 		assert.Error(t, err, "expected error")

@@ -99,7 +99,7 @@ func (h *NotificationHandler) UnsubscribeUser(w http.ResponseWriter, r *http.Req
 
 	err = h.NotificationUCase.UnsubscribeUser(currentSession.UserData.Id, userIdentifier.Endpoint)
 	if err != nil {
-		http_utils.SetJSONResponse(w, errors.ErrCanNotAddReview, http.StatusBadRequest)
+		http_utils.SetJSONResponse(w, errors.ErrCanNotAddReview, http.StatusInternalServerError)
 		return
 	}
 

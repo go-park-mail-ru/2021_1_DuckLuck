@@ -129,7 +129,12 @@ func (h *UserHandler) UpdateProfileAvatar(w http.ResponseWriter, r *http.Request
 	currentSession := http_utils.MustGetSessionFromContext(r.Context())
 
 	// Max size - 10 Mb
-	r.ParseMultipartForm(10 * 1024 * 1024)
+	err = r.ParseMultipartForm(10 * 1024 * 1024)
+	if err != nil {
+		http_utils.SetJSONResponse(w, errors.ErrFileNotRead, http.StatusBadRequest)
+		return
+	}
+
 	file, header, err := r.FormFile("avatar")
 	if err != nil {
 		http_utils.SetJSONResponse(w, errors.ErrFileNotRead, http.StatusBadRequest)
