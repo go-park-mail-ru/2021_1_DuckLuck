@@ -60,27 +60,29 @@ func (u *OrderUseCase) GetPreviewOrder(userId uint64,
 
 func (u *OrderUseCase) AddCompletedOrder(order *models.Order, userId uint64,
 	previewCart *models.PreviewCart) (*models.OrderNumber, error) {
-	if order.PromoCode != "" {
+	price := models.TotalPrice{}
+
+	if order.PromoCode == "" {
+		price = previewCart.Price
+	} else {
 		err := u.PromoCodeRepo.CheckPromo(order.PromoCode)
 		if err != nil {
 			return nil, errors.ErrPromoCodeNotFound
 		}
-	}
 
-	price := &models.TotalPrice{}
-	for _, product := range previewCart.Products {
-		promoPrice, err := u.PromoCodeRepo.GetDiscountPriceByPromo(product.Id, order.PromoCode)
-		if err != nil {
-			return nil, errors.ErrProductNotFound
+		for _, product := range previewCart.Products {
+			promoPrice, err := u.PromoCodeRepo.GetDiscountPriceByPromo(product.Id, order.PromoCode)
+			if err != nil {
+				return nil, errors.ErrProductNotFound
+			}
+			price.TotalBaseCost += promoPrice.BaseCost
+			price.TotalCost += promoPrice.TotalCost
 		}
-		price.TotalBaseCost += promoPrice.BaseCost
-		price.TotalCost += promoPrice.TotalCost
+		price.TotalDiscount = price.TotalBaseCost - price.TotalCost
 	}
-	price.TotalDiscount = price.TotalBaseCost - price.TotalCost
-
 	products := previewCart.Products
 
-	orderNumber, err := u.OrderRepo.AddOrder(order, userId, products, price)
+	orderNumber, err := u.OrderRepo.AddOrder(order, userId, products, &price)
 	if err != nil {
 		return nil, errors.ErrInternalError
 	}
