@@ -4,7 +4,7 @@ import "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/sanitiz
 
 type UpdateOrder struct {
 	OrderId uint64 `json:"order_id"`
-	Status  string `json:"status"`
+	Status  string `json:"status" valid:"in(в пути|оформлен|получен)"`
 }
 
 func (u *UpdateOrder) Sanitize() {

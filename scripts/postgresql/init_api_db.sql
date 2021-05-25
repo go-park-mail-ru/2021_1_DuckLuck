@@ -123,7 +123,7 @@ CREATE TABLE user_orders (
     discount INTEGER NOT NULL,
     date_added TIMESTAMP NOT NULL DEFAULT NOW(),
     date_delivery TIMESTAMP NOT NULL DEFAULT NOW(),
-    status TEXT NOT NULL DEFAULT 'оплачено',
+    status TEXT NOT NULL DEFAULT 'оформлен',
 
     FOREIGN KEY (user_id) REFERENCES data_users(id),
 
