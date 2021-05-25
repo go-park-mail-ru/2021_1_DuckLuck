@@ -62,7 +62,7 @@ test:
 .PHONY: cover
 cover:
 	go test -coverprofile=coverage1.out -coverpkg=./... -cover ./...
-	cat coverage1.out | grep -v mock | grep -v proto | grep -v cmd | grep -v middleware | grep -v models > cover.out
+	cat coverage1.out | grep -v mock | grep -v proto | grep -v cmd | grep -v models > cover.out
 	go tool cover -func cover.out && go tool cover -html cover.out
 
 .PHONY: init_db

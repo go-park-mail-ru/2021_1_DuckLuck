@@ -114,7 +114,7 @@ func (s *CartServer) GetPreviewCart(ctx context.Context,
 	}
 
 	userCartProto := &proto.Cart{}
-	userCartProto.Products = make(map[uint64]*proto.ProductPosition, 0)
+	userCartProto.Products = make(map[uint64]*proto.ProductPosition)
 	for key, item := range userCart.Products {
 		userCartProto.Products[key] = &proto.ProductPosition{
 			Count: item.Count,

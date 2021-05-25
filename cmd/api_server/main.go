@@ -192,17 +192,17 @@ func main() {
 	userUCase := user_usecase.NewUseCase(authService, userRepo)
 	userHandler := user_delivery.NewHandler(userUCase, sessionUCase)
 
+	promoCodeRepo := promo_code_repo.NewSessionPostgresqlRepository(postgreSqlConn)
+	promoCodeUCase := promo_code_usecase.NewUseCase(promoCodeRepo)
+	promoCodeHandler := promo_code_delivery.NewHandler(promoCodeUCase)
+
 	orderRepo := order_repo.NewSessionPostgresqlRepository(postgreSqlConn)
-	orderUCase := order_usecase.NewUseCase(orderRepo, cartService, productRepo, userRepo)
+	orderUCase := order_usecase.NewUseCase(orderRepo, cartService, productRepo, userRepo, promoCodeRepo)
 	orderHandler := order_delivery.NewHandler(orderUCase, cartUCase)
 
 	reviewRepo := review_repo.NewSessionPostgresqlRepository(postgreSqlConn)
 	reviewUCase := review_usecase.NewUseCase(reviewRepo, userRepo)
 	reviewHandler := review_delivery.NewHandler(reviewUCase)
-
-	promoCodeRepo := promo_code_repo.NewSessionPostgresqlRepository(postgreSqlConn)
-	promoCodeUCase := promo_code_usecase.NewUseCase(promoCodeRepo)
-	promoCodeHandler := promo_code_delivery.NewHandler(promoCodeUCase)
 
 	favoritesRepo := favorites_repo.NewSessionPostgresqlRepository(postgreSqlConn)
 	favoritesUCase := favorites_usecase.NewUseCase(favoritesRepo)

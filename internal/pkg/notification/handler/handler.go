@@ -58,7 +58,7 @@ func (h *NotificationHandler) SubscribeUser(w http.ResponseWriter, r *http.Reque
 
 	err = h.NotificationUCase.SubscribeUser(currentSession.UserData.Id, &credentials)
 	if err != nil {
-		http_utils.SetJSONResponse(w, errors.ErrCanNotAddReview, http.StatusBadRequest)
+		http_utils.SetJSONResponse(w, errors.ErrCanNotAddReview, http.StatusInternalServerError)
 		return
 	}
 
