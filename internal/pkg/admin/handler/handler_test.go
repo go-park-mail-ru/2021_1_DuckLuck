@@ -20,7 +20,7 @@ import (
 func TestFavoritesHandler_ChangeOrderStatus(t *testing.T) {
 	updateOrder := models.UpdateOrder{
 		OrderId: 3,
-		Status:  "получено",
+		Status:  "оформлен",
 	}
 
 	t.Run("ChangeOrderStatus_success", func(t *testing.T) {
