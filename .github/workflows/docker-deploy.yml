@@ -110,9 +110,9 @@ jobs:
         uses: appleboy/ssh-action@master
         with:
           envs: GITHUB_SHA
-          host: duckluckbreakout.xyz
+          host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.DEVELOP_PRIVATE_KEY }}
+          key: ${{ secrets.PRIVATE_KEY }}
           script: |
             cd /home/ubuntu/duckluckmarket/Backend
             echo API_DB_TAG=${{ env.API_DB_TAG }} > .env
