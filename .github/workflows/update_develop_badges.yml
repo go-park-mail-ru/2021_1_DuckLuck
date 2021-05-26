@@ -29,6 +29,7 @@ jobs:
           fi
           mkdir badges
           cd badges
+          mkdir develop
           curl "https://img.shields.io/badge/coverage-$total%25-$COLOR" > develop/tests.svg
       - name: Upload badge to hotbox
         uses: jakejarvis/s3-sync-action@master
