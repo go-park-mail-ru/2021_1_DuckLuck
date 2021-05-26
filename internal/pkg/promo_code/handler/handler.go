@@ -53,7 +53,10 @@ func (h *PromoCodeHandler) ApplyPromoCodeToOrder(w http.ResponseWriter, r *http.
 	}
 
 	discountedPrice, err := h.PromoCodeUCase.ApplyPromoCodeToOrder(promoCodeGroup)
-	if err != nil {
+	if err == errors.ErrProductNotInPromo {
+		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusConflict)
+		return
+	} else if err != nil {
 		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
 		return
 	}

@@ -22,15 +22,22 @@ func (u *PromoCodeUseCase) ApplyPromoCodeToOrder(promoCodeGroup *models.PromoCod
 		return nil, errors.ErrPromoCodeNotFound
 	}
 
+	productsInAction := 0
 	discountedPrice := &models.DiscountedPrice{}
 	for _, productId := range promoCodeGroup.Products {
 		price, err := u.PromoCodeRepo.GetDiscountPriceByPromo(productId, promoCodeGroup.PromoCode)
-		if err != nil {
+
+		if err == nil {
+			productsInAction += 1
+		} else if err != errors.ErrProductNotInPromo {
 			return nil, errors.ErrProductNotFound
 		}
 
 		discountedPrice.TotalBaseCost += price.BaseCost
 		discountedPrice.TotalCost += price.TotalCost
+	}
+	if productsInAction == 0 {
+		return nil, errors.ErrProductNotInPromo
 	}
 	discountedPrice.TotalDiscount = discountedPrice.TotalBaseCost - discountedPrice.TotalCost
 
