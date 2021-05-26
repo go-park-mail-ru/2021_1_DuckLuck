@@ -96,3 +96,99 @@ func TestFavoritesHandler_SubscribeUser(t *testing.T) {
 		assert.Equal(t, rr.Code, http.StatusInternalServerError, "incorrect http code")
 	})
 }
+
+func TestFavoritesHandler_UnsubscribeUser(t *testing.T) {
+	userId := uint64(3)
+	sess := models.Session{
+		Value: "fdsfdsfdsf",
+		UserData: models.UserId{
+			Id: userId,
+		},
+	}
+	userIdentifier := models.UserIdentifier{}
+
+	t.Run("UnsubscribeUser_success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		notificationUCase := notification_mock.NewMockUseCase(ctrl)
+		notificationUCase.
+			EXPECT().
+			UnsubscribeUser(userId, userIdentifier.Endpoint).
+			Return(nil)
+
+		notificationHandler := NewHandler(notificationUCase)
+
+		bytesNotification, _ := json.Marshal(userIdentifier)
+		ctx := context.WithValue(context.Background(), models.RequireIdKey, shortuuid.New())
+		cctx := context.WithValue(ctx, models.SessionContextKey, &sess)
+		req, _ := http.NewRequestWithContext(cctx, "DELETE", "/api/v1/favorites/product/{id:[0-9]+}",
+			bytes.NewBuffer(bytesNotification))
+
+		rr := httptest.NewRecorder()
+		handler := http.HandlerFunc(notificationHandler.UnsubscribeUser)
+		handler.ServeHTTP(rr, req)
+		assert.Equal(t, rr.Code, http.StatusOK, "incorrect http code")
+	})
+
+	t.Run("UnsubscribeUser_bad_body", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		notificationUCase := notification_mock.NewMockUseCase(ctrl)
+		notificationHandler := NewHandler(notificationUCase)
+
+		ctx := context.WithValue(context.Background(), models.RequireIdKey, shortuuid.New())
+		cctx := context.WithValue(ctx, models.SessionContextKey, &sess)
+		req, _ := http.NewRequestWithContext(cctx, "DELETE", "/api/v1/favorites/product/{id:[0-9]+}",
+			bytes.NewBuffer(nil))
+
+		rr := httptest.NewRecorder()
+		handler := http.HandlerFunc(notificationHandler.UnsubscribeUser)
+		handler.ServeHTTP(rr, req)
+		assert.Equal(t, rr.Code, http.StatusBadRequest, "incorrect http code")
+	})
+
+	t.Run("UnsubscribeUser_can't_subscribe", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		notificationUCase := notification_mock.NewMockUseCase(ctrl)
+		notificationUCase.
+			EXPECT().
+			UnsubscribeUser(userId, userIdentifier.Endpoint).
+			Return(errors.ErrInternalError)
+
+		notificationHandler := NewHandler(notificationUCase)
+
+		bytesNotification, _ := json.Marshal(userIdentifier)
+		ctx := context.WithValue(context.Background(), models.RequireIdKey, shortuuid.New())
+		cctx := context.WithValue(ctx, models.SessionContextKey, &sess)
+		req, _ := http.NewRequestWithContext(cctx, "DELETE", "/api/v1/favorites/product/{id:[0-9]+}",
+			bytes.NewBuffer(bytesNotification))
+
+		rr := httptest.NewRecorder()
+		handler := http.HandlerFunc(notificationHandler.UnsubscribeUser)
+		handler.ServeHTTP(rr, req)
+		assert.Equal(t, rr.Code, http.StatusInternalServerError, "incorrect http code")
+	})
+}
+
+func TestFavoritesHandler_GetNotificationPublicKey(t *testing.T) {
+	t.Run("GetNotificationPublicKey_success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		notificationUCase := notification_mock.NewMockUseCase(ctrl)
+		notificationHandler := NewHandler(notificationUCase)
+
+		ctx := context.WithValue(context.Background(), models.RequireIdKey, shortuuid.New())
+		req, _ := http.NewRequestWithContext(ctx, "GET", "/api/v1/notification/key",
+			bytes.NewBuffer(nil))
+
+		rr := httptest.NewRecorder()
+		handler := http.HandlerFunc(notificationHandler.GetNotificationPublicKey)
+		handler.ServeHTTP(rr, req)
+		assert.Equal(t, rr.Code, http.StatusOK, "incorrect http code")
+	})
+}

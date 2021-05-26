@@ -22,6 +22,14 @@ func TestCategoryUseCase_ChangeOrderStatus(t *testing.T) {
 	subscribes := models.Subscribes{
 		Credentials: nil,
 	}
+	allSubscribes := models.Subscribes{
+		Credentials: map[string]*models.NotificationKeys{
+			"test1": {
+				Auth:   "test",
+				P256dh: "test",
+			},
+		},
+	}
 
 	t.Run("ChangeOrderStatus_success", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
@@ -56,6 +64,28 @@ func TestCategoryUseCase_ChangeOrderStatus(t *testing.T) {
 			Return(&orderNumber, userId, errors.ErrInternalError)
 
 		notificationRepo := notification_mock.NewMockRepository(ctrl)
+
+		adminUCase := NewUseCase(notificationRepo, orderRepo)
+
+		err := adminUCase.ChangeOrderStatus(&updateOrder)
+		assert.Error(t, err, "unexpected error")
+	})
+
+	t.Run("ChangeOrderStatus_success_subscribes", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		orderRepo := order_mock.NewMockRepository(ctrl)
+		orderRepo.
+			EXPECT().
+			ChangeStatusOrder(updateOrder.OrderId, updateOrder.Status).
+			Return(&orderNumber, userId, nil)
+
+		notificationRepo := notification_mock.NewMockRepository(ctrl)
+		notificationRepo.
+			EXPECT().
+			SelectCredentialsByUserId(userId).
+			Return(&allSubscribes, nil)
 
 		adminUCase := NewUseCase(notificationRepo, orderRepo)
 

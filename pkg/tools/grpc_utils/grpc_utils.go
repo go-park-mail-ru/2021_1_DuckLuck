@@ -13,8 +13,14 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
+type contextKey string
+
+func (c contextKey) String() string {
+	return string(c)
+}
+
 var (
-	RequireIdKey = "require_key"
+	ReqIdKey = contextKey("require_key")
 )
 
 func AccessInterceptor(metric *metrics.Metrics) grpc.UnaryServerInterceptor {
@@ -30,7 +36,7 @@ func AccessInterceptor(metric *metrics.Metrics) grpc.UnaryServerInterceptor {
 		logger.GrpcAccessLogStart(info.FullMethod, requireId,
 			fmt.Sprintf("%v", req), fmt.Sprintf("%v", md))
 
-		newContext := context.WithValue(ctx, RequireIdKey, requireId)
+		newContext := context.WithValue(ctx, ReqIdKey, requireId)
 		reply, err := handler(newContext, req)
 
 		if err != nil {
@@ -51,7 +57,7 @@ func AccessInterceptor(metric *metrics.Metrics) grpc.UnaryServerInterceptor {
 }
 
 func MustGetRequireId(ctx context.Context) string {
-	requireId, ok := ctx.Value(RequireIdKey).(string)
+	requireId, ok := ctx.Value(ReqIdKey).(string)
 	if !ok {
 		panic("Require id not found")
 	}

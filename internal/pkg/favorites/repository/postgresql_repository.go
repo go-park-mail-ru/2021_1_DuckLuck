@@ -72,7 +72,7 @@ func (r *PostgresqlRepository) CreateSortString(sortKey, sortDirection string) (
 	case models.FavoritesCostSort:
 		orderTarget = "total_cost"
 	case models.FavoritesRatingSort:
-		orderTarget = "rating"
+		orderTarget = "(CASE WHEN avg_rating IS NULL THEN 0 ELSE avg_rating END)"
 	case models.FavoritesDateAddedSort:
 		orderTarget = "date_added"
 	case models.FavoritesDiscountSort:
