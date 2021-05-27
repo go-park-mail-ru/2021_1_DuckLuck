@@ -42,6 +42,7 @@ func (p *PaginatorOrders) Sanitize() {
 type Order struct {
 	Recipient OrderRecipient `json:"recipient" valid:"notnull"`
 	Address   OrderAddress   `json:"address" valid:"notnull"`
+	PromoCode string         `json:"promo_code"`
 }
 
 func (o *Order) Sanitize() {
@@ -74,15 +75,14 @@ type OrderRecipient struct {
 }
 
 type PlacedOrder struct {
-	Id             uint64                    `json:"-"`
-	Address        OrderAddress              `json:"address" valid:"notnull"`
-	TotalCost      int                       `json:"total_cost"`
-	Products       []*PreviewOrderedProducts `json:"product_images" valid:"notnull"`
-	DateAdded      time.Time                 `json:"date_added"`
-	DateDelivery   time.Time                 `json:"date_delivery"`
-	OrderNumber    OrderNumber               `json:"order_number"`
-	StatusPay      string                    `json:"pay_status"`
-	StatusDelivery string                    `json:"delivery_status"`
+	Id           uint64                    `json:"id"`
+	Address      OrderAddress              `json:"address" valid:"notnull"`
+	TotalCost    int                       `json:"total_cost"`
+	Products     []*PreviewOrderedProducts `json:"product_images" valid:"notnull"`
+	DateAdded    time.Time                 `json:"date_added"`
+	DateDelivery time.Time                 `json:"date_delivery"`
+	OrderNumber  OrderNumber               `json:"order_number"`
+	Status       string                    `json:"status"`
 }
 
 type PreviewOrderedProducts struct {

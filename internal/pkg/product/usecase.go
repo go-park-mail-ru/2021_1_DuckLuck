@@ -8,4 +8,6 @@ type UseCase interface {
 	GetProductById(productId uint64) (*models.Product, error)
 	GetRangeProducts(paginator *models.PaginatorProducts) (*models.RangeProducts, error)
 	SearchRangeProducts(searchQuery *models.SearchQuery) (*models.RangeProducts, error)
+	GetProductRecommendationsById(productId uint64,
+		paginator *models.PaginatorRecommendations) ([]*models.RecommendationProduct, error)
 }

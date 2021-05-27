@@ -5,10 +5,10 @@ import "github.com/go-park-mail-ru/2021_1_DuckLuck/pkg/tools/hasher"
 var (
 	passwordSettings = &hasher.Settings{
 		Times:   1,
-		Memory:  64 * 1024,
-		Threads: 4,
-		KeyLen:  64,
-		SaltLen: 8,
+		Memory:  1 * 1024,
+		Threads: 1,
+		KeyLen:  32,
+		SaltLen: 4,
 	}
 )
 

@@ -33,10 +33,6 @@ func (u *UserUseCase) Login(loginUser *models.LoginUser) (uint64, error) {
 
 // Signup user
 func (u *UserUseCase) Signup(signupUser *models.SignupUser) (uint64, error) {
-	if _, err := u.UserRepo.SelectUserByEmail(signupUser.Email); err == nil {
-		return 0, errors.ErrEmailAlreadyExist
-	}
-
 	hashOfPassword, err := password_hasher.GenerateHashFromPassword(signupUser.Password)
 	if err != nil {
 		return 0, errors.ErrHashFunctionFailed

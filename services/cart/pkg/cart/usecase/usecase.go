@@ -21,7 +21,7 @@ func (u *CartUseCase) AddProduct(userId uint64, cartArticle *models.CartArticle)
 	userCart, err := u.CartRepo.SelectCartById(userId)
 	if err != nil {
 		userCart = &models.Cart{}
-		userCart.Products = make(map[uint64]*models.ProductPosition, 0)
+		userCart.Products = make(map[uint64]*models.ProductPosition)
 		userCart.Products[cartArticle.ProductId] = &cartArticle.ProductPosition
 	} else {
 		// If product position already exist then increment counter

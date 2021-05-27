@@ -1,12 +1,13 @@
 package usecase
 
 import (
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/review/mock"
-	user_mock "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user/mock"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	"testing"
 
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/review/mock"
+	user_mock "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user/mock"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
+
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
@@ -35,7 +36,7 @@ func TestReviewUseCase_GetStatisticsByProductId(t *testing.T) {
 	})
 }
 
-func TestUserUseCase_AddNewReviewForProduct(t *testing.T) {
+func TestReviewUseCase_AddNewReviewForProduct(t *testing.T) {
 	userId := uint64(3)
 	productId := uint64(3)
 	review := models.Review{
@@ -119,6 +120,8 @@ func TestReviewUseCase_GetReviewsByProductId(t *testing.T) {
 		Count:              0,
 		SortReviewsOptions: models.SortReviewsOptions{},
 	}
+	reviews := []*models.ViewReview{{}}
+	userProfile := models.ProfileUser{}
 
 	t.Run("GetStatisticsByProductId_paginator_error", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
@@ -179,5 +182,79 @@ func TestReviewUseCase_GetReviewsByProductId(t *testing.T) {
 		_, err := userUCase.GetReviewsByProductId(productId, &badPaginator)
 
 		assert.Equal(t, errors.ErrIncorrectPaginator, err, "not equal data")
+	})
+
+	t.Run("GetReviewsByProductId_success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		badPaginator.Count = 2
+		badPaginator.PageNum = 4
+
+		reviewRepo := mock.NewMockRepository(ctrl)
+
+		reviewRepo.
+			EXPECT().
+			GetCountPages(productId, badPaginator.Count).
+			Return(1, nil)
+
+		reviewRepo.
+			EXPECT().
+			CreateSortString(badPaginator.SortKey, badPaginator.SortDirection).
+			Return("", nil)
+
+		reviewRepo.
+			EXPECT().
+			SelectRangeReviews(productId, "", &badPaginator).
+			Return(reviews, nil)
+
+		userRepo := user_mock.NewMockRepository(ctrl)
+		userRepo.
+			EXPECT().
+			SelectProfileById(uint64(0)).
+			Return(&userProfile, nil)
+
+		userUCase := NewUseCase(reviewRepo, userRepo)
+
+		_, err := userUCase.GetReviewsByProductId(productId, &badPaginator)
+
+		assert.NoError(t, err, "not error")
+	})
+
+	t.Run("GetReviewsByProductId_internal_error", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		badPaginator.Count = 2
+		badPaginator.PageNum = 4
+
+		reviewRepo := mock.NewMockRepository(ctrl)
+
+		reviewRepo.
+			EXPECT().
+			GetCountPages(productId, badPaginator.Count).
+			Return(1, nil)
+
+		reviewRepo.
+			EXPECT().
+			CreateSortString(badPaginator.SortKey, badPaginator.SortDirection).
+			Return("", nil)
+
+		reviewRepo.
+			EXPECT().
+			SelectRangeReviews(productId, "", &badPaginator).
+			Return(reviews, nil)
+
+		userRepo := user_mock.NewMockRepository(ctrl)
+		userRepo.
+			EXPECT().
+			SelectProfileById(uint64(0)).
+			Return(&userProfile, errors.ErrInternalError)
+
+		userUCase := NewUseCase(reviewRepo, userRepo)
+
+		_, err := userUCase.GetReviewsByProductId(productId, &badPaginator)
+
+		assert.Error(t, err, "expected error")
 	})
 }

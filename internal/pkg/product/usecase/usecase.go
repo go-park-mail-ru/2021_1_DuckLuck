@@ -36,6 +36,17 @@ func (u *ProductUseCase) GetProductById(productId uint64) (*models.Product, erro
 	return productById, nil
 }
 
+// Get recommendations for product
+func (u *ProductUseCase) GetProductRecommendationsById(productId uint64,
+	paginator *models.PaginatorRecommendations) ([]*models.RecommendationProduct, error) {
+	recommendationsByReviews, err := u.ProductRepo.SelectRecommendationsByReviews(productId, paginator.Count)
+	if err != nil {
+		return nil, errors.ErrProductNotFound
+	}
+
+	return recommendationsByReviews, nil
+}
+
 // Get range products by paginator settings from repo
 func (u *ProductUseCase) GetRangeProducts(paginator *models.PaginatorProducts) (*models.RangeProducts, error) {
 	if paginator.PageNum < 1 || paginator.Count < 1 {

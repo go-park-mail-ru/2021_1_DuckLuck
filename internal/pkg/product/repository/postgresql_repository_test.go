@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"github.com/stretchr/testify/assert"
 	"reflect"
 	"testing"
 
@@ -38,11 +39,13 @@ func TestPostgresqlRepository_SelectProductById(t *testing.T) {
 		repository := NewSessionPostgresqlRepository(db)
 
 		productRows := sqlmock.
-			NewRows([]string{"id", "title", "rating", "description", "base_cost", "total_cost", "discount",
-				"images", "id_category"}).
-			AddRow(testProduct.Id, testProduct.Title, testProduct.Rating, testProduct.Description,
-				testProduct.Price.BaseCost, testProduct.Price.TotalCost, testProduct.Price.Discount,
-				pq.Array(testProduct.Images), testProduct.Category)
+			NewRows([]string{"id", "title", "description",
+				"properties", "base_cost", "total_cost", "discount",
+				"images", "id_category", "avg_rating", "count_reviews"}).
+			AddRow(testProduct.Id, testProduct.Title, testProduct.Description,
+				testProduct.Properties, testProduct.Price.BaseCost, testProduct.Price.TotalCost,
+				testProduct.Price.Discount, pq.Array(testProduct.Images), testProduct.Category,
+				testProduct.Rating, testProduct.CountReviews)
 		sqlMock.ExpectQuery("SELECT").WithArgs(productId).WillReturnRows(productRows)
 
 		data, err := repository.SelectProductById(productId)
@@ -90,5 +93,50 @@ func TestPostgresqlRepository_SelectProductById(t *testing.T) {
 }
 
 func TestPostgresqlRepository_SelectRangeProducts(t *testing.T) {
+	userId := uint64(3)
+	product := models.ViewProduct{}
+	paginator := models.PaginatorProducts{}
+	sortString := ""
+	filterString := ""
 
+	t.Run("SelectRangeProducts_success", func(t *testing.T) {
+		db, sqlMock, err := sqlmock.New()
+		if err != nil {
+			t.Fatalf("can't create mock: %s", err)
+		}
+		defer db.Close()
+
+		repository := NewSessionPostgresqlRepository(db)
+		productRows := sqlmock.
+			NewRows([]string{"id", "title", "base_cost", "total_cost",
+				"discount", "images", "avg_rating", "count_reviews"}).
+			AddRow(product.Id, product.Title, product.Price.BaseCost,
+				product.Price.TotalCost, product.Price.Discount,
+				product.PreviewImage, product.Rating, product.CountReviews)
+
+		sqlMock.ExpectQuery("SELECT").
+			WithArgs(paginator.Category, paginator.Count, paginator.Count*(paginator.PageNum-1)).
+			WillReturnRows(productRows)
+
+		favorites, err := repository.SelectRangeProducts(&paginator, sortString, filterString)
+		assert.NoError(t, err, "unexpected error")
+		assert.Equal(t, []*models.ViewProduct{&product}, favorites)
+	})
+
+	t.Run("SelectRangeProducts_internal_db_error", func(t *testing.T) {
+		db, sqlMock, err := sqlmock.New()
+		if err != nil {
+			t.Fatalf("can't create mock: %s", err)
+		}
+		defer db.Close()
+
+		repository := NewSessionPostgresqlRepository(db)
+
+		sqlMock.ExpectQuery("SELECT").
+			WithArgs(userId, paginator.Count, paginator.Count*(paginator.PageNum-1)).
+			WillReturnError(errors.ErrDBInternalError)
+
+		_, err = repository.SelectRangeProducts(&paginator, sortString, filterString)
+		assert.Error(t, err, "expected error")
+	})
 }

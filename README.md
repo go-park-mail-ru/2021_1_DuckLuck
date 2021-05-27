@@ -1,11 +1,15 @@
 # DuckLuck
 [![Build And Deploy Status](https://github.com/go-park-mail-ru/2021_1_DuckLuck/actions/workflows/docker-deploy.yml/badge.svg)](https://github.com/go-park-mail-ru/2021_1_DuckLuck/actions/workflows/docker-deploy.yml)
+[![Linter](https://github.com/go-park-mail-ru/2021_1_DuckLuck/actions/workflows/linter.yml/badge.svg)](https://github.com/go-park-mail-ru/2021_1_DuckLuck/actions/workflows/linter.yml)
+[![Coverage](https://duckluck-cov.hb.bizmrg.com/develop/tests.svg)](https://github.com/go-park-mail-ru/2021_1_DuckLuck/actions/workflows/test.yml)
 
 Backend репозиторий команды DuckLuck
 
 # Ссылка на деплой
 
-[Деплой](http://duckluckmarket.xyz:8200/)
+[Деплой](https://duckluckmarket.xyz)
+
+[Grafana](http://duckluckmarket.xyz:3030)
 
 # Ссылка API
 

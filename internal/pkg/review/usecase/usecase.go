@@ -27,7 +27,7 @@ func (u *ReviewUseCase) GetStatisticsByProductId(productId uint64) (*models.Revi
 
 func (u *ReviewUseCase) CheckReviewUserRights(userId uint64, productId uint64) error {
 	rights := u.ReviewRepo.CheckReview(userId, productId)
-	if rights == false {
+	if !rights {
 		return errors.ErrNoWriteRights
 	}
 
@@ -36,7 +36,7 @@ func (u *ReviewUseCase) CheckReviewUserRights(userId uint64, productId uint64) e
 
 func (u *ReviewUseCase) AddNewReviewForProduct(userId uint64, review *models.Review) error {
 	rights := u.ReviewRepo.CheckReview(userId, uint64(review.ProductId))
-	if rights == false {
+	if !rights {
 		return errors.ErrNoWriteRights
 	}
 

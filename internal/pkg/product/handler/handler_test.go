@@ -80,7 +80,7 @@ func TestProductHandler_GetProduct(t *testing.T) {
 		assert.Equal(t, rr.Code, http.StatusBadRequest, "incorrect http code")
 	})
 
-	t.Run("GetProduct_success", func(t *testing.T) {
+	t.Run("GetProduct_internal_error", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 

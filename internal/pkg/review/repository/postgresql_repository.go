@@ -119,7 +119,7 @@ func (r *PostgresqlRepository) SelectStatisticsByProductId(productId uint64) (*m
 	defer rows.Close()
 
 	statistics := &models.ReviewStatistics{}
-	statistics.Stars = make([]int, 5, 5)
+	statistics.Stars = make([]int, 5)
 	var countStars int
 	var rating int
 	for rows.Next() {
@@ -130,7 +130,7 @@ func (r *PostgresqlRepository) SelectStatisticsByProductId(productId uint64) (*m
 		if err != nil {
 			return nil, err
 		}
-		statistics.Stars[rating] = countStars
+		statistics.Stars[rating-1] = countStars
 	}
 
 	return statistics, nil

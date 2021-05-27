@@ -16,4 +16,5 @@ type Repository interface {
 	CreateFilterString(filter *models.ProductFilter) string
 	SearchRangeProducts(searchQuery *models.SearchQuery,
 		sortString, filterString string) ([]*models.ViewProduct, error)
+	SelectRecommendationsByReviews(productId uint64, count int) ([]*models.RecommendationProduct, error)
 }

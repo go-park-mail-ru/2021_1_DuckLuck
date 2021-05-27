@@ -19,6 +19,8 @@ type Product struct {
 	Title        string               `json:"title" valid:"minstringlength(3)"`
 	Price        ProductPrice         `json:"price" valid:"notnull, json"`
 	Rating       float32              `json:"rating" valid:"float, range(0, 10)"`
+	CountReviews uint64               `json:"count_reviews"`
+	Properties   string               `json:"properties"`
 	Description  string               `json:"description" valid:"utfletter"`
 	Category     uint64               `json:"category"`
 	CategoryPath []*CategoriesCatalog `json:"category_path" valid:"notnull"`
@@ -32,6 +34,7 @@ type ViewProduct struct {
 	Title        string       `json:"title" valid:"minstringlength(3)"`
 	Price        ProductPrice `json:"price" valid:"notnull, json"`
 	Rating       float32      `json:"rating" valid:"float, range(0, 10)"`
+	CountReviews uint64       `json:"count_reviews"`
 	PreviewImage string       `json:"preview_image" valid:"minstringlength(3)"`
 }
 
@@ -92,4 +95,16 @@ func (sq *SearchQuery) Sanitize() {
 	sq.QueryString = sanitizer.Sanitize(sq.QueryString)
 	sq.SortKey = sanitizer.Sanitize(sq.SortKey)
 	sq.SortDirection = sanitizer.Sanitize(sq.SortDirection)
+}
+
+type RecommendationProduct struct {
+	Id           uint64       `json:"id"`
+	Title        string       `json:"title" valid:"minstringlength(3)"`
+	Price        ProductPrice `json:"price" valid:"notnull, json"`
+	PreviewImage string       `json:"preview_image" valid:"minstringlength(3)"`
+}
+
+// Paginator for showing page of product
+type PaginatorRecommendations struct {
+	Count int `json:"count"`
 }

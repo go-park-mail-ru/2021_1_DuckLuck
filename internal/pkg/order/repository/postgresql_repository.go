@@ -24,7 +24,7 @@ func (r *PostgresqlRepository) SelectRangeOrders(userId uint64, sortString strin
 	paginator *models.PaginatorOrders) ([]*models.PlacedOrder, error) {
 	rows, err := r.db.Query(
 		"SELECT id, address, total_cost, date_added, date_delivery, "+
-			"order_num, status_pay, status_delivery "+
+			"order_num, status "+
 			"FROM user_orders "+
 			"WHERE user_id = $1 "+
 			sortString+
@@ -48,8 +48,7 @@ func (r *PostgresqlRepository) SelectRangeOrders(userId uint64, sortString strin
 			&placedOrder.DateAdded,
 			&placedOrder.DateDelivery,
 			&placedOrder.OrderNumber.Number,
-			&placedOrder.StatusPay,
-			&placedOrder.StatusDelivery,
+			&placedOrder.Status,
 		)
 		if err != nil {
 			return nil, err
@@ -169,4 +168,24 @@ func (r *PostgresqlRepository) AddOrder(order *models.Order, userId uint64,
 	}
 
 	return &orderNumber, nil
+}
+
+func (r *PostgresqlRepository) ChangeStatusOrder(orderId uint64,
+	status string) (*models.OrderNumber, uint64, error) {
+	row := r.db.QueryRow(
+		"UPDATE user_orders "+
+			"SET status = $1 "+
+			"WHERE id = $2 "+
+			"RETURNING user_id, order_num",
+		status,
+		orderId,
+	)
+
+	var orderNumber models.OrderNumber
+	var userId uint64
+	if err := row.Scan(&userId, &orderNumber.Number); err != nil {
+		return nil, 0, errors.ErrDBInternalError
+	}
+
+	return &orderNumber, userId, nil
 }

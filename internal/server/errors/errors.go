@@ -93,4 +93,10 @@ var (
 	ErrIncorrectSearchQuery error = errors.Error{
 		Message: "incorrect search query",
 	}
+	ErrPromoCodeNotFound error = errors.Error{
+		Message: "promo code not found",
+	}
+	ErrProductNotInPromo error = errors.Error{
+		Message: "product does not participate in the promotion",
+	}
 )

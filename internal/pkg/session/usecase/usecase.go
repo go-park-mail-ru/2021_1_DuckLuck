@@ -7,17 +7,15 @@ import (
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/session"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	proto "github.com/go-park-mail-ru/2021_1_DuckLuck/services/session/proto/session"
-
-	"google.golang.org/grpc"
 )
 
 type SessionUseCase struct {
 	SessionClient proto.SessionServiceClient
 }
 
-func NewUseCase(sessionConn grpc.ClientConnInterface) session.UseCase {
+func NewUseCase(sessionConn proto.SessionServiceClient) session.UseCase {
 	return &SessionUseCase{
-		SessionClient: proto.NewSessionServiceClient(sessionConn),
+		SessionClient: sessionConn,
 	}
 }
 

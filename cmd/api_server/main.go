@@ -10,18 +10,29 @@ import (
 
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
 	_ "github.com/go-park-mail-ru/2021_1_DuckLuck/configs"
+	admin_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/admin/handler"
+	admin_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/admin/usecase"
 	cart_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/cart/handler"
 	cart_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/cart/usecase"
 	category_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/category/handler"
 	category_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/category/repository"
 	category_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/category/usecase"
 	csrf_token_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/csrf_token/handler"
+	favorites_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/favorites/handler"
+	favorites_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/favorites/repository"
+	favorites_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/favorites/usecase"
+	notification_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/notification/handler"
+	notification_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/notification/repository"
+	notification_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/notification/usecase"
 	order_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/order/handler"
 	order_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/order/repository"
 	order_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/order/usecase"
 	product_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/handler"
 	product_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/repository"
 	product_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/usecase"
+	promo_code_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/promo_code/handler"
+	promo_code_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/promo_code/repository"
+	promo_code_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/promo_code/usecase"
 	review_delivery "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/review/handler"
 	review_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/review/repository"
 	review_usecase "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/review/usecase"
@@ -36,6 +47,10 @@ import (
 	_ "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/s3_utils"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/pkg/metrics"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/pkg/tools/logger"
+	_ "github.com/go-park-mail-ru/2021_1_DuckLuck/pkg/tools/server_push"
+	auth_service "github.com/go-park-mail-ru/2021_1_DuckLuck/services/auth/proto/user"
+	cart_service "github.com/go-park-mail-ru/2021_1_DuckLuck/services/cart/proto/cart"
+	session_service "github.com/go-park-mail-ru/2021_1_DuckLuck/services/session/proto/session"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
@@ -121,7 +136,7 @@ func main() {
 	defer redisConn.Close()
 
 	// Init conn Session service
-	sessionService, err := grpc.Dial(
+	sessionConn, err := grpc.Dial(
 		fmt.Sprintf("%s:%s",
 			os.Getenv("SESSION_SERVICE_HOST"),
 			os.Getenv("SESSION_SERVICE_PORT")),
@@ -130,10 +145,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("cant connect to grpc")
 	}
-	defer sessionService.Close()
+	defer sessionConn.Close()
+	sessionService := session_service.NewSessionServiceClient(sessionConn)
 
 	// Init conn Cart service
-	cartService, err := grpc.Dial(
+	cartConn, err := grpc.Dial(
 		fmt.Sprintf("%s:%s",
 			os.Getenv("CART_SERVICE_HOST"),
 			os.Getenv("CART_SERVICE_PORT")),
@@ -142,10 +158,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("cant connect to grpc")
 	}
-	defer cartService.Close()
+	defer cartConn.Close()
+	cartService := cart_service.NewCartServiceClient(cartConn)
 
 	// Init conn Auth service
-	authService, err := grpc.Dial(
+	authConn, err := grpc.Dial(
 		fmt.Sprintf("%s:%s",
 			os.Getenv("AUTH_SERVICE_HOST"),
 			os.Getenv("AUTH_SERVICE_PORT")),
@@ -154,7 +171,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("cant connect to grpc")
 	}
-	defer authService.Close()
+	defer authConn.Close()
+	authService := auth_service.NewAuthServiceClient(authConn)
 
 	sessionUCase := session_usecase.NewUseCase(sessionService)
 	sessionHandler := session_delivery.NewHandler(sessionUCase)
@@ -174,13 +192,28 @@ func main() {
 	userUCase := user_usecase.NewUseCase(authService, userRepo)
 	userHandler := user_delivery.NewHandler(userUCase, sessionUCase)
 
+	promoCodeRepo := promo_code_repo.NewSessionPostgresqlRepository(postgreSqlConn)
+	promoCodeUCase := promo_code_usecase.NewUseCase(promoCodeRepo)
+	promoCodeHandler := promo_code_delivery.NewHandler(promoCodeUCase)
+
 	orderRepo := order_repo.NewSessionPostgresqlRepository(postgreSqlConn)
-	orderUCase := order_usecase.NewUseCase(orderRepo, cartService, productRepo, userRepo)
+	orderUCase := order_usecase.NewUseCase(orderRepo, cartService, productRepo, userRepo, promoCodeRepo)
 	orderHandler := order_delivery.NewHandler(orderUCase, cartUCase)
 
 	reviewRepo := review_repo.NewSessionPostgresqlRepository(postgreSqlConn)
 	reviewUCase := review_usecase.NewUseCase(reviewRepo, userRepo)
 	reviewHandler := review_delivery.NewHandler(reviewUCase)
+
+	favoritesRepo := favorites_repo.NewSessionPostgresqlRepository(postgreSqlConn)
+	favoritesUCase := favorites_usecase.NewUseCase(favoritesRepo)
+	favoritesHandler := favorites_delivery.NewHandler(favoritesUCase)
+
+	notificationRepo := notification_repo.NewSessionRedisRepository(redisConn)
+	notificationUCase := notification_usecase.NewUseCase(notificationRepo)
+	notificationHandler := notification_delivery.NewHandler(notificationUCase)
+
+	adminUCase := admin_usecase.NewUseCase(notificationRepo, orderRepo)
+	adminHandler := admin_delivery.NewHandler(adminUCase)
 
 	csrfTokenHandler := csrf_token_delivery.NewHandler()
 
@@ -201,11 +234,16 @@ func main() {
 	mainMux.HandleFunc("/api/v1/user/signup", userHandler.Signup).Methods("POST", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/user/login", userHandler.Login).Methods("POST", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/product/{id:[0-9]+}", productHandler.GetProduct).Methods("GET", "OPTIONS")
+	mainMux.HandleFunc("/api/v1/product/recommendations/{id:[0-9]+}", productHandler.GetProductRecommendations).Methods("POST", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/product", productHandler.GetListPreviewProducts).Methods("POST", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/product/search", productHandler.SearchListPreviewProducts).Methods("POST", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/category", categoryHandler.GetCatalogCategories).Methods("GET", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/category/{id:[0-9]+}", categoryHandler.GetSubCategories).Methods("GET", "OPTIONS")
 	mainMux.HandleFunc("/api/v1/review/product/{id:[0-9]+}", reviewHandler.GetReviewsForProduct).Methods("POST", "OPTIONS")
+	mainMux.HandleFunc("/api/v1/promo", promoCodeHandler.ApplyPromoCodeToOrder).Methods("POST", "OPTIONS")
+	mainMux.HandleFunc("/api/v1/notification/key", notificationHandler.GetNotificationPublicKey).Methods("GET", "OPTIONS")
+	mainMux.HandleFunc("/api/v1/admin/order/status", adminHandler.ChangeOrderStatus).Methods("POST", "OPTIONS")
+	mainMux.HandleFunc("/api/v1/review/statistics/product/{id:[0-9]+}", reviewHandler.GetReviewStatistics).Methods("GET", "OPTIONS")
 
 	mainMux.Handle("/metrics", promhttp.Handler())
 
@@ -229,7 +267,12 @@ func main() {
 	authMux.HandleFunc("/api/v1/order", orderHandler.AddCompletedOrder).Methods("POST", "OPTIONS")
 	authMux.HandleFunc("/api/v1/review/product", reviewHandler.AddNewReview).Methods("POST", "OPTIONS")
 	authMux.HandleFunc("/api/v1/review/rights/product/{id:[0-9]+}", reviewHandler.CheckReviewRights).Methods("GET", "OPTIONS")
-	authMux.HandleFunc("/api/v1/review/statistics/product/{id:[0-9]+}", reviewHandler.GetReviewStatistics).Methods("GET", "OPTIONS")
+	authMux.HandleFunc("/api/v1/favorites/product/{id:[0-9]+}", favoritesHandler.AddProductToFavorites).Methods("POST", "OPTIONS")
+	authMux.HandleFunc("/api/v1/favorites/product/{id:[0-9]+}", favoritesHandler.DeleteProductFromFavorites).Methods("DELETE", "OPTIONS")
+	authMux.HandleFunc("/api/v1/favorites", favoritesHandler.GetListPreviewFavorites).Methods("POST", "OPTIONS")
+	authMux.HandleFunc("/api/v1/favorites", favoritesHandler.GetUserFavorites).Methods("GET", "OPTIONS")
+	authMux.HandleFunc("/api/v1/notification", notificationHandler.SubscribeUser).Methods("POST", "OPTIONS")
+	authMux.HandleFunc("/api/v1/notification", notificationHandler.UnsubscribeUser).Methods("DELETE", "OPTIONS")
 
 	server := &http.Server{
 		Addr: fmt.Sprintf("%s:%s",

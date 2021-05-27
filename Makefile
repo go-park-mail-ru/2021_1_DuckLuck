@@ -23,19 +23,14 @@ auth_service:
 
 .PHONY: start_local
 start_local:
-	make stop_local
 	echo API_DB_TAG=local > .env
 	echo API_SERVER_TAG=local >> .env
 	echo SESSION_SERVICE_TAG=local >> .env
 	echo AUTH_SERVICE_TAG=local >> .env
 	echo CART_SERVICE_TAG=local >> .env
 	docker volume create --name=grafana-storage
-	docker build -t duckluckmarket/api-server:local --target api-server .
-	docker build -t duckluckmarket/api-db:local --target api-db .
-	docker build -t duckluckmarket/auth-service:local --target auth-service .
-	docker build -t duckluckmarket/session-service:local --target session-service .
-	docker build -t duckluckmarket/cart-service:local --target cart-service .
-	docker-compose up -d
+	python3 python_scripts/scripts.py --target=rebuild --rebuild_targets="${rebuild}"
+	python3 python_scripts/scripts.py --target=up_local
 
 .PHONY: stop_local
 stop_local:
@@ -49,6 +44,7 @@ remove_containers:
 .PHONY: armageddon
 armageddon:
 	-make remove_containers
+	-docker builder prune -f
 	-docker network prune -f
 	-docker volume rm $$(docker volume ls --filter dangling=true -q)
 	-docker rmi $$(docker images -a -q) -f
@@ -61,7 +57,7 @@ test:
 .PHONY: cover
 cover:
 	go test -coverprofile=coverage1.out -coverpkg=./... -cover ./...
-	cat coverage1.out | grep -v mock | grep -v proto | grep -v cmd > cover.out
+	cat coverage1.out | grep -v mock | grep -v proto | grep -v cmd | grep -v models > cover.out
 	go tool cover -func cover.out && go tool cover -html cover.out
 
 .PHONY: init_db

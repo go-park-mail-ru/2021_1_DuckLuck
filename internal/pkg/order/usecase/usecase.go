@@ -6,27 +6,28 @@ import (
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/order"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/promo_code"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	proto "github.com/go-park-mail-ru/2021_1_DuckLuck/services/cart/proto/cart"
-
-	"google.golang.org/grpc"
 )
 
 type OrderUseCase struct {
-	OrderRepo   order.Repository
-	CartClient  proto.CartServiceClient
-	ProductRepo product.Repository
-	UserRepo    user.Repository
+	OrderRepo     order.Repository
+	CartClient    proto.CartServiceClient
+	ProductRepo   product.Repository
+	UserRepo      user.Repository
+	PromoCodeRepo promo_code.Repository
 }
 
-func NewUseCase(orderRepo order.Repository, cartConn grpc.ClientConnInterface,
-	productRepo product.Repository, userRepo user.Repository) order.UseCase {
+func NewUseCase(orderRepo order.Repository, cartClient proto.CartServiceClient,
+	productRepo product.Repository, userRepo user.Repository, promoCodeRepo promo_code.Repository) order.UseCase {
 	return &OrderUseCase{
-		OrderRepo:   orderRepo,
-		CartClient:  proto.NewCartServiceClient(cartConn),
-		ProductRepo: productRepo,
-		UserRepo:    userRepo,
+		OrderRepo:     orderRepo,
+		CartClient:    cartClient,
+		ProductRepo:   productRepo,
+		UserRepo:      userRepo,
+		PromoCodeRepo: promoCodeRepo,
 	}
 }
 
@@ -59,9 +60,27 @@ func (u *OrderUseCase) GetPreviewOrder(userId uint64,
 
 func (u *OrderUseCase) AddCompletedOrder(order *models.Order, userId uint64,
 	previewCart *models.PreviewCart) (*models.OrderNumber, error) {
-	// Get all info about product in cart
+	price := models.TotalPrice{}
+
+	if order.PromoCode == "" {
+		price = previewCart.Price
+	} else {
+		err := u.PromoCodeRepo.CheckPromo(order.PromoCode)
+		if err != nil {
+			return nil, errors.ErrPromoCodeNotFound
+		}
+
+		for _, product := range previewCart.Products {
+			promoPrice, err := u.PromoCodeRepo.GetDiscountPriceByPromo(product.Id, order.PromoCode)
+			if err != nil {
+				return nil, errors.ErrProductNotFound
+			}
+			price.TotalBaseCost += promoPrice.BaseCost
+			price.TotalCost += promoPrice.TotalCost
+		}
+		price.TotalDiscount = price.TotalBaseCost - price.TotalCost
+	}
 	products := previewCart.Products
-	price := previewCart.Price
 
 	orderNumber, err := u.OrderRepo.AddOrder(order, userId, products, &price)
 	if err != nil {
