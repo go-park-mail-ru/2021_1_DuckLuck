@@ -63,15 +63,16 @@ func (r *PostgresqlRepository) GetDiscountPriceByPromo(productId uint64, promoCo
 	if err != nil {
 		return nil, errors.ErrDBInternalError
 	}
+	price := &models.PromoPrice{
+		BaseCost:  baseCost,
+		TotalCost: totalCost,
+	}
 
 	sale := float32(promoSale.Int64)
 	if sale == 0 {
-		return nil, errors.ErrProductNotInPromo
+		return price, errors.ErrProductNotInPromo
 	}
 
-	totalCost = int(float32(totalCost) * (1 - (sale / 100.0)))
-	return &models.PromoPrice{
-		BaseCost:  baseCost,
-		TotalCost: totalCost,
-	}, nil
+	price.TotalCost = int(float32(price.TotalCost) * (1 - (sale / 100.0)))
+	return price, nil
 }

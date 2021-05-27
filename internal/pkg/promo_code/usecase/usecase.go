@@ -30,7 +30,7 @@ func (u *PromoCodeUseCase) ApplyPromoCodeToOrder(promoCodeGroup *models.PromoCod
 		if err == nil {
 			productsInAction += 1
 		} else if err != errors.ErrProductNotInPromo {
-			return nil, errors.ErrProductNotFound
+			return nil, errors.ErrInternalError
 		}
 
 		discountedPrice.TotalBaseCost += price.BaseCost
