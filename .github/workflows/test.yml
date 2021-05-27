@@ -4,8 +4,6 @@ env:
   ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
 
 on:
-  push:
-    branches: [ develop, main ]
   pull_request:
 
 jobs:

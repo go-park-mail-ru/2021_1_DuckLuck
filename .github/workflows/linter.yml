@@ -1,10 +1,8 @@
 name: golangci-lint
 on:
-  push:
-    branches: [ develop, main ]
   pull_request:
-jobs:
 
+jobs:
   build:
     name: Lint
     runs-on: ubuntu-latest
