@@ -51,10 +51,10 @@ func (mr *MockUseCaseMockRecorder) AddUser(arg0 interface{}) *gomock.Call {
 }
 
 // Authorize mocks base method.
-func (m *MockUseCase) Authorize(arg0 *models.LoginUser) (*models.ProfileUser, error) {
+func (m *MockUseCase) Authorize(arg0 *models.LoginUser) (uint64, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Authorize", arg0)
-	ret0, _ := ret[0].(*models.ProfileUser)
+	ret0, _ := ret[0].(uint64)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

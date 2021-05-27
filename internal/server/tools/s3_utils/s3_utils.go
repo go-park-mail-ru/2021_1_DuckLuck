@@ -29,7 +29,7 @@ var (
 
 func InitS3() {
 	// Load s3 environment
-	err := godotenv.Load(configs.PathToS3Env)
+	err := godotenv.Load(configs.ApiServerS3Env)
 	if err != nil {
 		log.Fatal(err)
 	}

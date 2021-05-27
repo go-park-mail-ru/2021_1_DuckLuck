@@ -8,5 +8,13 @@ import (
 
 type Repository interface {
 	SelectProductById(productId uint64) (*models.Product, error)
-	SelectRangeProducts(paginator *models.PaginatorProducts, categories *[]uint64) (*models.RangeProducts, error)
+	GetCountPages(category uint64, count int, filterString string) (int, error)
+	GetCountSearchPages(category uint64, count int, searchString, filterString string) (int, error)
+	CreateSortString(sortKey, sortDirection string) (string, error)
+	SelectRangeProducts(paginator *models.PaginatorProducts,
+		sortString, filterString string) ([]*models.ViewProduct, error)
+	CreateFilterString(filter *models.ProductFilter) string
+	SearchRangeProducts(searchQuery *models.SearchQuery,
+		sortString, filterString string) ([]*models.ViewProduct, error)
+	SelectRecommendationsByReviews(productId uint64, count int) ([]*models.RecommendationProduct, error)
 }

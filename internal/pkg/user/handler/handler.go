@@ -11,8 +11,8 @@ import (
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/http_utils"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/logger"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/validator"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/pkg/tools/logger"
 )
 
 type UserHandler struct {
@@ -33,7 +33,7 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		requireId := http_utils.MustGetRequireId(r.Context())
 		if err != nil {
-			logger.LogError(r.URL.Path, "user_handler", "Login", requireId, err)
+			logger.LogError("user_handler", "Login", requireId, err)
 		}
 	}()
 
@@ -58,13 +58,13 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	profileUser, err := h.UserUCase.Authorize(&authUser)
+	userId, err := h.UserUCase.Authorize(&authUser)
 	if err != nil {
 		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusUnauthorized)
 		return
 	}
 
-	currentSession, err := h.SessionUCase.CreateNewSession(profileUser.Id)
+	currentSession, err := h.SessionUCase.CreateNewSession(userId)
 	if err != nil {
 		http_utils.SetJSONResponse(w, errors.CreateError(err), http.StatusInternalServerError)
 		return
@@ -80,7 +80,7 @@ func (h *UserHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		requireId := http_utils.MustGetRequireId(r.Context())
 		if err != nil {
-			logger.LogError(r.URL.Path, "user_handler", "UpdateProfile", requireId, err)
+			logger.LogError("user_handler", "UpdateProfile", requireId, err)
 		}
 	}()
 
@@ -122,14 +122,19 @@ func (h *UserHandler) UpdateProfileAvatar(w http.ResponseWriter, r *http.Request
 	defer func() {
 		requireId := http_utils.MustGetRequireId(r.Context())
 		if err != nil {
-			logger.LogError(r.URL.Path, "user_handler", "UpdateProfileAvatar", requireId, err)
+			logger.LogError("user_handler", "UpdateProfileAvatar", requireId, err)
 		}
 	}()
 
 	currentSession := http_utils.MustGetSessionFromContext(r.Context())
 
 	// Max size - 10 Mb
-	r.ParseMultipartForm(10 * 1024 * 1024)
+	err = r.ParseMultipartForm(10 * 1024 * 1024)
+	if err != nil {
+		http_utils.SetJSONResponse(w, errors.ErrFileNotRead, http.StatusBadRequest)
+		return
+	}
+
 	file, header, err := r.FormFile("avatar")
 	if err != nil {
 		http_utils.SetJSONResponse(w, errors.ErrFileNotRead, http.StatusBadRequest)
@@ -152,7 +157,7 @@ func (h *UserHandler) GetProfileAvatar(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		requireId := http_utils.MustGetRequireId(r.Context())
 		if err != nil {
-			logger.LogError(r.URL.Path, "user_handler", "GetProfileAvatar", requireId, err)
+			logger.LogError("user_handler", "GetProfileAvatar", requireId, err)
 		}
 	}()
 
@@ -173,7 +178,7 @@ func (h *UserHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		requireId := http_utils.MustGetRequireId(r.Context())
 		if err != nil {
-			logger.LogError(r.URL.Path, "user_handler", "GetProfile", requireId, err)
+			logger.LogError("user_handler", "GetProfile", requireId, err)
 		}
 	}()
 
@@ -194,7 +199,7 @@ func (h *UserHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		requireId := http_utils.MustGetRequireId(r.Context())
 		if err != nil {
-			logger.LogError(r.URL.Path, "user_handler", "Signup", requireId, err)
+			logger.LogError("user_handler", "Signup", requireId, err)
 		}
 	}()
 
@@ -241,7 +246,7 @@ func (h *UserHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		requireId := http_utils.MustGetRequireId(r.Context())
 		if err != nil {
-			logger.LogError(r.URL.Path, "user_handler", "Logout", requireId, err)
+			logger.LogError("user_handler", "Logout", requireId, err)
 		}
 	}()
 

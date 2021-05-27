@@ -1,13 +1,15 @@
 package models
 
-import (
-	uuid "github.com/satori/go.uuid"
-)
+type contextKey string
+
+func (c contextKey) String() string {
+	return string(c)
+}
 
 const (
 	SessionCookieName   = "session_id"
-	SessionContextKey   = "session_key"
-	RequireIdKey        = "require_key"
+	SessionContextKey   = contextKey("session_key")
+	RequireIdKey        = contextKey("require_key")
 	RequireIdName       = "require_id"
 	ExpireSessionCookie = 90 * 24 * 3600
 )
@@ -19,14 +21,4 @@ type Session struct {
 
 type UserId struct {
 	Id uint64
-}
-
-func NewSession(userId uint64) *Session {
-	newValue := uuid.NewV4()
-	return &Session{
-		Value: newValue.String(),
-		UserData: UserId{
-			Id: userId,
-		},
-	}
 }

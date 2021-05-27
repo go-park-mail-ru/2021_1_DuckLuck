@@ -5,26 +5,38 @@ import (
 
 	category_mock "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/category/mock"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestUserUseCase_GetSubCategoriesById(t *testing.T) {
+func TestCategoryUseCase_GetSubCategoriesById(t *testing.T) {
+	categoryId := uint64(1)
 	categories := []*models.CategoriesCatalog{
-		&models.CategoriesCatalog{
-			Id:   4,
+		{
+			Id:   categoryId,
 			Name: "test",
 			Next: nil,
 		},
 	}
-	categoryId := uint64(4)
 
-	t.Run("GetPreviewOrder_success", func(t *testing.T) {
+	t.Run("GetCatalogCategories_success", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
 		categoryRepo := category_mock.NewMockRepository(ctrl)
+
+		categoryRepo.
+			EXPECT().
+			GetCategoriesByLevel(uint64(1)).
+			Return(categories, nil)
+
+		categoryRepo.
+			EXPECT().
+			GetNextLevelCategories(categoryId).
+			Return(categories, nil)
+
 		categoryRepo.
 			EXPECT().
 			GetNextLevelCategories(categoryId).
@@ -32,8 +44,73 @@ func TestUserUseCase_GetSubCategoriesById(t *testing.T) {
 
 		userUCase := NewUseCase(categoryRepo)
 
-		userData, err := userUCase.GetSubCategoriesById(categoryId)
+		_, err := userUCase.GetCatalogCategories()
 		assert.NoError(t, err, "unexpected error")
-		assert.Equal(t, categories, userData, "not equal data")
+	})
+
+	t.Run("GetCatalogCategories_incorrect_first_lvl", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		categoryRepo := category_mock.NewMockRepository(ctrl)
+
+		categoryRepo.
+			EXPECT().
+			GetCategoriesByLevel(uint64(1)).
+			Return(categories, errors.ErrInternalError)
+
+		userUCase := NewUseCase(categoryRepo)
+
+		_, err := userUCase.GetCatalogCategories()
+		assert.Error(t, err, "expected error")
+	})
+
+	t.Run("GetCatalogCategories_incorrect_second_lvl", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		categoryRepo := category_mock.NewMockRepository(ctrl)
+
+		categoryRepo.
+			EXPECT().
+			GetCategoriesByLevel(uint64(1)).
+			Return(categories, nil)
+
+		categoryRepo.
+			EXPECT().
+			GetNextLevelCategories(categoryId).
+			Return(categories, errors.ErrInternalError)
+
+		userUCase := NewUseCase(categoryRepo)
+
+		_, err := userUCase.GetCatalogCategories()
+		assert.Error(t, err, "expected error")
+	})
+
+	t.Run("GetCatalogCategories_incorrect_last_lvl", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		categoryRepo := category_mock.NewMockRepository(ctrl)
+
+		categoryRepo.
+			EXPECT().
+			GetCategoriesByLevel(uint64(1)).
+			Return(categories, nil)
+
+		categoryRepo.
+			EXPECT().
+			GetNextLevelCategories(categoryId).
+			Return(categories, nil)
+
+		categoryRepo.
+			EXPECT().
+			GetNextLevelCategories(categoryId).
+			Return(categories, errors.ErrInternalError)
+
+		userUCase := NewUseCase(categoryRepo)
+
+		_, err := userUCase.GetCatalogCategories()
+		assert.Error(t, err, "expected error")
 	})
 }

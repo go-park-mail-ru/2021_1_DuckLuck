@@ -3,182 +3,235 @@ package usecase
 import (
 	"testing"
 
-	cart_mock "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/cart/mock"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
-	order_mock "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/order/mock"
-	product_mock "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/mock"
-	user_mock "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user/mock"
+	order_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/order/mock"
+	product_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product/mock"
+	promo_code_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/promo_code/mock"
+	user_repo "github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user/mock"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
+	cart_service "github.com/go-park-mail-ru/2021_1_DuckLuck/services/cart/proto/cart"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestUserUseCase_GetPreviewOrder(t *testing.T) {
-	userId := uint64(3)
-	profileUser := models.ProfileUser{
-		Id:        1,
-		FirstName: "test",
-		LastName:  "last",
-		Email:     "test@test.ru",
-		Password:  nil,
-		Avatar: models.Avatar{
-			Url: "httt://test.png",
-		},
-	}
-	previewOrder := models.PreviewOrder{
-		Products: nil,
-		Recipient: models.OrderRecipient{
-			FirstName: "test",
-			LastName:  "last",
-			Email:     "test@test.ru",
-		},
-		Price: models.TotalPrice{
-			TotalDiscount: 32,
-			TotalCost:     234,
-			TotalBaseCost: 34,
-		},
-		Address: models.OrderAddress{
-			Address: "",
-		},
-	}
+func TestOrderUseCase_GetSubCategoriesById(t *testing.T) {
+	userId := uint64(12)
 	previewCart := models.PreviewCart{
-		Products: nil,
-		Price: models.TotalPrice{
-			TotalDiscount: 32,
-			TotalCost:     234,
-			TotalBaseCost: 34,
+		Products: []*models.PreviewCartArticle{
+			{},
 		},
+		Price: models.TotalPrice{},
 	}
+	userProfile := models.ProfileUser{}
 
 	t.Run("GetPreviewOrder_success", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		userRepo := user_mock.NewMockRepository(ctrl)
+		orderRepo := order_repo.NewMockRepository(ctrl)
+		cartClient := cart_service.NewMockCartServiceClient(ctrl)
+		productRepo := product_repo.NewMockRepository(ctrl)
+		promoCodeRepo := promo_code_repo.NewMockRepository(ctrl)
+
+		userRepo := user_repo.NewMockRepository(ctrl)
 		userRepo.
 			EXPECT().
 			SelectProfileById(userId).
-			Return(&profileUser, nil)
-		productRepo := product_mock.NewMockRepository(ctrl)
-		orderRepo := order_mock.NewMockRepository(ctrl)
-		cartRepo := cart_mock.NewMockRepository(ctrl)
+			Return(&userProfile, nil)
 
-		userUCase := NewUseCase(orderRepo, cartRepo, productRepo, userRepo)
+		orderUCase := NewUseCase(orderRepo, cartClient, productRepo, userRepo, promoCodeRepo)
 
-		userData, err := userUCase.GetPreviewOrder(userId, &previewCart)
+		_, err := orderUCase.GetPreviewOrder(userId, &previewCart)
 		assert.NoError(t, err, "unexpected error")
-		assert.Equal(t, previewOrder, *userData, "not equal data")
 	})
 
-	t.Run("GetPreviewOrder_user_not_found", func(t *testing.T) {
+	t.Run("GetPreviewOrder_not_found_user", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		userRepo := user_mock.NewMockRepository(ctrl)
+		orderRepo := order_repo.NewMockRepository(ctrl)
+		cartClient := cart_service.NewMockCartServiceClient(ctrl)
+		productRepo := product_repo.NewMockRepository(ctrl)
+		promoCodeRepo := promo_code_repo.NewMockRepository(ctrl)
+
+		userRepo := user_repo.NewMockRepository(ctrl)
 		userRepo.
 			EXPECT().
 			SelectProfileById(userId).
-			Return(nil, errors.ErrDBInternalError)
-		productRepo := product_mock.NewMockRepository(ctrl)
-		orderRepo := order_mock.NewMockRepository(ctrl)
-		cartRepo := cart_mock.NewMockRepository(ctrl)
+			Return(&userProfile, errors.ErrInternalError)
 
-		userUCase := NewUseCase(orderRepo, cartRepo, productRepo, userRepo)
+		orderUCase := NewUseCase(orderRepo, cartClient, productRepo, userRepo, promoCodeRepo)
 
-		_, err := userUCase.GetPreviewOrder(userId, &previewCart)
-		assert.Equal(t, err, errors.ErrUserNotFound, "not equal errors")
+		_, err := orderUCase.GetPreviewOrder(userId, &previewCart)
+		assert.Error(t, err, "expected error")
 	})
 }
 
-func TestUserUseCase_AddCompletedOrder(t *testing.T) {
-	userId := uint64(3)
-	order := models.Order{
-		Recipient: models.OrderRecipient{
-			FirstName: "test",
-			LastName:  "last",
-			Email:     "test@test.ru",
-		},
-		Address: models.OrderAddress{
-			Address: "test",
+func TestOrderUseCase_GetRangeOrders(t *testing.T) {
+	userId := uint64(12)
+	paginator := models.PaginatorOrders{
+		PageNum: 1,
+		Count:   43,
+		SortOrdersOptions: models.SortOrdersOptions{
+			SortKey:       "date",
+			SortDirection: "ASC",
 		},
 	}
-	previewCart := models.PreviewCart{
-		Products: nil,
-		Price: models.TotalPrice{
-			TotalDiscount: 32,
-			TotalCost:     234,
-			TotalBaseCost: 34,
+	orders := []*models.PlacedOrder{
+		{
+			Id: 1,
 		},
 	}
-	orderId := uint64(4)
+	products := []*models.PreviewOrderedProducts{{}}
 
-	t.Run("GetPreviewOrder_success", func(t *testing.T) {
+	t.Run("GetRangeOrders_success", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		userRepo := user_mock.NewMockRepository(ctrl)
-		productRepo := product_mock.NewMockRepository(ctrl)
-		orderRepo := order_mock.NewMockRepository(ctrl)
+		orderRepo := order_repo.NewMockRepository(ctrl)
 		orderRepo.
 			EXPECT().
-			AddOrder(&order, userId, previewCart.Products, &previewCart.Price).
-			Return(orderId, nil)
+			GetCountPages(userId, paginator.Count).
+			Return(10, nil)
 
-		cartRepo := cart_mock.NewMockRepository(ctrl)
-		cartRepo.
+		orderRepo.
 			EXPECT().
-			DeleteCart(userId).
-			Return(nil)
+			CreateSortString(paginator.SortKey, paginator.SortDirection).
+			Return("", nil)
 
-		userUCase := NewUseCase(orderRepo, cartRepo, productRepo, userRepo)
+		orderRepo.
+			EXPECT().
+			SelectRangeOrders(userId, "", &paginator).
+			Return(orders, nil)
 
-		userData, err := userUCase.AddCompletedOrder(&order, userId, &previewCart)
+		orderRepo.
+			EXPECT().
+			GetProductsInOrder(uint64(1)).
+			Return(products, nil)
+
+		cartClient := cart_service.NewMockCartServiceClient(ctrl)
+		productRepo := product_repo.NewMockRepository(ctrl)
+		userRepo := user_repo.NewMockRepository(ctrl)
+		promoCodeRepo := promo_code_repo.NewMockRepository(ctrl)
+
+		orderUCase := NewUseCase(orderRepo, cartClient, productRepo, userRepo, promoCodeRepo)
+
+		_, err := orderUCase.GetRangeOrders(userId, &paginator)
 		assert.NoError(t, err, "unexpected error")
-		assert.Equal(t, orderId, userData, "not equal data")
 	})
 
-	t.Run("GetPreviewOrder_internal_sever_error", func(t *testing.T) {
+	t.Run("GetRangeOrders_incorrect_count", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		userRepo := user_mock.NewMockRepository(ctrl)
-		productRepo := product_mock.NewMockRepository(ctrl)
-		orderRepo := order_mock.NewMockRepository(ctrl)
+		orderRepo := order_repo.NewMockRepository(ctrl)
 		orderRepo.
 			EXPECT().
-			AddOrder(&order, userId, previewCart.Products, &previewCart.Price).
-			Return(orderId, errors.ErrDBInternalError)
+			GetCountPages(userId, paginator.Count).
+			Return(10, errors.ErrInternalError)
 
-		cartRepo := cart_mock.NewMockRepository(ctrl)
+		cartClient := cart_service.NewMockCartServiceClient(ctrl)
+		productRepo := product_repo.NewMockRepository(ctrl)
+		userRepo := user_repo.NewMockRepository(ctrl)
+		promoCodeRepo := promo_code_repo.NewMockRepository(ctrl)
 
-		userUCase := NewUseCase(orderRepo, cartRepo, productRepo, userRepo)
+		orderUCase := NewUseCase(orderRepo, cartClient, productRepo, userRepo, promoCodeRepo)
 
-		_, err := userUCase.AddCompletedOrder(&order, userId, &previewCart)
-		assert.Equal(t, err, errors.ErrInternalError, "not equal errors")
+		_, err := orderUCase.GetRangeOrders(userId, &paginator)
+		assert.Error(t, err, "expected error")
 	})
 
-	t.Run("GetPreviewOrder_cart_not_found", func(t *testing.T) {
+	t.Run("GetRangeOrders_incorrect_sort_string", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		userRepo := user_mock.NewMockRepository(ctrl)
-		productRepo := product_mock.NewMockRepository(ctrl)
-		orderRepo := order_mock.NewMockRepository(ctrl)
+		orderRepo := order_repo.NewMockRepository(ctrl)
 		orderRepo.
 			EXPECT().
-			AddOrder(&order, userId, previewCart.Products, &previewCart.Price).
-			Return(orderId, nil)
+			GetCountPages(userId, paginator.Count).
+			Return(10, nil)
 
-		cartRepo := cart_mock.NewMockRepository(ctrl)
-		cartRepo.
+		orderRepo.
 			EXPECT().
-			DeleteCart(userId).
-			Return(errors.ErrCartNotFound)
+			CreateSortString(paginator.SortKey, paginator.SortDirection).
+			Return("", errors.ErrInternalError)
 
-		userUCase := NewUseCase(orderRepo, cartRepo, productRepo, userRepo)
+		cartClient := cart_service.NewMockCartServiceClient(ctrl)
+		productRepo := product_repo.NewMockRepository(ctrl)
+		userRepo := user_repo.NewMockRepository(ctrl)
+		promoCodeRepo := promo_code_repo.NewMockRepository(ctrl)
 
-		_, err := userUCase.AddCompletedOrder(&order, userId, &previewCart)
-		assert.Equal(t, err, errors.ErrCartNotFound, "not equal errors")
+		orderUCase := NewUseCase(orderRepo, cartClient, productRepo, userRepo, promoCodeRepo)
+
+		_, err := orderUCase.GetRangeOrders(userId, &paginator)
+		assert.Error(t, err, "expected error")
+	})
+
+	t.Run("GetRangeOrders_not_select_range", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		orderRepo := order_repo.NewMockRepository(ctrl)
+		orderRepo.
+			EXPECT().
+			GetCountPages(userId, paginator.Count).
+			Return(10, nil)
+
+		orderRepo.
+			EXPECT().
+			CreateSortString(paginator.SortKey, paginator.SortDirection).
+			Return("", nil)
+
+		orderRepo.
+			EXPECT().
+			SelectRangeOrders(userId, "", &paginator).
+			Return(orders, errors.ErrIncorrectPaginator)
+
+		cartClient := cart_service.NewMockCartServiceClient(ctrl)
+		productRepo := product_repo.NewMockRepository(ctrl)
+		userRepo := user_repo.NewMockRepository(ctrl)
+		promoCodeRepo := promo_code_repo.NewMockRepository(ctrl)
+
+		orderUCase := NewUseCase(orderRepo, cartClient, productRepo, userRepo, promoCodeRepo)
+
+		_, err := orderUCase.GetRangeOrders(userId, &paginator)
+		assert.Error(t, err, "expected error")
+	})
+
+	t.Run("GetRangeOrders_internal_error", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		orderRepo := order_repo.NewMockRepository(ctrl)
+		orderRepo.
+			EXPECT().
+			GetCountPages(userId, paginator.Count).
+			Return(10, nil)
+
+		orderRepo.
+			EXPECT().
+			CreateSortString(paginator.SortKey, paginator.SortDirection).
+			Return("", nil)
+
+		orderRepo.
+			EXPECT().
+			SelectRangeOrders(userId, "", &paginator).
+			Return(orders, nil)
+
+		orderRepo.
+			EXPECT().
+			GetProductsInOrder(uint64(1)).
+			Return(products, errors.ErrInternalError)
+
+		cartClient := cart_service.NewMockCartServiceClient(ctrl)
+		productRepo := product_repo.NewMockRepository(ctrl)
+		userRepo := user_repo.NewMockRepository(ctrl)
+		promoCodeRepo := promo_code_repo.NewMockRepository(ctrl)
+
+		orderUCase := NewUseCase(orderRepo, cartClient, productRepo, userRepo, promoCodeRepo)
+
+		_, err := orderUCase.GetRangeOrders(userId, &paginator)
+		assert.Error(t, err, "expected error")
 	})
 }

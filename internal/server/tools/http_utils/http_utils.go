@@ -3,6 +3,7 @@ package http_utils
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"net/http"
 	"time"
 
@@ -16,17 +17,23 @@ func SetJSONResponse(w http.ResponseWriter, body interface{}, statusCode int) {
 	result, err := json.Marshal(body)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("{\"error\": \"can't marshal body\"}"))
+		if _, err := w.Write([]byte("{\"error\": \"can't marshal body\"}")); err != nil {
+			log.Fatal(err)
+		}
 		return
 	}
 	w.WriteHeader(statusCode)
-	w.Write(result)
+	if _, err := w.Write(result); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func SetJSONResponseSuccess(w http.ResponseWriter, statusCode int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
-	w.Write([]byte("{\"error\": \"success\"}"))
+	if _, err := w.Write([]byte("{\"error\": \"success\"}")); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func SetCookie(w http.ResponseWriter, cookieName string, cookieValue string, duration time.Duration) {

@@ -21,14 +21,16 @@ func NewSessionPostgresqlRepository(db *sql.DB) category.Repository {
 // Get lower level in categories tree
 func (r *PostgresqlRepository) GetNextLevelCategories(categoryId uint64) ([]*models.CategoriesCatalog, error) {
 	rows, err := r.db.Query(
-		"SELECT c.id, c.name "+
+		"WITH current_node AS ( "+
+			"SELECT c.left_node, c.right_node, c.level + 1  as level "+
 			"FROM categories c "+
-			"JOIN subsets_category s1 ON c.id = s1.id_category "+
-			"JOIN subsets_category s2 on s1.id_category = s2.id_category "+
-			"WHERE (s1.id_subset = $1) and (s2.id_category = s2.id_subset) "+
-			"and (s2.level = s1.level + 1)"+
-			"GROUP BY c.id, c.name "+
-			"ORDER BY c.name",
+			"WHERE c.id = $1 "+
+			") "+
+			"SELECT c.id, c.name "+
+			"FROM categories c, current_node "+
+			"WHERE (c.left_node > current_node.left_node "+
+			"AND c.right_node < current_node.right_node "+
+			"AND c.level = current_node.level)",
 		categoryId,
 	)
 	if err != nil {
@@ -57,9 +59,7 @@ func (r *PostgresqlRepository) GetCategoriesByLevel(level uint64) ([]*models.Cat
 	rows, err := r.db.Query(
 		"SELECT c.id, c.name "+
 			"FROM categories c "+
-			"JOIN subsets_category s1 ON c.id = s1.id_category "+
-			"GROUP BY c.id, c.name "+
-			"HAVING count(*) = $1",
+			"WHERE c.level = $1",
 		level,
 	)
 	if err != nil {
@@ -83,41 +83,41 @@ func (r *PostgresqlRepository) GetCategoriesByLevel(level uint64) ([]*models.Cat
 	return categories, nil
 }
 
-// Get id of all subcategories
-func (r *PostgresqlRepository) GetAllSubCategoriesId(categoryId uint64) ([]uint64, error) {
-	rows, err := r.db.Query(
-		"SELECT id_category "+
-			"FROM subsets_category "+
-			"WHERE id_subset = $1",
+// Get left and right border of branch
+func (r *PostgresqlRepository) GetBordersOfBranch(categoryId uint64) (uint64, uint64, error) {
+	row := r.db.QueryRow(
+		"SELECT c.left_node, c.right_node "+
+			"FROM categories c "+
+			"WHERE c.id = $1",
 		categoryId,
 	)
+
+	var left, right uint64
+	err := row.Scan(
+		&left,
+		&right,
+	)
+
 	if err != nil {
-		return nil, errors.ErrDBInternalError
-	}
-	defer rows.Close()
-
-	categoriesId := make([]uint64, 0)
-	for rows.Next() {
-		var id uint64
-		err = rows.Scan(
-			&id,
-		)
-		if err != nil {
-			return nil, errors.ErrDBInternalError
-		}
-		categoriesId = append(categoriesId, id)
+		return 0, 0, errors.ErrDBInternalError
 	}
 
-	return categoriesId, nil
+	return left, right, nil
 }
 
 // Get path from root to category
 func (r *PostgresqlRepository) GetPathToCategory(categoryId uint64) ([]*models.CategoriesCatalog, error) {
 	rows, err := r.db.Query(
-		"SELECT c.id, c.name FROM  subsets_category s "+
-			"LEFT JOIN categories c ON c.id = s.id_subset "+
-			"WHERE s.id_category = $1 "+
-			"ORDER BY s.level",
+		"WITH current_node AS ( "+
+			"SELECT c.left_node, c.right_node, c.level + 1  as level "+
+			"FROM categories c "+
+			"WHERE c.id = $1 "+
+			") "+
+			"SELECT c.id, c.name "+
+			"FROM categories c, current_node "+
+			"WHERE (c.left_node <= current_node.left_node "+
+			"AND c.right_node >= current_node.right_node "+
+			"AND c.level BETWEEN 1 AND current_node.level)",
 		categoryId,
 	)
 	if err != nil {

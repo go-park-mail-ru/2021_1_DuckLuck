@@ -1,37 +1,39 @@
 package usecase
 
 import (
-	"mime/multipart"
-
+	"context"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/hasher"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/s3_utils"
+	proto "github.com/go-park-mail-ru/2021_1_DuckLuck/services/auth/proto/user"
+	"mime/multipart"
 )
 
 type UserUseCase struct {
-	UserRepo user.Repository
+	UserRepo   user.Repository
+	AuthClient proto.AuthServiceClient
 }
 
-func NewUseCase(repo user.Repository) user.UseCase {
+func NewUseCase(authClient proto.AuthServiceClient, repo user.Repository) user.UseCase {
 	return &UserUseCase{
-		UserRepo: repo,
+		AuthClient: authClient,
+		UserRepo:   repo,
 	}
 }
 
 // Auth user
-func (u *UserUseCase) Authorize(authUser *models.LoginUser) (*models.ProfileUser, error) {
-	profileUser, err := u.UserRepo.SelectProfileByEmail(authUser.Email)
+func (u *UserUseCase) Authorize(authUser *models.LoginUser) (uint64, error) {
+	userId, err := u.AuthClient.Login(context.Background(), &proto.LoginUser{
+		Email:    authUser.Email,
+		Password: authUser.Password,
+	})
+
 	if err != nil {
-		return nil, errors.ErrIncorrectAuthData
+		return 0, errors.ErrUserNotFound
 	}
 
-	if ok := hasher.CompareHashAndPassword(profileUser.Password, authUser.Password); !ok {
-		return nil, errors.ErrIncorrectAuthData
-	}
-
-	return profileUser, nil
+	return userId.Id, nil
 }
 
 // Set new avatar
@@ -83,19 +85,23 @@ func (u *UserUseCase) GetUserById(userId uint64) (*models.ProfileUser, error) {
 	return userById, nil
 }
 
-// Create new user in repo
-func (u *UserUseCase) AddUser(user *models.SignupUser) (uint64, error) {
-	if _, err := u.UserRepo.SelectProfileByEmail(user.Email); err == nil {
-		return 0, errors.ErrEmailAlreadyExist
-	}
-
-	hashOfPassword, err := hasher.GenerateHashFromPassword(user.Password)
-	if err != nil {
-		return 0, errors.ErrHashFunctionFailed
-	}
-
-	return u.UserRepo.AddProfile(&models.ProfileUser{
-		Email:    user.Email,
-		Password: hashOfPassword,
+// Create new user account
+func (u *UserUseCase) AddUser(signupUser *models.SignupUser) (uint64, error) {
+	userId, err := u.AuthClient.Signup(context.Background(), &proto.SignupUser{
+		Email:    signupUser.Email,
+		Password: signupUser.Password,
 	})
+	if err != nil {
+		return 0, errors.ErrInternalError
+	}
+
+	_, err = u.UserRepo.AddProfile(&models.ProfileUser{
+		AuthId: userId.Id,
+		Email:  signupUser.Email,
+	})
+	if err != nil {
+		return 0, errors.ErrInternalError
+	}
+
+	return userId.Id, nil
 }

@@ -1,11 +1,15 @@
 name: Build and deploy
 
 env:
-  TAG: v1.5
+  API_DB_TAG: v1.7
+  API_SERVER_TAG: v1.7
+  SESSION_SERVICE_TAG: v1.7
+  AUTH_SERVICE_TAG: v1.7
+  CART_SERVICE_TAG: v1.7
 
 on:
   push:
-    branches: [ develop, main ]
+    branches: [ main ]
   pull_request:
     branches: [ develop, main ]
 
@@ -16,10 +20,26 @@ jobs:
       - uses: actions/checkout@v1
       - name: Login to DockerHub Registry
         run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-      - name: Build Docker image
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/godeploy:${{ env.TAG }} .
-      - name: Push the image
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/godeploy:${{ env.TAG }}
+      - name: Build Docker api-server image
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/api-server:${{ env.API_SERVER_TAG }} --target api-server .
+      - name: Push the api_server image
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/api-server:${{ env.API_SERVER_TAG }}
+      - name: Build Docker api-db image
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/api-db:${{ env.API_DB_TAG }} --target api-db .
+      - name: Push the api-db image
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/api-db:${{ env.API_DB_TAG }}
+      - name: Build Docker session-service image
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/session-service:${{ env.SESSION_SERVICE_TAG }} --target session-service .
+      - name: Push the session-service image
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/session-service:${{ env.SESSION_SERVICE_TAG }}
+      - name: Build Docker cart-service image
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/cart-service:${{ env.CART_SERVICE_TAG }} --target cart-service .
+      - name: Push the cart-service image
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/cart-service:${{ env.CART_SERVICE_TAG }}
+      - name: Build Docker auth-service image
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/auth-service:${{ env.AUTH_SERVICE_TAG }} --target auth-service .
+      - name: Push the auth-service image
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/auth-service:${{ env.AUTH_SERVICE_TAG }}
       - name: Upload dependencies
         uses: actions/upload-artifact@v2
         with:
@@ -27,7 +47,7 @@ jobs:
           path: |
             ./docker-compose.yml
             ./log
-            ./configs/init.sql
+            ./scripts
             ./uploads
   deploy:
     runs-on: ubuntu-latest
@@ -37,7 +57,7 @@ jobs:
         uses: actions/download-artifact@v1
         with:
           name: Backend
-      - name: Transfer dependencies to server
+      - name: Transfer dependencies to api_server
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.HOST }}
@@ -46,14 +66,46 @@ jobs:
           source: "Backend"
           target: "/home/ubuntu/duckluckmarket"
 
-      - name: pull docker image
+      - name: pull api-server docker image
         uses: appleboy/ssh-action@master
         with:
           envs: GITHUB_SHA
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.PRIVATE_KEY }}
-          script: sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/godeploy:${{ env.TAG }}
+          script: sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/api-server:${{ env.API_SERVER_TAG  }}
+      - name: pull api-db docker image
+        uses: appleboy/ssh-action@master
+        with:
+          envs: GITHUB_SHA
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          script: sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/api-db:${{ env.API_DB_TAG }}
+      - name: pull cart-service docker image
+        uses: appleboy/ssh-action@master
+        with:
+          envs: GITHUB_SHA
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          script: sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/cart-service:${{ env.CART_SERVICE_TAG }}
+      - name: pull auth-service docker image
+        uses: appleboy/ssh-action@master
+        with:
+          envs: GITHUB_SHA
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          script: sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/auth-service:${{ env.AUTH_SERVICE_TAG }}
+      - name: pull session-service docker image
+        uses: appleboy/ssh-action@master
+        with:
+          envs: GITHUB_SHA
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          script: sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/session-service:${{ env.SESSION_SERVICE_TAG }}
       - name: deploy docker image
         uses: appleboy/ssh-action@master
         with:
@@ -63,5 +115,11 @@ jobs:
           key: ${{ secrets.PRIVATE_KEY }}
           script: |
             cd /home/ubuntu/duckluckmarket/Backend
-            echo TAG=${{ env.TAG }} > .env
+            echo API_DB_TAG=${{ env.API_DB_TAG }} > .env
+            echo API_SERVER_TAG=${{ env.API_SERVER_TAG }} >> .env
+            echo SESSION_SERVICE_TAG=${{ env.SESSION_SERVICE_TAG }} >> .env
+            echo AUTH_SERVICE_TAG=${{ env.AUTH_SERVICE_TAG }} >> .env
+            echo CART_SERVICE_TAG=${{ env.CART_SERVICE_TAG }} >> .env
+            sudo docker volume create --name=grafana-storage
+            sudo docker-compose down
             sudo docker-compose up -d

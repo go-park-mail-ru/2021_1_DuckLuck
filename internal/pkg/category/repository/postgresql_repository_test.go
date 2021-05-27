@@ -9,6 +9,7 @@ import (
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestPostgresqlRepository_GetNextLevelCategories(t *testing.T) {
@@ -203,11 +204,12 @@ func TestPostgresqlRepository_GetCategoriesByLevel(t *testing.T) {
 	})
 }
 
-func TestPostgresqlRepository_GetAllSubCategoriesId(t *testing.T) {
-	categoryId := uint64(3)
-	categories := []uint64{1, 2, 4}
+func TestPostgresqlRepository_GetBordersOfBranch(t *testing.T) {
+	leftNode := uint64(3)
+	rightNode := uint64(4)
+	categoryId := uint64(25)
 
-	t.Run("GetAllSubCategoriesId_success", func(t *testing.T) {
+	t.Run("GetBordersOfBranch_success", func(t *testing.T) {
 		db, sqlMock, err := sqlmock.New()
 		if err != nil {
 			t.Fatalf("can't create mock: %s", err)
@@ -217,15 +219,14 @@ func TestPostgresqlRepository_GetAllSubCategoriesId(t *testing.T) {
 		repository := NewSessionPostgresqlRepository(db)
 
 		rows := sqlmock.
-			NewRows([]string{"id_category"}).
-			AddRow(categories[0]).
-			AddRow(categories[1]).
-			AddRow(categories[2])
-
-		sqlMock.ExpectQuery("SELECT").WithArgs(categoryId).
+			NewRows([]string{"left_node", "right_node"}).
+			AddRow(leftNode, rightNode)
+		sqlMock.
+			ExpectQuery("SELECT").
+			WithArgs(categoryId).
 			WillReturnRows(rows)
 
-		data, err := repository.GetAllSubCategoriesId(categoryId)
+		left, right, err := repository.GetBordersOfBranch(categoryId)
 		if err != nil {
 			t.Errorf("internal err: %s", err)
 			return
@@ -237,38 +238,12 @@ func TestPostgresqlRepository_GetAllSubCategoriesId(t *testing.T) {
 			return
 		}
 
-		if !reflect.DeepEqual(data, categories) {
-			t.Errorf("not match: [%v] - [%v]", data, categories)
-			return
-		}
+		assert.NoError(t, err, "unexpected error")
+		assert.Equal(t, leftNode, left)
+		assert.Equal(t, rightNode, right)
 	})
 
-	t.Run("GetAllSubCategoriesId_internal_db_error", func(t *testing.T) {
-		db, sqlMock, err := sqlmock.New()
-		if err != nil {
-			t.Fatalf("can't create mock: %s", err)
-		}
-		defer db.Close()
-
-		repository := NewSessionPostgresqlRepository(db)
-
-		sqlMock.ExpectQuery("SELECT").WithArgs(categoryId).
-			WillReturnError(sql.ErrConnDone)
-
-		_, err = repository.GetAllSubCategoriesId(categoryId)
-		if err != errors.ErrDBInternalError {
-			t.Error("expected error")
-			return
-		}
-
-		err = sqlMock.ExpectationsWereMet()
-		if err != nil {
-			t.Errorf("expectations were not met in order: %s", err)
-			return
-		}
-	})
-
-	t.Run("GetAllSubCategoriesId_can't_scan_rows", func(t *testing.T) {
+	t.Run("GetBordersOfBranch_incorrect_data", func(t *testing.T) {
 		db, sqlMock, err := sqlmock.New()
 		if err != nil {
 			t.Fatalf("can't create mock: %s", err)
@@ -278,21 +253,15 @@ func TestPostgresqlRepository_GetAllSubCategoriesId(t *testing.T) {
 		repository := NewSessionPostgresqlRepository(db)
 
 		rows := sqlmock.
-			NewRows([]string{"test"}).
-			AddRow("test")
-		sqlMock.ExpectQuery("SELECT").WithArgs(categoryId).
+			NewRows([]string{"left_node", "right_node"}).
+			AddRow(leftNode, "test")
+		sqlMock.
+			ExpectQuery("SELECT").
+			WithArgs(categoryId).
 			WillReturnRows(rows)
-		_, err = repository.GetAllSubCategoriesId(categoryId)
-		if err != errors.ErrDBInternalError {
-			t.Error("expected error")
-			return
-		}
 
-		err = sqlMock.ExpectationsWereMet()
-		if err != nil {
-			t.Errorf("expectations were not met in order: %s", err)
-			return
-		}
+		_, _, err = repository.GetBordersOfBranch(categoryId)
+		assert.Error(t, err, "expected error")
 	})
 }
 

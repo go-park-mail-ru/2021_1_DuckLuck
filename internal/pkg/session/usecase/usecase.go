@@ -1,38 +1,62 @@
 package usecase
 
 import (
+	"context"
+
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/session"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
+	proto "github.com/go-park-mail-ru/2021_1_DuckLuck/services/session/proto/session"
 )
 
 type SessionUseCase struct {
-	SessionRepo session.Repository
+	SessionClient proto.SessionServiceClient
 }
 
-func NewUseCase(SessionRepo session.Repository) session.UseCase {
+func NewUseCase(sessionConn proto.SessionServiceClient) session.UseCase {
 	return &SessionUseCase{
-		SessionRepo: SessionRepo,
+		SessionClient: sessionConn,
 	}
 }
 
 // Get user id by session value
 func (u *SessionUseCase) GetUserIdBySession(sessionCookieValue string) (uint64, error) {
-	return u.SessionRepo.SelectUserIdBySession(sessionCookieValue)
+	userId, err := u.SessionClient.GetUserIdBySession(context.Background(), &proto.SessionValue{
+		Value: sessionCookieValue,
+	})
+	if err != nil {
+		return 0, errors.ErrSessionNotFound
+	}
+
+	return userId.Id, nil
 }
 
 // Create new user session and save in repository
 func (u *SessionUseCase) CreateNewSession(userId uint64) (*models.Session, error) {
-	sess := models.NewSession(userId)
-	err := u.SessionRepo.AddSession(sess)
+	userSession, err := u.SessionClient.CreateNewSession(context.Background(), &proto.UserId{
+		Id: userId,
+	})
 	if err != nil {
 		return nil, errors.ErrInternalError
 	}
 
-	return sess, nil
+	return &models.Session{
+		Value: userSession.Value.Value,
+		UserData: models.UserId{
+			Id: userSession.Id.Id,
+		},
+	}, nil
 }
 
 // Destroy session from repository by session value
 func (u *SessionUseCase) DestroySession(sessionCookieValue string) error {
-	return u.SessionRepo.DeleteSessionByValue(sessionCookieValue)
+	_, err := u.SessionClient.DestroySession(context.Background(), &proto.SessionValue{
+		Value: sessionCookieValue,
+	})
+
+	if err != nil {
+		return errors.ErrSessionNotFound
+	}
+
+	return nil
 }

@@ -24,25 +24,44 @@ func NewSessionPostgresqlRepository(db *sql.DB) product.Repository {
 
 // Select one product by id
 func (r *PostgresqlRepository) SelectProductById(productId uint64) (*models.Product, error) {
+	// Base product info
 	row := r.db.QueryRow(
-		"SELECT id, title, rating, description, base_cost, discount, images, id_category "+
-			"FROM products WHERE id = $1",
+		"SELECT id, title, description, properties, base_cost, "+
+			"total_cost, discount, images, id_category, "+
+			"avg_rating, count_reviews "+
+			"FROM products P "+
+			"LEFT JOIN ( "+
+			"	SELECT product_id, "+
+			"	AVG(rating) as avg_rating, "+
+			"	COUNT(*) as count_reviews "+
+			"FROM reviews "+
+			"WHERE product_id = $1 "+
+			"GROUP BY product_id "+
+			") AS R ON P.id = R.product_id "+
+			"WHERE id = $1",
 		productId,
 	)
 
 	description := sql.NullString{}
 	productById := models.Product{}
+	rating := sql.NullFloat64{}
+	countReviews := sql.NullInt64{}
 	err := row.Scan(
 		&productById.Id,
 		&productById.Title,
-		&productById.Rating,
 		&description,
+		&productById.Properties,
 		&productById.Price.BaseCost,
+		&productById.Price.TotalCost,
 		&productById.Price.Discount,
 		pq.Array(&productById.Images),
 		&productById.Category,
+		&rating,
+		&countReviews,
 	)
 	productById.Description = description.String
+	productById.Rating = float32(rating.Float64)
+	productById.CountReviews = uint64(countReviews.Int64)
 
 	if err != nil {
 		return nil, errors.ErrDBInternalError
@@ -51,44 +70,207 @@ func (r *PostgresqlRepository) SelectProductById(productId uint64) (*models.Prod
 	return &productById, nil
 }
 
-// Select range of products by paginate settings
-func (r *PostgresqlRepository) SelectRangeProducts(paginator *models.PaginatorProducts,
-	categories *[]uint64) (*models.RangeProducts, error) {
+func (r *PostgresqlRepository) SelectRecommendationsByReviews(productId uint64, count int) (
+	[]*models.RecommendationProduct, error) {
+	rows, err := r.db.Query(
+		"WITH current_category AS ( "+
+			"    SELECT id_category "+
+			"    FROM products "+
+			"    WHERE id = $1 "+
+			" ) "+
+			"SELECT p.id, p.title, p.base_cost, p.total_cost, p.discount, p.images[1] "+
+			"FROM products p "+
+			"JOIN ( "+
+			"	 SELECT DISTINCT r.product_id "+
+			"	 FROM ordered_products r "+
+			"	 JOIN ( "+
+			"		 SELECT order_id "+
+			"		 FROM ordered_products "+
+			"        WHERE product_id = $1 "+
+			"    ) AS r2 ON (r.order_id = r2.order_id AND r.product_id <> $1) "+
+			"    UNION "+
+			"    SELECT p.id "+
+			"    FROM products p, current_category "+
+			"    WHERE (p.id_category = current_category.id_category AND p.id <> $1) "+
+			"    LIMIT $2 "+
+			") AS orders ON orders.product_id = p.id",
+		productId,
+		count,
+	)
+	if err != nil {
+		return nil, errors.ErrIncorrectPaginator
+	}
+	defer rows.Close()
+
+	products := make([]*models.RecommendationProduct, 0)
+	for rows.Next() {
+		product := &models.RecommendationProduct{}
+		err = rows.Scan(
+			&product.Id,
+			&product.Title,
+			&product.Price.BaseCost,
+			&product.Price.TotalCost,
+			&product.Price.Discount,
+			&product.PreviewImage,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+		products = append(products, product)
+	}
+
+	return products, nil
+}
+
+// Get count of all pages for this category
+func (r *PostgresqlRepository) GetCountPages(category uint64, count int, filterString string) (int, error) {
 	row := r.db.QueryRow(
-		"SELECT count(*) FROM products "+
-			"WHERE id_category = ANY($1)",
-		pq.Array(*categories),
+		"WITH current_node AS ( "+
+			"SELECT c.left_node, c.right_node "+
+			"FROM categories c "+
+			"WHERE c.id = $1 "+
+			") "+
+			"SELECT count(p.id) "+
+			"FROM current_node, products p "+
+			"JOIN categories c ON c.id = p.id_category "+
+			"LEFT JOIN ( "+
+			"	SELECT product_id, "+
+			"	AVG(rating) as avg_rating "+
+			"	FROM reviews "+
+			"	GROUP BY product_id "+
+			") AS R ON P.id = R.product_id "+
+			"WHERE (c.left_node >= current_node.left_node "+
+			"AND c.right_node <= current_node.right_node "+
+			filterString+
+			" ) ",
+		category,
 	)
 
 	var countPages int
 	if err := row.Scan(&countPages); err != nil {
-		return nil, errors.ErrDBInternalError
+		return 0, errors.ErrDBInternalError
 	}
-	countPages = int(math.Ceil(float64(countPages) / float64(paginator.Count)))
+	countPages = int(math.Ceil(float64(countPages) / float64(count)))
 
-	var sortString string
-	switch paginator.SortKey {
+	return countPages, nil
+}
+
+// Get count of all pages for this search
+func (r *PostgresqlRepository) GetCountSearchPages(category uint64, count int,
+	searchString, filterString string) (int, error) {
+	row := r.db.QueryRow(
+		"WITH current_node AS ( "+
+			"SELECT c.left_node, c.right_node "+
+			"FROM categories c "+
+			"WHERE c.id = $1 "+
+			") "+
+			"SELECT count(p.id) "+
+			"FROM current_node, products p "+
+			"JOIN categories c ON c.id = p.id_category "+
+			"LEFT JOIN ( "+
+			"	SELECT product_id, "+
+			"	AVG(rating) as avg_rating "+
+			"	FROM reviews "+
+			"	GROUP BY product_id "+
+			") AS R ON P.id = R.product_id "+
+			"WHERE (c.left_node >= current_node.left_node "+
+			"AND c.right_node <= current_node.right_node "+
+			"AND p.fts @@ plainto_tsquery('ru', $2) "+
+			filterString+
+			" ) ",
+		category,
+		searchString,
+	)
+
+	var countPages int
+	if err := row.Scan(&countPages); err != nil {
+		return 0, errors.ErrDBInternalError
+	}
+	countPages = int(math.Ceil(float64(countPages) / float64(count)))
+
+	return countPages, nil
+}
+
+// Create sort string from paginator options
+func (r *PostgresqlRepository) CreateSortString(sortKey, sortDirection string) (string, error) {
+	// Select order target
+	var orderTarget string
+	switch sortKey {
 	case models.ProductsCostSort:
-		if paginator.SortDirection == models.PaginatorASC {
-			sortString = fmt.Sprintf("ORDER BY base_cost ASC ")
-		} else if paginator.SortDirection == models.PaginatorDESC {
-			sortString = fmt.Sprintf("ORDER BY base_cost DESC ")
-		}
+		orderTarget = "total_cost"
 	case models.ProductsRatingSort:
-		if paginator.SortDirection == models.PaginatorASC {
-			sortString = fmt.Sprintf("ORDER BY rating ASC ")
-		} else if paginator.SortDirection == models.PaginatorDESC {
-			sortString = fmt.Sprintf("ORDER BY rating DESC ")
-		}
+		orderTarget = "(CASE WHEN avg_rating IS NULL THEN 0 ELSE avg_rating END)"
+	case models.ProductsDateAddedSort:
+		orderTarget = "date_added"
+	case models.ProductsDiscountSort:
+		orderTarget = "discount"
+	default:
+		return "", errors.ErrIncorrectPaginator
 	}
 
+	// Select order direction
+	var orderDirection string
+	switch sortDirection {
+	case models.PaginatorASC:
+		orderDirection = "ASC"
+	case models.PaginatorDESC:
+		orderDirection = "DESC"
+	default:
+		return "", errors.ErrIncorrectPaginator
+	}
+
+	return fmt.Sprintf("ORDER BY %s %s ", orderTarget, orderDirection), nil
+}
+
+// Create filter string from filter options
+func (r *PostgresqlRepository) CreateFilterString(filter *models.ProductFilter) string {
+	// Check price
+	filterString := fmt.Sprintf("AND p.total_cost > %d AND p.total_cost < %d ", filter.MinPrice, filter.MaxPrice)
+
+	// Optional params
+	if filter.IsDiscount {
+		filterString += "AND p.discount > 0 "
+	}
+	if filter.IsNew {
+		filterString += "AND p.date_added >= date_trunc('month',current_timestamp - interval '1 month') " +
+			"AND p.date_added <  date_trunc('month',current_timestamp) "
+	}
+	if filter.IsRating {
+		filterString += "AND r.avg_rating >= 4 "
+	}
+
+	return filterString
+}
+
+// Select range of products by paginate settings
+func (r *PostgresqlRepository) SelectRangeProducts(paginator *models.PaginatorProducts,
+	sortString, filterString string) ([]*models.ViewProduct, error) {
 	rows, err := r.db.Query(
-		"SELECT id, title, base_cost, discount, rating, images[1] "+
-			"FROM products "+
-			"WHERE id_category = ANY($1) "+
+		"WITH current_node AS ( "+
+			"SELECT c.left_node, c.right_node "+
+			"FROM categories c "+
+			"WHERE c.id = $1 "+
+			") "+
+			"SELECT p.id, p.title, p.base_cost, p.total_cost, "+
+			"p.discount, p.images[1], "+
+			"avg_rating, count_reviews "+
+			"FROM current_node, products p "+
+			"JOIN categories c ON c.id = p.id_category "+
+			"LEFT JOIN ( "+
+			"	SELECT product_id, "+
+			"	AVG(rating) as avg_rating, "+
+			"	COUNT(*) as count_reviews "+
+			"FROM reviews "+
+			"GROUP BY product_id "+
+			") AS R ON P.id = R.product_id "+
+			"WHERE (c.left_node >= current_node.left_node "+
+			"AND c.right_node <= current_node.right_node "+
+			filterString+
+			" ) "+
 			sortString+
 			"LIMIT $2 OFFSET $3",
-		pq.Array(*categories),
+		paginator.Category,
 		paginator.Count,
 		paginator.Count*(paginator.PageNum-1),
 	)
@@ -98,24 +280,93 @@ func (r *PostgresqlRepository) SelectRangeProducts(paginator *models.PaginatorPr
 	defer rows.Close()
 
 	products := make([]*models.ViewProduct, 0)
+	rating := sql.NullFloat64{}
+	countReviews := sql.NullInt64{}
 	for rows.Next() {
 		product := &models.ViewProduct{}
 		err = rows.Scan(
 			&product.Id,
 			&product.Title,
 			&product.Price.BaseCost,
+			&product.Price.TotalCost,
 			&product.Price.Discount,
-			&product.Rating,
 			&product.PreviewImage,
+			&rating,
+			&countReviews,
 		)
+		product.Rating = float32(rating.Float64)
+		product.CountReviews = uint64(countReviews.Int64)
+
 		if err != nil {
 			return nil, err
 		}
 		products = append(products, product)
 	}
 
-	return &models.RangeProducts{
-		ListPreviewProducts: products,
-		MaxCountPages:       countPages,
-	}, nil
+	return products, nil
+}
+
+// Find list of products by query string
+func (r *PostgresqlRepository) SearchRangeProducts(searchQuery *models.SearchQuery,
+	sortString, filterString string) ([]*models.ViewProduct, error) {
+	rows, err := r.db.Query(
+		"WITH current_node AS ( "+
+			"SELECT c.left_node, c.right_node "+
+			"FROM categories c "+
+			"WHERE c.id = $1 "+
+			") "+
+			"SELECT p.id, p.title, p.base_cost, p.total_cost, "+
+			"p.discount, p.images[1], "+
+			"avg_rating, count_reviews "+
+			"FROM current_node, products p "+
+			"JOIN categories c ON c.id = p.id_category "+
+			"LEFT JOIN ( "+
+			"	SELECT product_id, "+
+			"	AVG(rating) as avg_rating, "+
+			"	COUNT(*) as count_reviews "+
+			"FROM reviews "+
+			"GROUP BY product_id "+
+			") AS R ON P.id = R.product_id "+
+			"WHERE (c.left_node >= current_node.left_node "+
+			"AND c.right_node <= current_node.right_node "+
+			"AND p.fts @@ plainto_tsquery('ru', $2) "+
+			filterString+
+			" ) "+
+			sortString+
+			"LIMIT $3 OFFSET $4",
+		searchQuery.Category,
+		searchQuery.QueryString,
+		searchQuery.Count,
+		searchQuery.Count*(searchQuery.PageNum-1),
+	)
+	if err != nil {
+		return nil, errors.ErrIncorrectSearchQuery
+	}
+	defer rows.Close()
+
+	products := make([]*models.ViewProduct, 0)
+	rating := sql.NullFloat64{}
+	countReviews := sql.NullInt64{}
+	for rows.Next() {
+		product := &models.ViewProduct{}
+		err = rows.Scan(
+			&product.Id,
+			&product.Title,
+			&product.Price.BaseCost,
+			&product.Price.TotalCost,
+			&product.Price.Discount,
+			&product.PreviewImage,
+			&rating,
+			&countReviews,
+		)
+		product.Rating = float32(rating.Float64)
+		product.CountReviews = uint64(countReviews.Int64)
+
+		if err != nil {
+			return nil, err
+		}
+		products = append(products, product)
+	}
+
+	return products, nil
 }

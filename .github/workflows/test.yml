@@ -1,0 +1,68 @@
+name: Tests
+
+env:
+  ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+
+on:
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract branch name
+        if: github.event_name != 'pull_request'
+        shell: bash
+        run: echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+
+      - name: Create branch name variable
+        if: github.event_name == 'pull_request'
+        run: echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_HEAD_REF})"
+
+      - uses: actions/checkout@v1
+      - name: Get full coverage
+        run: go test -coverprofile=coverage1.out -coverpkg=./... -cover ./...
+      - name: Ignore some directories
+        run: cat coverage1.out | grep -v mock | grep -v proto | grep -v cmd | grep -v middleware | grep -v models > cover.out
+
+      - name: Create badge
+        run: |
+          echo $BRANCH_NAME
+          total=`go tool cover -func=cover.out | grep total | grep -Eo '[0-9]+\.[0-9]+'`
+          if (( $(echo "$total <= 40" | bc -l) )) ; then
+            COLOR=red
+          elif (( $(echo "$total > 60" | bc -l) )); then
+            COLOR=green
+          else
+            COLOR=orange
+          fi
+          mkdir badges
+          cd badges
+          curl "https://img.shields.io/badge/coverage-$total%25-$COLOR" > tests.svg
+      - name: Upload badge to hotbox
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --endpoint-url https://hb.bizmrg.com --acl public-read --follow-symlinks
+        env:
+          AWS_S3_BUCKET: ${{ secrets.DUCKLUCK_COVERAGE_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.DUCKLUCK_COVERAGE_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.DUCKLUCK_COVERAGE_SECRET }}
+          SOURCE_DIR: 'badges'
+
+      - id: get-comment-body
+        run: |
+          body=$(go tool cover -func cover.out)
+          body="${body//'%'/'%25'}"
+          body="${body//$'\n'/'%0A'}"
+          body="${body//$'\r'/'%0D'}"
+          echo ::set-output name=body::$body
+      - name: Create comment
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{ github.event.number }}
+          body:
+              ${{ steps.get-comment-body.outputs.body }}
+
+            [![Coverage](https://duckluck-cov.hb.bizmrg.com/tests.svg)](https://github.com/go-park-mail-ru/2021_1_DuckLuck/actions/workflows/docker-deploy.yml)
+          reactions: eyes

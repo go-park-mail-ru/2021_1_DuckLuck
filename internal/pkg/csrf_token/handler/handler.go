@@ -9,6 +9,7 @@ import (
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/http_utils"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/tools/jwt_token"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/pkg/tools/logger"
 )
 
 type CsrfTokenHandler struct{}
@@ -19,6 +20,14 @@ func NewHandler() csrf_token.Handler {
 
 // Get new csrf token for client
 func (h *CsrfTokenHandler) GetCsrfToken(w http.ResponseWriter, r *http.Request) {
+	var err error
+	defer func() {
+		requireId := http_utils.MustGetRequireId(r.Context())
+		if err != nil {
+			logger.LogError("csrf_token_handler", "GetCsrfToken", requireId, err)
+		}
+	}()
+
 	csrfToken := models.NewCsrfToken()
 	jwtToken, err := jwt_token.CreateJwtToken([]byte(csrfToken.Value),
 		time.Now().Add(models.ExpireCsrfToken*time.Second))

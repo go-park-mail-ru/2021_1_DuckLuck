@@ -1,108 +1,102 @@
 package errors
 
 import (
-	"fmt"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/pkg/errors"
 )
 
-type Error struct {
-	Message string `json:"error"`
-}
-
-func (err Error) Error() string {
-	return fmt.Sprintf("error: happened %s", err.Message)
-}
-
 func CreateError(err error) error {
-	if _, ok := err.(Error); ok {
-		return err
-	}
-
-	return Error{Message: err.Error()}
+	return errors.CreateError(err)
 }
 
 var (
-	ErrUserUnauthorized error = Error{
+	ErrUserUnauthorized error = errors.Error{
 		Message: "user is unauthorized",
 	}
-	ErrInternalError error = Error{
+	ErrInternalError error = errors.Error{
 		Message: "something went wrong",
 	}
-	ErrUserNotFound error = Error{
+	ErrUserNotFound error = errors.Error{
 		Message: "user not found",
 	}
-	ErrSessionNotFound error = Error{
+	ErrSessionNotFound error = errors.Error{
 		Message: "session not found",
 	}
-	ErrEmailAlreadyExist error = Error{
+	ErrEmailAlreadyExist error = errors.Error{
 		Message: "user email already exist",
 	}
-	ErrServerSystem error = Error{
+	ErrServerSystem error = errors.Error{
 		Message: "system error",
 	}
-	ErrFileNotRead error = Error{
+	ErrFileNotRead error = errors.Error{
 		Message: "can't read file",
 	}
-	ErrIncorrectFileType error = Error{
+	ErrIncorrectFileType error = errors.Error{
 		Message: "incorrect file type",
 	}
-	ErrProductNotFound error = Error{
+	ErrProductNotFound error = errors.Error{
 		Message: "product not found",
 	}
-	ErrCategoryNotFound error = Error{
+	ErrCategoryNotFound error = errors.Error{
 		Message: "category not found",
 	}
-	ErrProductsIsEmpty error = Error{
-		Message: "list of products is empty",
-	}
-	ErrIncorrectPaginator error = Error{
+	ErrIncorrectPaginator error = errors.Error{
 		Message: "incorrect params of pagination",
 	}
-	ErrBadRequest error = Error{
+	ErrBadRequest error = errors.Error{
 		Message: "incorrect request",
 	}
-	ErrCanNotUnmarshal error = Error{
+	ErrCanNotUnmarshal error = errors.Error{
 		Message: "can't unmarshal",
 	}
-	ErrCanNotMarshal error = Error{
+	ErrCanNotMarshal error = errors.Error{
 		Message: "can't marshal",
 	}
-	ErrDBInternalError error = Error{
+	ErrDBInternalError error = errors.Error{
 		Message: "internal db error",
 	}
-	ErrDBFailedConnection error = Error{
+	ErrDBFailedConnection error = errors.Error{
 		Message: "can't connect to db",
 	}
-	ErrHashFunctionFailed error = Error{
-		Message: "can't get hash of data",
-	}
-	ErrCartNotFound error = Error{
+	ErrCartNotFound error = errors.Error{
 		Message: "user cart not found",
 	}
-	ErrProductNotFoundInCart error = Error{
+	ErrProductNotFoundInCart error = errors.Error{
 		Message: "product not found in cart",
 	}
-	ErrInvalidData error = Error{
+	ErrInvalidData error = errors.Error{
 		Message: "invalid data",
 	}
-	ErrRequireIdNotFound error = Error{
+	ErrRequireIdNotFound error = errors.Error{
 		Message: "require id not found",
 	}
-	ErrOpenFile error = Error{
+	ErrOpenFile error = errors.Error{
 		Message: "can't open file",
 	}
-	ErrNotFoundCsrfToken error = Error{
+	ErrNotFoundCsrfToken error = errors.Error{
 		Message: "csrf token not found",
 	}
-	ErrIncorrectCsrfToken error = Error{
-		Message: "incorrect csrf token",
-	}
-	ErrIncorrectJwtToken error = Error{
+	ErrIncorrectJwtToken error = errors.Error{
 		Message: "incorrect jwt token",
 	}
-	ErrS3InternalError error = Error{
+	ErrS3InternalError error = errors.Error{
 		Message: "can't upload file to S3",
 	}
-	ErrIncorrectAuthData error = Error{
+	ErrIncorrectAuthData error = errors.Error{
 		Message: "incorrect auth user data",
+	}
+	ErrNoWriteRights error = errors.Error{
+		Message: "no write rights",
+	}
+	ErrCanNotAddReview error = errors.Error{
+		Message: "user can not add review",
+	}
+	ErrIncorrectSearchQuery error = errors.Error{
+		Message: "incorrect search query",
+	}
+	ErrPromoCodeNotFound error = errors.Error{
+		Message: "promo code not found",
+	}
+	ErrProductNotInPromo error = errors.Error{
+		Message: "product does not participate in the promotion",
 	}
 )

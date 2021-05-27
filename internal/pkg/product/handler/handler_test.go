@@ -80,7 +80,7 @@ func TestProductHandler_GetProduct(t *testing.T) {
 		assert.Equal(t, rr.Code, http.StatusBadRequest, "incorrect http code")
 	})
 
-	t.Run("GetProduct_success", func(t *testing.T) {
+	t.Run("GetProduct_internal_error", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
@@ -110,18 +110,22 @@ func TestProductHandler_GetProduct(t *testing.T) {
 
 func TestProductHandler_GetListPreviewProducts(t *testing.T) {
 	paginator := models.PaginatorProducts{
-		PageNum:       2,
-		Count:         10,
-		SortKey:       "cost",
-		SortDirection: "ASC",
-		Category:      1,
+		PageNum: 2,
+		Count:   10,
+		SortOptions: models.SortOptions{
+			SortKey:       "cost",
+			SortDirection: "ASC",
+		},
+		Category: 1,
 	}
 	invalidPaginator := models.PaginatorProducts{
-		PageNum:       2,
-		Count:         10,
-		SortKey:       "fdf",
-		SortDirection: "df",
-		Category:      1,
+		PageNum: 2,
+		Count:   10,
+		SortOptions: models.SortOptions{
+			SortKey:       "fdf",
+			SortDirection: "df",
+		},
+		Category: 1,
 	}
 	rangeProduct := models.RangeProducts{
 		ListPreviewProducts: []*models.ViewProduct{
@@ -218,6 +222,129 @@ func TestProductHandler_GetListPreviewProducts(t *testing.T) {
 
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(productHandler.GetListPreviewProducts)
+		handler.ServeHTTP(rr, req)
+		assert.Equal(t, rr.Code, http.StatusInternalServerError, "incorrect http code")
+	})
+}
+
+func TestProductHandler_SearchListPreviewProducts(t *testing.T) {
+	searchQuery := models.SearchQuery{
+		QueryString: "search",
+		PageNum:     2,
+		Count:       10,
+		Category:    1,
+		Filter:      nil,
+		SortOptions: models.SortOptions{
+			SortKey:       "cost",
+			SortDirection: "ASC",
+		},
+	}
+	invalidSearchQuery := models.SearchQuery{
+		QueryString: "search",
+		PageNum:     2,
+		Count:       10,
+		Category:    1,
+		Filter:      nil,
+		SortOptions: models.SortOptions{
+			SortKey:       "fdf",
+			SortDirection: "df",
+		},
+	}
+	rangeProduct := models.RangeProducts{
+		ListPreviewProducts: []*models.ViewProduct{
+			&models.ViewProduct{
+				Id:    3,
+				Title: "test",
+				Price: models.ProductPrice{
+					Discount: 10,
+					BaseCost: 50,
+				},
+				Rating:       5,
+				PreviewImage: "fdfdf",
+			},
+		},
+		MaxCountPages: 3,
+	}
+
+	t.Run("SearchListPreviewProducts_success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		productUCase := mock.NewMockUseCase(ctrl)
+		productUCase.
+			EXPECT().
+			SearchRangeProducts(&searchQuery).
+			Return(&rangeProduct, nil)
+
+		productHandler := NewHandler(productUCase)
+
+		bytesPaginator, _ := json.Marshal(searchQuery)
+		ctx := context.WithValue(context.Background(), models.RequireIdKey, shortuuid.New())
+		req, _ := http.NewRequestWithContext(ctx, "POST", "/api/v1/product/search",
+			bytes.NewBuffer(bytesPaginator))
+
+		rr := httptest.NewRecorder()
+		handler := http.HandlerFunc(productHandler.SearchListPreviewProducts)
+		handler.ServeHTTP(rr, req)
+		assert.Equal(t, rr.Code, http.StatusOK, "incorrect http code")
+	})
+
+	t.Run("SearchListPreviewProducts_bad_body", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		productUCase := mock.NewMockUseCase(ctrl)
+
+		productHandler := NewHandler(productUCase)
+
+		ctx := context.WithValue(context.Background(), models.RequireIdKey, shortuuid.New())
+		req, _ := http.NewRequestWithContext(ctx, "POST", "/api/v1/product/search",
+			bytes.NewBuffer(nil))
+
+		rr := httptest.NewRecorder()
+		handler := http.HandlerFunc(productHandler.SearchListPreviewProducts)
+		handler.ServeHTTP(rr, req)
+		assert.Equal(t, rr.Code, http.StatusBadRequest, "incorrect http code")
+	})
+
+	t.Run("SearchListPreviewProducts_incorrect_body", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		productUCase := mock.NewMockUseCase(ctrl)
+
+		productHandler := NewHandler(productUCase)
+
+		bytesPaginator, _ := json.Marshal(invalidSearchQuery)
+		ctx := context.WithValue(context.Background(), models.RequireIdKey, shortuuid.New())
+		req, _ := http.NewRequestWithContext(ctx, "POST", "/api/v1/product/search",
+			bytes.NewBuffer(bytesPaginator))
+
+		rr := httptest.NewRecorder()
+		handler := http.HandlerFunc(productHandler.SearchListPreviewProducts)
+		handler.ServeHTTP(rr, req)
+		assert.Equal(t, rr.Code, http.StatusBadRequest, "incorrect http code")
+	})
+
+	t.Run("SearchListPreviewProducts_success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		productUCase := mock.NewMockUseCase(ctrl)
+		productUCase.
+			EXPECT().
+			SearchRangeProducts(&searchQuery).
+			Return(nil, errors.ErrInternalError)
+
+		productHandler := NewHandler(productUCase)
+
+		bytesPaginator, _ := json.Marshal(searchQuery)
+		ctx := context.WithValue(context.Background(), models.RequireIdKey, shortuuid.New())
+		req, _ := http.NewRequestWithContext(ctx, "POST", "/api/v1/product/search",
+			bytes.NewBuffer(bytesPaginator))
+
+		rr := httptest.NewRecorder()
+		handler := http.HandlerFunc(productHandler.SearchListPreviewProducts)
 		handler.ServeHTTP(rr, req)
 		assert.Equal(t, rr.Code, http.StatusInternalServerError, "incorrect http code")
 	})

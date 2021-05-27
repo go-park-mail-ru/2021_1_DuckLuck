@@ -1,10 +1,20 @@
 # Project gitignore
 configs/envs
+services_data/
+
+*.csv
+
+.DS_Store
+__pycache__/
+
+nflog
+silences
+
 .idea
 bin
 go.sum
-log/log.txt
-
+log
+.env
 # Binaries for programs and plugins
 *.exe
 *.exe~

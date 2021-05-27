@@ -1,0 +1,35 @@
+syntax="proto3";
+
+option go_package = "./;cart";
+import "google/protobuf/empty.proto";
+
+message ProductPosition {
+  uint64 Count = 1;
+}
+
+message ReqCartArticle {
+  ProductPosition Position = 1;
+  uint64 ProductId = 2;
+  uint64 UserId = 3;
+}
+
+message Cart {
+  map<uint64, ProductPosition> Products = 1;
+}
+
+message ReqProductIdentifier {
+  uint64 ProductId = 1;
+  uint64 UserId = 2;
+}
+
+message ReqUserId {
+  uint64 UserId = 1;
+}
+
+service CartService {
+  rpc AddProduct(ReqCartArticle) returns (google.protobuf.Empty) {}
+  rpc DeleteProduct(ReqProductIdentifier) returns (google.protobuf.Empty) {}
+  rpc ChangeProduct(ReqCartArticle) returns (google.protobuf.Empty) {}
+  rpc GetPreviewCart(ReqUserId) returns (Cart) {}
+  rpc DeleteCart(ReqUserId) returns (google.protobuf.Empty) {}
+}

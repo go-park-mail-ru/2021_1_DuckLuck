@@ -1,28 +1,33 @@
 package usecase
 
 import (
-	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/cart"
+	"context"
+
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/models"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/order"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/product"
+	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/promo_code"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/pkg/user"
 	"github.com/go-park-mail-ru/2021_1_DuckLuck/internal/server/errors"
+	proto "github.com/go-park-mail-ru/2021_1_DuckLuck/services/cart/proto/cart"
 )
 
 type OrderUseCase struct {
-	OrderRepo   order.Repository
-	CartRepo    cart.Repository
-	ProductRepo product.Repository
-	UserRepo    user.Repository
+	OrderRepo     order.Repository
+	CartClient    proto.CartServiceClient
+	ProductRepo   product.Repository
+	UserRepo      user.Repository
+	PromoCodeRepo promo_code.Repository
 }
 
-func NewUseCase(orderRepo order.Repository, cartRepo cart.Repository,
-	productRepo product.Repository, userRepo user.Repository) order.UseCase {
+func NewUseCase(orderRepo order.Repository, cartClient proto.CartServiceClient,
+	productRepo product.Repository, userRepo user.Repository, promoCodeRepo promo_code.Repository) order.UseCase {
 	return &OrderUseCase{
-		OrderRepo:   orderRepo,
-		CartRepo:    cartRepo,
-		ProductRepo: productRepo,
-		UserRepo:    userRepo,
+		OrderRepo:     orderRepo,
+		CartClient:    cartClient,
+		ProductRepo:   productRepo,
+		UserRepo:      userRepo,
+		PromoCodeRepo: promoCodeRepo,
 	}
 }
 
@@ -30,7 +35,13 @@ func (u *OrderUseCase) GetPreviewOrder(userId uint64,
 	previewCart *models.PreviewCart) (*models.PreviewOrder, error) {
 	// Get all info about product in cart
 	previewOrder := &models.PreviewOrder{}
-	previewOrder.Products = previewCart.Products
+	for _, item := range previewCart.Products {
+		previewOrder.Products = append(previewOrder.Products,
+			&models.PreviewOrderedProducts{
+				Id:           item.Id,
+				PreviewImage: item.PreviewImage,
+			})
+	}
 	previewOrder.Price = previewCart.Price
 
 	// Get info about user account for order
@@ -48,23 +59,77 @@ func (u *OrderUseCase) GetPreviewOrder(userId uint64,
 }
 
 func (u *OrderUseCase) AddCompletedOrder(order *models.Order, userId uint64,
-	previewCart *models.PreviewCart) (uint64, error) {
-	// Get all info about product in cart
+	previewCart *models.PreviewCart) (*models.OrderNumber, error) {
+	price := models.TotalPrice{}
+
+	if order.PromoCode == "" {
+		price = previewCart.Price
+	} else {
+		err := u.PromoCodeRepo.CheckPromo(order.PromoCode)
+		if err != nil {
+			return nil, errors.ErrPromoCodeNotFound
+		}
+
+		for _, product := range previewCart.Products {
+			promoPrice, err := u.PromoCodeRepo.GetDiscountPriceByPromo(product.Id, order.PromoCode)
+			if err != nil && err != errors.ErrProductNotInPromo {
+				return nil, errors.ErrProductNotFound
+			}
+			price.TotalBaseCost += promoPrice.BaseCost
+			price.TotalCost += promoPrice.TotalCost
+		}
+		price.TotalDiscount = price.TotalBaseCost - price.TotalCost
+	}
 	products := previewCart.Products
-	price := previewCart.Price
 
-	orderId, err := u.OrderRepo.AddOrder(order, userId, products, &price)
+	orderNumber, err := u.OrderRepo.AddOrder(order, userId, products, &price)
 	if err != nil {
-		return 0, errors.ErrInternalError
+		return nil, errors.ErrInternalError
 	}
 
-	if err = u.CartRepo.DeleteCart(userId); err != nil {
-		return 0, errors.ErrCartNotFound
+	if _, err = u.CartClient.DeleteCart(context.Background(),
+		&proto.ReqUserId{UserId: userId}); err != nil {
+		return nil, errors.ErrCartNotFound
 	}
 
-	return orderId, nil
+	return orderNumber, nil
 }
 
-func (u *OrderUseCase) GetOrders(userId uint64) ([]*models.Order, error) {
-	return u.OrderRepo.GetOrders(userId)
+func (u *OrderUseCase) GetRangeOrders(userId uint64, paginator *models.PaginatorOrders) (*models.RangeOrders, error) {
+	if paginator.PageNum < 1 || paginator.Count < 1 {
+		return nil, errors.ErrIncorrectPaginator
+	}
+
+	// Max count pages in catalog
+	countPages, err := u.OrderRepo.GetCountPages(userId, paginator.Count)
+	if err != nil {
+		return nil, errors.ErrIncorrectPaginator
+	}
+
+	// Keys for sort items in catalog
+	sortString, err := u.OrderRepo.CreateSortString(paginator.SortKey, paginator.SortDirection)
+	if err != nil {
+		return nil, errors.ErrIncorrectPaginator
+	}
+
+	// Get range of products
+	orders, err := u.OrderRepo.SelectRangeOrders(userId, sortString, paginator)
+	if err != nil {
+		return nil, errors.ErrIncorrectPaginator
+	}
+
+	// Get product for this order
+	for _, item := range orders {
+		products, err := u.OrderRepo.GetProductsInOrder(item.Id)
+		if err != nil {
+			return nil, errors.ErrInternalError
+		}
+
+		item.Products = products
+	}
+
+	return &models.RangeOrders{
+		ListPreviewOrders: orders,
+		MaxCountPages:     countPages,
+	}, nil
 }

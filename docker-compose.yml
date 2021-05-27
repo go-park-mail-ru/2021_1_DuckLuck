@@ -1,33 +1,176 @@
 version: '3'
 
 services:
-  postgres:
+  api-db:
+    image: duckluckmarket/api-db:${API_DB_TAG}
+    restart: unless-stopped
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    volumes:
+      - ./scripts/postgresql/init_api_db.sql:/docker-entrypoint-initdb.d/init_api_db.sql
+      - ./scripts/postgresql/categories.csv:/categories.csv
+      - ./scripts/postgresql/products.csv:/products.csv
+    networks:
+      - api-network
+  api-server-push-db:
+    image: redis
+    restart: unless-stopped
+    networks:
+      - api-network
+  auth-db:
     image: postgres
     restart: unless-stopped
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
     volumes:
-      - ./configs/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./scripts/postgresql/init_auth_db.sql:/docker-entrypoint-initdb.d/init_auth_db.sql
     networks:
-      - app-network
-  redis:
+      - auth-network
+  session-db:
     image: redis
     restart: unless-stopped
     networks:
-      - app-network
-  server:
+      - session-network
+  cart-db:
+    image: redis
+    restart: unless-stopped
+    networks:
+      - cart-network
+  api-server:
     depends_on:
-      - postgres
-    image: duckluckmarket/godeploy:${TAG}
-    container_name: server
+      - api-db
+    image: duckluckmarket/api-server:${API_SERVER_TAG}
+    container_name: api_server
     restart: unless-stopped
     ports:
       - "8080:8080"
     volumes:
       - ./log:/log
-      - ./configs/envs:/configs/envs
+      - ./configs/envs/api_server:/configs/envs/api_server
+      - ./configs/envs/network.env:/configs/envs/network.env
+    networks:
+      - api-network
+      - app-network
+  session-service:
+    depends_on:
+      - session-db
+    image: duckluckmarket/session-service:${SESSION_SERVICE_TAG}
+    container_name: session_service
+    restart: unless-stopped
+    volumes:
+      - ./log:/log
+      - ./configs/envs/session_service:/configs/envs/session_service
+      - ./configs/envs/network.env:/configs/envs/network.env
+    networks:
+      - session-network
+      - app-network
+  auth-service:
+    depends_on:
+      - auth-db
+    image: duckluckmarket/auth-service:${AUTH_SERVICE_TAG}
+    container_name: auth_service
+    restart: unless-stopped
+    volumes:
+      - ./log:/log
+      - ./configs/envs/auth_service:/configs/envs/auth_service
+      - ./configs/envs/network.env:/configs/envs/network.env
+    networks:
+      - auth-network
+      - app-network
+  cart-service:
+    depends_on:
+      - cart-db
+    image: duckluckmarket/cart-service:${CART_SERVICE_TAG}
+    container_name: cart_service
+    restart: unless-stopped
+    volumes:
+      - ./log:/log
+      - ./configs/envs/cart_service:/configs/envs/cart_service
+      - ./configs/envs/network.env:/configs/envs/network.env
+    networks:
+      - cart-network
+      - app-network
+  node-exporter:
+    image: prom/node-exporter
+    restart: always
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+    networks:
+      - app-network
+  prometheus:
+    depends_on:
+      - api-server
+      - node-exporter
+    image: prom/prometheus
+    privileged: true
+    restart: always
+    volumes:
+      - ./configs/prometheus/prometheus.yml:/configs/prometheus/prometheus.yml
+      - ./configs/prometheus/alerts.yml:/configs/prometheus/alerts.yml
+    command:
+      - '--config.file=/configs/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention=20d'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    networks:
+      - api-network
+      - app-network
+  grafana:
+    image: grafana/grafana:latest
+    depends_on:
+      - prometheus
+      - node-exporter
+    env_file:
+      - configs/envs/grafana/main.env
+    volumes:
+      - ./services_data/grafana/data:/var/lib/grafana
+      - ./services_data/grafana/datasources:/etc/grafana/datasources
+      - ./services_data/grafana/dashboards:/etc/grafana/dashboards
+    ports:
+      - "3030:3000"
+    networks:
+      - app-network
+  alertmanager:
+    image: prom/alertmanager
+    volumes:
+      - ./configs/alertmanager:/configs/alertmanager
+    command:
+      - '--config.file=/configs/alertmanager/alertmanager.yml'
+      - '--storage.path=/configs/alertmanager'
+    restart: always
+    networks:
+      - app-network
+  alertmanager-bot:
+    image: metalmatze/alertmanager-bot
+    depends_on:
+      - alertmanager
+    command:
+      - "--listen.addr=0.0.0.0:8080"
+    env_file:
+      - configs/envs/alertmanager_bot/main.env
+    volumes:
+      - ./configs/alertbot/default.tmpl:/configs/alertbot/default.tmpl
+    restart: always
     networks:
       - app-network
 networks:
+  api-network:
+    driver: bridge
+  auth-network:
+    driver: bridge
+  cart-network:
+    driver: bridge
+  session-network:
+    driver: bridge
   app-network:
     driver: bridge
+volumes:
+  grafana-storage:
+    external: true
