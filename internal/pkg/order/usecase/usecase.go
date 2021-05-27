@@ -72,7 +72,7 @@ func (u *OrderUseCase) AddCompletedOrder(order *models.Order, userId uint64,
 
 		for _, product := range previewCart.Products {
 			promoPrice, err := u.PromoCodeRepo.GetDiscountPriceByPromo(product.Id, order.PromoCode)
-			if err != nil {
+			if err != nil && err != errors.ErrProductNotInPromo {
 				return nil, errors.ErrProductNotFound
 			}
 			price.TotalBaseCost += promoPrice.BaseCost
