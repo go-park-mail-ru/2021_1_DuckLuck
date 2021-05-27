@@ -74,26 +74,38 @@ func (r *PostgresqlRepository) SelectRecommendationsByReviews(productId uint64, 
 	[]*models.RecommendationProduct, error) {
 	rows, err := r.db.Query(
 		"WITH current_category AS ( "+
-			"    SELECT id_category "+
-			"    FROM products "+
-			"    WHERE id = $1 "+
-			" ) "+
+			"	SELECT min(categories.left_node) AS left, max(categories.right_node) AS right "+
+			"	FROM categories, ( "+
+			"		SELECT c2.left_node, c2.right_node "+
+			"		FROM products "+
+			"		JOIN categories c2 ON (products.id_category = c2.id AND products.id = $1) "+
+			"	) AS current "+
+			"	WHERE (current.right_node < categories.right_node " +
+			"	AND current.left_node > categories.left_node AND categories.level > 0) "+
+			") "+
 			"SELECT p.id, p.title, p.base_cost, p.total_cost, p.discount, p.images[1] "+
 			"FROM products p "+
 			"JOIN ( "+
-			"	 SELECT DISTINCT r.product_id "+
-			"	 FROM ordered_products r "+
-			"	 JOIN ( "+
-			"		 SELECT order_id "+
-			"		 FROM ordered_products "+
-			"        WHERE product_id = $1 "+
-			"    ) AS r2 ON (r.order_id = r2.order_id AND r.product_id <> $1) "+
-			"    UNION "+
-			"    SELECT p.id "+
-			"    FROM products p, current_category "+
-			"    WHERE (p.id_category = current_category.id_category AND p.id <> $1) "+
-			"    LIMIT $2 "+
-			") AS orders ON orders.product_id = p.id",
+			"	(SELECT r.product_id, count(*) AS counts, 0 AS diff "+
+			"	FROM ordered_products r "+
+			"	JOIN ( "+
+			"		SELECT order_id "+
+			"		FROM ordered_products "+
+			"		WHERE product_id = $1 "+
+			"	) AS r2 ON (r.order_id = r2.order_id AND r.product_id <> $1) "+
+			"	GROUP BY r.product_id "+
+			"	LIMIT $2) "+
+			"	UNION "+
+			"	(SELECT pr.id, 0, (c.right_node - c.left_node) "+
+			"	FROM current_category, products pr "+
+			"	JOIN categories c ON pr.id_category = c.id "+
+			"	WHERE (c.left_node > current_category.left AND "+
+			"	c.right_node < current_category.right AND pr.id <> $1) "+
+			"	LIMIT $2) "+
+			") AS orders ON orders.product_id = p.id " +
+			"GROUP BY p.id, counts, diff "+
+			"ORDER BY counts DESC, diff "+
+			"LIMIT $2 ",
 		productId,
 		count,
 	)
