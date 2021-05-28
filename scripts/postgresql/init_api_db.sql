@@ -93,9 +93,8 @@ CREATE INDEX products_fts ON products USING GIN (fts);
 DROP FUNCTION IF EXISTS create_fts CASCADE;
 CREATE OR REPLACE FUNCTION create_fts() RETURNS TRIGGER AS $$
 BEGIN
-    NEW.fts = setweight(to_tsvector('ru', NEW.title), 'A')
-        || setweight(to_tsvector('ru', NEW.description), 'B');
-    RETURN NEW;
+    NEW.fts = setweight(to_tsvector('ru', NEW.title), 'A');
+RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
